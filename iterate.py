@@ -9,9 +9,6 @@ import matplotlib.pyplot as plt
 import math
 from matplotlib import cm
 
-
-# This is a pointless CHANGE!!!
-
 base_attacker_properties = {
     'multi_rate': True,
     'rates': (0.01,),
