@@ -32,7 +32,8 @@ base_defender_properties = {
 example_tournament_properties = {
     'number_of_rounds': 5,
     'attacker_threshold': 1,
-    'defender_threshold': 1
+    'defender_threshold': 1,
+    'selection_ratio': 1.0
 }
 
 example_game_properties = {

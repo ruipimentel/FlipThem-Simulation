@@ -5,19 +5,13 @@ import time
 
 from game import Game
 from enum import Enum
-from random import randint
-
-
-class Selection(Enum):
-    TOURNAMENT_SELECTION = 1
-    SELECT_ALL = 2
 
 
 example_tournament_properties = {
     'number_of_rounds': 1,
     'attacker_threshold': 1,
     'defender_threshold': 1,
-    'selection': Selection.SELECT_ALL
+    'selection_ratio': 0.5
 }
 
 
@@ -48,62 +42,56 @@ class Tournament(object):
         self.mean_defender_results = {}
         self.mean_attacker_results = {}
 
-        if tournament_properties.get('selection') is None:
-            tournament_properties['selection'] = Selection.SELECT_ALL
-
-    def play_tournament(self):
 
         for attacker in self.attacker_strategies:
             self.attacker_results[attacker] = {}
             self.mean_attacker_results[attacker] = {}
 
-            for defender in self.defender_strategies:
-                self.attacker_results[attacker][defender] = []
-
         for defender in self.defender_strategies:
-
-            # Select the strategies that will play each other
-            defender_vs_attacker_set = set()
-
-            if self.tournament_properties.get('selection') == Selection.TOURNAMENT_SELECTION:
-                if len(self.attacker_strategies) < 10:
-                    raise Exception("You have less than 10 attacker strategies. Do not use Tournament Selection")
-
-                number_of_matches = len(self.attacker_strategies) // 5
-
-                while len(defender_vs_attacker_set) < number_of_matches:
-                    defender_vs_attacker_set.add(self.attacker_strategies[randint(0, len(self.attacker_strategies)-1)])
-
-            else:
-                defender_vs_attacker_set = set(self.attacker_strategies)
-
-            defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
             self.defender_results[defender] = {}
             self.mean_defender_results[defender] = {}
-            t = time.time()
-            for attacker in defender_vs_attacker_set:
+
+    def play_tournament(self):
+
+        total_games = len(self.attacker_strategies) * len(self.defender_strategies)
+        games_to_play = total_games * self.tournament_properties['selection_ratio']
+
+        for match in range(0, int(games_to_play)):
+
+            correct_choice = False
+            while not correct_choice:
+                defender = np.random.choice(self.defender_strategies)
+                defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
+
+                attacker = np.random.choice(self.attacker_strategies)
                 attacker.get_player_properties()['threshold'] = self.tournament_properties['attacker_threshold']
-                self.defender_results[defender][attacker] = []
-                t = time.time()
-                for i in range(0, self.tournament_properties['number_of_rounds']):
 
-                    g = Game((defender, attacker), self.system, self.game_properties)
+                if self.defender_results.get(defender).get(attacker) is None:
+                    self.defender_results[defender][attacker] = []
+                    self.attacker_results[attacker][defender] = []
+                    correct_choice = True
 
-                    g.play()
-                    self.defender_results[defender][attacker].append((self.system.get_system_reward(defender),
-                                                                      self.system.get_system_reward(attacker)))
+            for i in range(0, self.tournament_properties['number_of_rounds']):
+                g = Game((defender, attacker), self.system, self.game_properties)
 
-                    self.attacker_results[attacker][defender].append((self.system.get_system_reward(attacker),
-                                                                      self.system.get_system_reward(defender)))
-                    g.reset()
-                    self.system = System(self.system.get_number_of_servers())
+                g.play()
+                self.defender_results[defender][attacker].append((self.system.get_system_reward(defender),
+                                                                  self.system.get_system_reward(attacker)))
 
-                # Need to calculate the mean of the results for each playoff
-                self.mean_defender_results[defender][attacker] = (np.mean([x[0] for x in self.defender_results[defender][attacker]]),
-                                                         np.mean([x[1] for x in self.defender_results[defender][attacker]]))
+                self.attacker_results[attacker][defender].append((self.system.get_system_reward(attacker),
+                                                                  self.system.get_system_reward(defender)))
+                g.reset()
+                self.system = System(self.system.get_number_of_servers())
 
-                self.mean_attacker_results[attacker][defender] = (np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
-                                                                  np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
+            # Need to calculate the mean of the results for each playoff
+            self.mean_defender_results[defender][attacker] = (
+            np.mean([x[0] for x in self.defender_results[defender][attacker]]),
+            np.mean([x[1] for x in self.defender_results[defender][attacker]]))
+
+            self.mean_attacker_results[attacker][defender] = (
+            np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
+            np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
+
 
     def get_mean_defense(self):
         mean_defense = {}
