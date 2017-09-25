@@ -1,4 +1,4 @@
-from tournament2 import Tournament
+from tournament import Tournament
 from system import System
 from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.exponential import Exponential
@@ -22,11 +22,9 @@ example_tournament_properties = {
     'attacker_threshold': 3,
     'defender_threshold': 1,
 }
-
 example_game_properties = {
     'time_limit': 100.0
 }
-
 # TODO still don't actually use this
 example_ga_properties = {
     'mutation_rate': 0.2,
@@ -373,7 +371,7 @@ tournament_properties = {
     'number_of_rounds': 1,
     'attacker_threshold': 1,
     'defender_threshold': 1,
-    'selection_ratio': 0.7
+    'selection_ratio': 0.5
 }
 
 game_properties = {
@@ -407,28 +405,28 @@ defender_properties = {'move_costs': defender_ga_properties['move_costs']}
 single_attacker = (Player("Attacker ", player_properties=copy(attacker_properties), strategies=(Periodic(0.055), )),)
 single_defender = (Player("Defender ", player_properties=copy(defender_properties), strategies=(Periodic(0.166), )),)
 
-ga = GeneticAlgorithm(defenders=defender_ga_properties,
-                      attackers=attacker_ga_properties,
-                      system=System(1),
-                      ga_properties=ga_properties,
-                      tournament_properties=tournament_properties,
-                      game_properties=game_properties)
-ga.start(50)
-ga.plot()
+# ga = GeneticAlgorithm(defenders=defender_ga_properties,
+#                       attackers=attacker_ga_properties,
+#                       system=System(1),
+#                       ga_properties=ga_properties,
+#                       tournament_properties=tournament_properties,
+#                       game_properties=game_properties)
+# ga.start(1000)
+# ga.plot()
 
-# for i in range(0, 30):
-#
-#     ga = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
-#                           tournament_properties, game_properties)
-#
-#     ga.start(500)
-#
-#     ga.write_to_file(i)
+for i in range(0, 30):
+
+    ga = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
+                          tournament_properties, game_properties)
+
+    ga.start(500)
+
+    ga.write_to_file(i)
 # # #
-# #
+# # #
 # ga = GeneticAlgorithm(ga_properties=ga_properties)
-# ga.read_from_file(11)
+# ga.read_from_file()
 # ga.plot()
 
 
-# plot_universes(ga_properties['file_location'], 30)
+plot_universes(ga_properties['file_location'], 30)
