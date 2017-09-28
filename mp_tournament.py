@@ -2,9 +2,9 @@ from game import Game
 from system import System
 import numpy as np
 import time
+import multiprocessing
 
 from game import Game
-from enum import Enum
 
 
 example_tournament_properties = {
@@ -51,47 +51,58 @@ class Tournament(object):
             self.defender_results[defender] = {}
             self.mean_defender_results[defender] = {}
 
+
+    def play_games(self, players):
+        defender = players[0]
+        defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
+        attacker = players[1]
+        attacker.get_player_properties()['threshold'] = self.tournament_properties['attacker_threshold']
+
+        if self.defender_results.get(defender).get(attacker) is None:
+            self.defender_results[defender][attacker] = []
+            self.attacker_results[attacker][defender] = []
+
+        for i in range(0, self.tournament_properties['number_of_rounds']):
+            g = Game((defender, attacker), self.system, self.game_properties)
+
+            g.play()
+            self.defender_results[defender][attacker].append((self.system.get_system_reward(defender),
+                                                              self.system.get_system_reward(attacker)))
+
+            self.attacker_results[attacker][defender].append((self.system.get_system_reward(attacker),
+                                                              self.system.get_system_reward(defender)))
+            g.reset()
+            self.system = System(self.system.get_number_of_servers())
+
+            # print("here")
+            # print(self.defender_results[defender][attacker])
+
+        # Need to calculate the mean of the results for each playoff
+        self.mean_defender_results[defender][attacker] = (
+            np.mean([x[0] for x in self.defender_results[defender][attacker]]),
+            np.mean([x[1] for x in self.defender_results[defender][attacker]]))
+
+        self.mean_attacker_results[attacker][defender] = (
+            np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
+            np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
+
+        print("MEAN: ", self.mean_defender_results[defender])
+        print("this")
+
+
     def play_tournament(self):
 
         total_games = len(self.attacker_strategies) * len(self.defender_strategies)
         games_to_play = total_games * self.tournament_properties['selection_ratio']
 
-        for match in range(0, int(games_to_play)):
+        game_set = set()
 
-            correct_choice = False
-            while not correct_choice:
-                defender = np.random.choice(self.defender_strategies)
-                defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
+        while len(game_set) < games_to_play:
 
-                attacker = np.random.choice(self.attacker_strategies)
-                attacker.get_player_properties()['threshold'] = self.tournament_properties['attacker_threshold']
+            game_set.add((np.random.choice(self.defender_strategies), np.random.choice(self.attacker_strategies)))
 
-                if self.defender_results.get(defender).get(attacker) is None:
-                    self.defender_results[defender][attacker] = []
-                    self.attacker_results[attacker][defender] = []
-                    correct_choice = True
-
-            for i in range(0, self.tournament_properties['number_of_rounds']):
-                g = Game((defender, attacker), self.system, self.game_properties)
-
-                g.play()
-                self.defender_results[defender][attacker].append((self.system.get_system_reward(defender),
-                                                                  self.system.get_system_reward(attacker)))
-
-                self.attacker_results[attacker][defender].append((self.system.get_system_reward(attacker),
-                                                                  self.system.get_system_reward(defender)))
-                g.reset()
-                self.system = System(self.system.get_number_of_servers())
-
-            # Need to calculate the mean of the results for each playoff
-            self.mean_defender_results[defender][attacker] = (
-            np.mean([x[0] for x in self.defender_results[defender][attacker]]),
-            np.mean([x[1] for x in self.defender_results[defender][attacker]]))
-
-            self.mean_attacker_results[attacker][defender] = (
-            np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
-            np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
-
+        pool = multiprocessing.Pool()
+        pool.map(self.play_games, game_set)
 
     def get_mean_defense(self):
         mean_defense = {}

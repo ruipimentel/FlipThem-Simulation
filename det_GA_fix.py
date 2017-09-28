@@ -1,5 +1,4 @@
-from tournament import Tournament
-from system import System
+from det_tournament import Tournament
 from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.exponential import Exponential
 from strategies.player import Player
@@ -32,13 +31,14 @@ example_ga_properties = {
     'file_location': 'data/'
 }
 
-# What about instead of players updating their populations "simultaneously", the defender finds the best response
-# to the current attacker population, then the attacker responds to that defenders population
-# So on and so forth.
+
+def defender_equilibrium(costs):
+    return costs[1]/(costs[0] + costs[1])**2
+
+def attacker_equilibrium(costs):
+    return costs[0]/(costs[0] + costs[1])**2
 
 
-# Can i speed this up by the changing population only playing the top performing strategies from the other population
-# Perhaps put some kind of weighting in there??
 
 
 class GeneticAlgorithm:
@@ -46,12 +46,8 @@ class GeneticAlgorithm:
     def __init__(self,
                  defenders=None,
                  attackers=None,
-                 system=System(1),
                  ga_properties=example_ga_properties,
-                 tournament_properties=example_tournament_properties,
-                 game_properties=example_game_properties):
-
-        self.system = system
+                 tournament_properties=example_tournament_properties):
 
         # Initiate players
         if defenders is None:
@@ -107,7 +103,7 @@ class GeneticAlgorithm:
             strategy_list = []
             number_of_strategies = len(player_ga_properties.get('strategy_classes'))
 
-            for server in range(0, self.system.get_number_of_servers()):
+            for server in range(0, 1):
                 strategy_list.append(player_ga_properties.get('strategy_classes')
                                      [np.random.randint(0, number_of_strategies)](np.random.uniform(0, upper_bound)))
 
@@ -135,14 +131,7 @@ class GeneticAlgorithm:
             for d in range(0, self.single_population_update):
                 # Here the defender updates his rates
 
-                # Play tournament
-                if i > 0:
-                    self.system = System(self.system.get_number_of_servers())
-                    # If we have already done one round, we take the average of the attackers
-                    # strategies in order to speed up the process
-
                 t = Tournament(defender_strategies=self.defenders, attacker_strategies=self.fixed_attacker,
-                               system=self.system, game_properties=example_game_properties,
                                tournament_properties=self.tournament_properties)
 
                 t.play_tournament()
@@ -206,12 +195,7 @@ class GeneticAlgorithm:
             for a in range(0, self.single_population_update):
                 # Here the attacker updates his rates
 
-                # Play tournament
-                if i > 0:
-                    self.system = System(self.system.get_number_of_servers())
-
                 t = Tournament(defender_strategies=self.fixed_defender, attacker_strategies=self.attackers,
-                               system=self.system, game_properties=example_game_properties,
                                tournament_properties=self.tournament_properties)
 
                 t.play_tournament()
@@ -300,11 +284,11 @@ class GeneticAlgorithm:
 
         # Mutation 1
         mut = np.random.randint(self.att_keep_number, len(sorted_results))
-        strat = np.random.randint(0, self.system.get_number_of_servers())
+        strat = np.random.randint(0, 1)
         sorted_results[mut][0].update_strategy_rate(strat, np.random.uniform(0, 3))
         # # Mutation 2
         mut = np.random.randint(self.att_keep_number, len(sorted_results))
-        strat = np.random.randint(0, self.system.get_number_of_servers())
+        strat = np.random.randint(0, 1)
         sorted_results[mut][0].update_strategy_rate(strat, np.random.uniform(0, 3))
 
 
@@ -339,8 +323,15 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Defender Rate')
         plt.title('Defender\'s Average Rate Over Time')
+        d = defender_equilibrium((self.defenders[0].get_player_properties()['move_costs'][0],
+                             self.attackers[0].get_player_properties()['move_costs'][0]))
+
+        l = 1
         for s in range(0, len(self.def_strategy_population_average_average)):
-            axs1.plot(self.def_strategy_population_average_average[s], 'b')
+            axs1.plot(self.def_strategy_population_average[s], 'b')
+            l = len(self.def_strategy_population_average_average[s])
+
+        axs1.plot([d]*l)
 
         axs2 = fig.add_subplot(222)
         plt.xlabel('Time (iterations)')
@@ -355,8 +346,14 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Attacker Rate')
         plt.title('Attacker\'s Rate Over Time')
-        for s in range(0, len(self.att_strategy_population_average_average)):
-            axs3.plot(self.att_strategy_population_average_average[s], 'r')
+
+        a = attacker_equilibrium((self.defenders[0].get_player_properties()['move_costs'][0],
+                                  self.attackers[0].get_player_properties()['move_costs'][0]))
+
+        for s in range(0, len(self.att_strategy_population_average)):
+            axs3.plot(self.att_strategy_population_average[s], 'r')
+
+        axs3.plot([a] * l)
 
         axs4 = fig.add_subplot(224)
         plt.xlabel('Time (iterations)')
@@ -507,7 +504,7 @@ ga_properties = {
 defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
-    'strategy_classes': (Periodic,),
+    'strategy_classes': (Exponential,),
     'move_costs': (1.0, ),
     'threshold': 1
 }
@@ -515,8 +512,8 @@ defender_ga_properties = {
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
-    'strategy_classes': (Periodic,),
-    'move_costs': (3.0, ),
+    'strategy_classes': (Exponential,),
+    'move_costs': (8.0, ),
     'threshold': 1
 }
 
@@ -532,12 +529,10 @@ single_defender = (Player("Defender ", player_properties=copy(defender_propertie
 
 ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
-                      system=System(1),
                       ga_properties=ga_properties,
-                      tournament_properties=tournament_properties,
-                      game_properties=game_properties)
-# ga.start(2000)
-# ga.plot()
+                      tournament_properties=tournament_properties)
+ga.start(5)
+ga.plot()
 #
 # for i in range(0, 30):
 #
@@ -549,9 +544,9 @@ ga = GeneticAlgorithm(defenders=defender_ga_properties,
 #     ga.write_to_file(i)
 # # # #
 # #
-ga = GeneticAlgorithm(ga_properties=ga_properties)
-ga.read_from_file(920)
-ga.plot()
+# ga = GeneticAlgorithm(ga_properties=ga_properties)
+# ga.read_from_file(920)
+# ga.plot()
 
 #
 # plot_universes(ga_properties['file_location'], 30)

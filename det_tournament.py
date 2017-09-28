@@ -14,6 +14,21 @@ example_tournament_properties = {
     'selection_ratio': 0.5
 }
 
+def defenders_reward(rates, costs):
+    gain = 1 - rates[1]/(rates[1] + rates[0])
+
+    cost = rates[0] * costs[0]
+
+    return gain - cost
+
+
+def attackers_reward(rates, costs):
+    gain = rates[1] / (rates[1] + rates[0])
+
+    cost = rates[1] * costs[1]
+
+    return gain - cost
+
 
 class Tournament(object):
     """
@@ -24,7 +39,7 @@ class Tournament(object):
     - Best way to record all results. (Writing to text files, retrieving these files and using Pandas to analyse the data)
     """
 
-    def __init__(self, defender_strategies, attacker_strategies, system,  game_properties, tournament_properties):
+    def __init__(self, defender_strategies, attacker_strategies, tournament_properties):
         """
         :param player_strategies: a tuple of players with different (or the same strategies)
         :param game_properties: game properties to be played throughout the tournament
@@ -34,9 +49,7 @@ class Tournament(object):
         #
         self.attacker_strategies = attacker_strategies
         self.defender_strategies = defender_strategies
-        self.game_properties = game_properties
         self.tournament_properties = tournament_properties
-        self.system = system
         self.defender_results = {}
         self.attacker_results = {}
         self.mean_defender_results = {}
@@ -61,10 +74,7 @@ class Tournament(object):
             correct_choice = False
             while not correct_choice:
                 defender = np.random.choice(self.defender_strategies)
-                defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
-
                 attacker = np.random.choice(self.attacker_strategies)
-                attacker.get_player_properties()['threshold'] = self.tournament_properties['attacker_threshold']
 
                 if self.defender_results.get(defender).get(attacker) is None:
                     self.defender_results[defender][attacker] = []
@@ -72,17 +82,21 @@ class Tournament(object):
                     correct_choice = True
 
             for i in range(0, self.tournament_properties['number_of_rounds']):
-                g = Game((defender, attacker), self.system, self.game_properties)
+                defender_rate = defender.get_strategies()[0].get_rate()
+                attacker_rate = attacker.get_strategies()[0].get_rate()
 
-                g.play()
-                self.defender_results[defender][attacker].append((self.system.get_system_reward(defender),
-                                                                  self.system.get_system_reward(attacker)))
+                defender_cost = defender.get_player_properties()['move_costs'][0]
+                attacker_cost = attacker.get_player_properties()['move_costs'][0]
 
-                self.attacker_results[attacker][defender].append((self.system.get_system_reward(attacker),
-                                                                  self.system.get_system_reward(defender)))
-                g.reset()
-                self.system = System(self.system.get_number_of_servers())
+                self.defender_results[defender][attacker].append((defenders_reward((defender_rate, attacker_rate),
+                                                                                   (defender_cost, attacker_cost)),
+                                                                  attackers_reward((defender_rate, attacker_rate),
+                                                                                   (defender_cost, attacker_cost))))
 
+                self.attacker_results[attacker][defender].append((attackers_reward((defender_rate, attacker_rate),
+                                                                                   (defender_cost, attacker_cost)),
+                                                                  defenders_reward((defender_rate, attacker_rate),
+                                                                                   (defender_cost, attacker_cost))))
             # Need to calculate the mean of the results for each playoff
             self.mean_defender_results[defender][attacker] = (
             np.mean([x[0] for x in self.defender_results[defender][attacker]]),
