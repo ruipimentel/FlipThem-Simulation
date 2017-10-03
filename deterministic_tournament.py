@@ -1,10 +1,5 @@
-from game import Game
-from system import System
 import numpy as np
-import time
-
-from game import Game
-from enum import Enum
+from reward_functions.exponential import reward
 
 
 example_tournament_properties = {
@@ -14,23 +9,7 @@ example_tournament_properties = {
     'selection_ratio': 0.5
 }
 
-def defenders_reward(rates, costs):
-    gain = 1 - rates[1]/(rates[1] + rates[0])
-
-    cost = rates[0] * costs[0]
-
-    return gain - cost
-
-
-def attackers_reward(rates, costs):
-    gain = rates[1] / (rates[1] + rates[0])
-
-    cost = rates[1] * costs[1]
-
-    return gain - cost
-
-
-class Tournament(object):
+class DeterministicTournament(object):
     """
     Takes in any number of strategies, puts each one in the defending position and plays them against the whole population
     of attackers in order to see which is the strongest.
@@ -82,21 +61,21 @@ class Tournament(object):
                     correct_choice = True
 
             for i in range(0, self.tournament_properties['number_of_rounds']):
-                defender_rate = defender.get_strategies()[0].get_rate()
-                attacker_rate = attacker.get_strategies()[0].get_rate()
 
-                defender_cost = defender.get_player_properties()['move_costs'][0]
-                attacker_cost = attacker.get_player_properties()['move_costs'][0]
+                defender_rates = [s.get_rate() for s in defender.get_strategies()]
+                attacker_rates = [s.get_rate() for s in attacker.get_strategies()]
 
-                self.defender_results[defender][attacker].append((defenders_reward((defender_rate, attacker_rate),
-                                                                                   (defender_cost, attacker_cost)),
-                                                                  attackers_reward((defender_rate, attacker_rate),
-                                                                                   (defender_cost, attacker_cost))))
+                defender_costs = defender.get_player_properties()['move_costs']
+                attacker_costs = attacker.get_player_properties()['move_costs']
 
-                self.attacker_results[attacker][defender].append((attackers_reward((defender_rate, attacker_rate),
-                                                                                   (defender_cost, attacker_cost)),
-                                                                  defenders_reward((defender_rate, attacker_rate),
-                                                                                   (defender_cost, attacker_cost))))
+                threshold = self.tournament_properties['attacker_threshold']
+                defenders_reward, attackers_reward = reward(threshold, defender_rates,
+                                                            attacker_rates, defender_costs, attacker_costs)
+
+                self.defender_results[defender][attacker].append((defenders_reward, attackers_reward))
+
+                self.attacker_results[attacker][defender].append((attackers_reward, defenders_reward))
+
             # Need to calculate the mean of the results for each playoff
             self.mean_defender_results[defender][attacker] = (
             np.mean([x[0] for x in self.defender_results[defender][attacker]]),

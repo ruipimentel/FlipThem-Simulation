@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import math
 from pathlib import Path
 import os
-
+from GA import GA
 
 #
 # TODO: Better Ranking system
