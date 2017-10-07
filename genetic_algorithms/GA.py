@@ -45,7 +45,7 @@ class GA:
 
         # Initiate players
         if defenders is None:
-            print("Blank GA created (for now)")
+            print("Blank genetic_algorithms created (for now)")
         else:
             if type(defenders) is dict:
                 self.defender_ga_properties = defenders

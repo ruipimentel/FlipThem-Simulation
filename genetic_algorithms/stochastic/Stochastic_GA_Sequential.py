@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from pathlib import Path
-from GA import GA
+from genetic_algorithms import GA
 
 #
 # TODO: Better Ranking system
@@ -232,17 +232,17 @@ ga.plot()
 #
 # for i in range(0, 30):
 #
-#     ga = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
+#     genetic_algorithms = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
 #                           tournament_properties, game_properties)
 #
-#     ga.start(500)
+#     genetic_algorithms.start(500)
 #
-#     ga.write_to_file(i)
+#     genetic_algorithms.write_to_file(i)
 # # # #
 # # #
-# ga = GeneticAlgorithm(ga_properties=ga_properties)
-# ga.read_from_file()
-# ga.plot()
+# genetic_algorithms = GeneticAlgorithm(ga_properties=ga_properties)
+# genetic_algorithms.read_from_file()
+# genetic_algorithms.plot()
 #
 #
 # plot_universes(ga_properties['file_location'], 30)

@@ -17,7 +17,7 @@ def reward(threshold, defender_rates, attacker_rates, defender_costs, attacker_c
         for l in subsets:
             # creating the product
             p = 1
-            for i in range(0,n):
+            for i in range(0, n):
                 p *= 1/(defender_rates[i] + attacker_rates[i])
 
                 if i in l:
@@ -38,6 +38,27 @@ def reward(threshold, defender_rates, attacker_rates, defender_costs, attacker_c
         return defender_reward, attacker_reward
 
 
+def full_threshold_equilibrium(n, defender_costs, attacker_costs):
+
+    defender_equilibrium = []
+    attacker_equilibrium = []
+
+    for i in range(0, n):
+        outer = 1/((attacker_costs[i] + defender_costs[i]))**2
+        prod = 1
+        for j in range(0, n):
+            if j != i:
+                prod *= (defender_costs[j]/(attacker_costs[j] + defender_costs[j]))
+
+        total = outer * prod
+
+        defender_equilibrium.append(attacker_costs[i] * total)
+        attacker_equilibrium.append(defender_costs[i] * total)
+
+    return defender_equilibrium, attacker_equilibrium
+
+
+
 def equilibrium(threshold, defender_costs, attacker_costs):
 
     # Iterate through each
@@ -47,52 +68,86 @@ def equilibrium(threshold, defender_costs, attacker_costs):
     else:
         def_equilibrium = []
         att_equilibrium = []
+
         for i in range(0, n):
+            # print("Resource: ", i)
+            # print("----------------")
             resources = list(range(0, n))
             resources.remove(i)
+            #
+            # print("Resources: ", resources)
 
             subsets = []
-            for t in range(threshold, n + 1):
+            for t in range(threshold-1, n):
                 subsets.append(list(itertools.combinations(resources, t)))
 
+            # print(subsets)
             subsets = tools.flatten(subsets)
-            subsets.append([])
+            # print("Subsets:", subsets)
+            # subsets.append([])
             s = 0
             for l in subsets:
                 # creating the product
                 p = 1
                 for j in range(0, n):
-                    p *= 1 / (defender_costs[j] + attacker_costs[j])
-
                     if j == i:
-                        pass
+                        continue
                     if j in l:
-                        p *= defender_costs[i]
+                        p *= defender_costs[j]/(defender_costs[j] + attacker_costs[j])
                     else:
-                        p *= attacker_costs[i]
+                        p *= attacker_costs[j]/(defender_costs[j] + attacker_costs[j])
 
                 s += p
 
-            defender_point = s * (attacker_costs[i] / (attacker_costs[i] + defender_costs[i]))
-            attacker_point = s * (defender_costs[i] / (attacker_costs[i] + defender_costs[i]))
+            s /= ((attacker_costs[i] + defender_costs[i])**2)
+            defender_point = s * attacker_costs[i]
+            attacker_point = s * defender_costs[i]
 
             def_equilibrium.append(defender_point)
             att_equilibrium.append(attacker_point)
 
-        print(def_equilibrium, att_equilibrium)
-
         return def_equilibrium, att_equilibrium
 
-# #
-# d_reward, a_reward = reward(2, [0.2 ,0.8],[0.5, 0.1], [0.3, 0.2], [0.4, 0.3])
-# #
-# # def_equilibrium, att_equilibrium = equilibrium(2, [0.3, 0.2, 0.3], [0.04, 0.03, 0.03])
-#
-# def_equilibrium, att_equilibrium = equilibrium(1, [0.3], [0.04])
+
+def t_defender_equilibrium(defender_cost, attacker_cost):
+    return attacker_cost[0] / (defender_cost[0] + attacker_cost[0]) ** 2
 
 
-# def_equilibrium, att_equilibrium = equilibrium(2, [0.3, 0.3], [0.04, 0.03])
-# print(d_reward, a_reward)
+def t_attacker_equilibrium(defender_cost, attacker_cost):
+    return defender_cost[0] / (defender_cost[0] + attacker_cost[0]) ** 2
+
+
+# #
 #
-# print('---------')
-# print(def_equilibrium, att_equilibrium)
+# # #
+# def_equilibrium, att_equilibrium = equilibrium(2, (0.02, 0.01), (0.03, 0.01))
+# #
+# d_reward, a_reward = reward(2, def_equilibrium, att_equilibrium, (0.02, 0.01), (0.03, 0.01))
+#
+# defender_costs = [0.2, ]
+# attacker_costs =  [0.3, ]
+#
+# print("1 RESOURCE")
+#
+# print(equilibrium(1, defender_costs, attacker_costs))
+# print("-----------")
+# print(t_defender_equilibrium(defender_costs[0], attacker_costs[0]), t_attacker_equilibrium(defender_costs[0], attacker_costs[0]))
+# print("-----------")
+# print(full_threshold_equilibrium(1, defender_costs, attacker_costs))
+# print("=======================")
+#
+#
+# defender_costs = [0.2, 0.3]
+# attacker_costs = [0.3, 0.1]
+#
+#
+# print("2 RESOURCE")
+#
+# print(equilibrium(2, defender_costs, attacker_costs))
+# print("-----------")
+# print(full_threshold_equilibrium(2, defender_costs, attacker_costs))
+# print("=======================")
+#
+
+
+
