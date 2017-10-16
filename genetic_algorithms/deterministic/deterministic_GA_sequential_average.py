@@ -280,7 +280,7 @@ class GeneticAlgorithm(GA):
 
 tournament_properties = {
     'number_of_rounds': 1,
-    'attacker_threshold': 1,
+    'attacker_threshold': 2,
     'defender_threshold': 1,
     'selection_ratio': 1.0
 }
@@ -296,14 +296,14 @@ defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.2,),
+    'move_costs': (0.15, 0.04, 0.07),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.1,),
+    'move_costs': (0.09, 0.1, 0.11),
 }
 
 attacker_properties = {'move_costs': attacker_ga_properties['move_costs'],
@@ -315,10 +315,9 @@ defender_properties = {'move_costs': defender_ga_properties['move_costs'],
 
 ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
-                      system=System(1),
                       ga_properties=ga_properties,
                       tournament_properties=tournament_properties)
-ga.start(100)
+ga.start(2)
 ga.plot()
 #1
 # for i in range(0, 30):

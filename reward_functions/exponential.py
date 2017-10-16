@@ -1,6 +1,7 @@
 import itertools
 import tools
 
+
 def reward(threshold, defender_rates, attacker_rates, defender_costs, attacker_costs):
     n = len(defender_rates)
     if n != (len(attacker_rates) and len(defender_costs) and len(attacker_costs)):
@@ -56,7 +57,6 @@ def full_threshold_equilibrium(n, defender_costs, attacker_costs):
         attacker_equilibrium.append(defender_costs[i] * total)
 
     return defender_equilibrium, attacker_equilibrium
-
 
 
 def equilibrium(threshold, defender_costs, attacker_costs):
