@@ -55,8 +55,6 @@ class GeneticAlgorithm(GA):
                  ga_properties=example_ga_properties,
                  tournament_properties=example_tournament_properties):
 
-        print(system)
-
         super().__init__(defenders, attackers, system, ga_properties, tournament_properties)
 
         self.single_population_update = 10
@@ -280,7 +278,7 @@ class GeneticAlgorithm(GA):
 
 tournament_properties = {
     'number_of_rounds': 1,
-    'attacker_threshold': 2,
+    'attacker_threshold': 1,
     'defender_threshold': 1,
     'selection_ratio': 1.0
 }
@@ -296,14 +294,16 @@ defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.15, 0.04, 0.07),
+    'move_costs': (0.5040,),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.09, 0.1, 0.11),
+    'move_costs': (0.25,),
+
+
 }
 
 attacker_properties = {'move_costs': attacker_ga_properties['move_costs'],
@@ -317,9 +317,9 @@ ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
                       ga_properties=ga_properties,
                       tournament_properties=tournament_properties)
-ga.start(2)
+ga.start(100)
 ga.plot()
-#1
+#
 # for i in range(0, 30):
 #
 #     genetic_algorithms = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
