@@ -330,6 +330,7 @@ ga = GeneticAlgorithm(defenders=defender_ga_properties,
 
 ga.start(50)
 ga.plot()
+#
 
 # genetic_algorithms.start(2000)
 # genetic_algorithms.plot()
