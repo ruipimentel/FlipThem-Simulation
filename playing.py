@@ -26,11 +26,11 @@ attacker_ga_properties = {
 
 
 # print(full_threshold_equilibrium(3,d, a))
-defe = equilibrium(3, d, a)[0][0]
+# defe = equilibrium(3, d, a)[0][0]
 
 # rew = reward(2, u, l, d, a)
 # print(sympy.simplify(rew[0]), '\n\n\n\n\n\n\n')
-print(sympy.simplify(defe))
+# print(sympy.simplify(defe))
 
 
 # print(sympy.diff(rew, l[0]))

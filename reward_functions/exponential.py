@@ -76,24 +76,24 @@ def equilibrium(threshold, defender_costs, attacker_costs):
         att_equilibrium = []
 
         for i in range(0, n):
-            print("Resource: ", i)
-            print("----------------")
+            # print("Resource: ", i)
+            # print("----------------")
             resources = list(range(0, n))
             resources.remove(i)
             #
             # print("Resources: ", resources)
 
             subsets = []
-            for t in range(threshold-1, n):
-                subsets.append(list(itertools.combinations(resources, t)))
+            # for t in range(threshold-1, n):
+            subsets.append(list(itertools.combinations(resources, threshold-1)))
 
-            print("Before flatten: ", subsets)
+            # print("Before flatten: ", subsets)
             subsets = tools.flatten(subsets)
             # print("Subsets:", subsets)
             # subsets.append([])
             if () in subsets and len(defender_costs) != 1:
                 subsets.remove(())
-            print("Subsets: ", subsets)
+            # print("Subsets: ", subsets)
             s = 0
             for l in subsets:
                 # creating the product
@@ -159,33 +159,73 @@ def t_attacker_equilibrium(defender_cost, attacker_cost):
 #
 
 
+#
+# defender_ga_properties = {
+#     'name': "Defender ",
+#     'number_of_players': 50,
+#
+#     'move_costs': (0.1, 0.1),
+# }
+#
+# attacker_ga_properties = {
+#     'name': "Attacker ",
+#     'number_of_players': 50,
+#     'move_costs': (0.2, 0.21),
+# }
+#
+# def_equ, att_equ = equilibrium(1, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])
+#
+# print(def_equ, att_equ)
+#
+# print(reward(1, def_equ, att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
+#
+# u1 = symbols('u1', positive=True)
+# equ = reward(1, [u1, 0.7284079084287199], att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])[0]
+#
+# print(equ)
+#
+# d_equ = sympy.diff(equ)
+# sol = sympy.solve(d_equ)[0]
+#
+#
+# print(reward(1, [sol, 0.7284079084287199], att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
+
+
 
 defender_ga_properties = {
     'name': "Defender ",
-    'number_of_players': 50,
 
-    'move_costs': (0.1, 0.1),
+    'move_costs': (0.6, 0.04, 0.06),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
-    'number_of_players': 50,
-    'move_costs': (0.2, 0.21),
+    'move_costs': (0.09, 0.1, 0.11),
 }
 
-def_equ, att_equ = equilibrium(1, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])
+de = (0.061366059165605218, 1.4683251511613427, 1.9929944193136284)
 
-print(def_equ, att_equ)
-
-print(reward(1, def_equ, att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
+at = (0.79377286895438315,  0.10498614404227513, 0.61230177280203468)
 
 u1 = symbols('u1', positive=True)
-equ = reward(1, [u1, 0.7284079084287199], att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])[0]
-
-print(equ)
-
-d_equ = sympy.diff(equ)
-sol = sympy.solve(d_equ)[0]
+u2 = symbols('u2', positive=True)
+u3 = symbols('u3', positive=True)
 
 
-print(reward(1, [sol, 0.7284079084287199], att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
+print(reward(2, de, at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
+
+def_reward = reward(2, [0.061366059165605218,  u2, 1.9929944193136284], at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])[0]
+
+print(sympy.simplify(def_reward))
+
+equ1 = sympy.diff(def_reward, u2)
+print(equ1)
+# equ2 = sympy.diff(def_reward, u2)
+# equ3 = sympy.diff(def_reward, u3)
+
+us2 = sympy.solve(equ1)[0]
+
+print(us2)
+
+def_reward = reward(2, [0.061366059165605218,  us2, 1.9929944193136284], at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])
+print(def_reward)

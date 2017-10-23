@@ -208,7 +208,7 @@ class GeneticAlgorithm(GA):
                 else:
                     self.create_new_generation(sorted_attacker_results, self.att_keep_number, i)
 
-            # self.write_in_file(str(i))
+            self.write_in_file(str(i))
 
 
     def plot(self):
@@ -217,16 +217,16 @@ class GeneticAlgorithm(GA):
                                                                                     self.defender_ga_properties['move_costs'],
                                                                                     self.attacker_ga_properties['move_costs'])
 
-        test_def_equilibrium = t_defender_equilibrium((self.defender_ga_properties['move_costs'][0],
-                                                self.attacker_ga_properties['move_costs'][0]))
+        # test_def_equilibrium = t_defender_equilibrium((self.defender_ga_properties['move_costs'][0],
+        #                                         self.attacker_ga_properties['move_costs'][0]))
+        #
+        # test_att_equilibrium = t_attacker_equilibrium((self.defender_ga_properties['move_costs'][0],
+        #                                         self.attacker_ga_properties['move_costs'][0]))
+        #
+        # print(def_equilibrium[0] == test_def_equilibrium, att_equilibrium[0] == test_att_equilibrium)
 
-        test_att_equilibrium = t_attacker_equilibrium((self.defender_ga_properties['move_costs'][0],
-                                                self.attacker_ga_properties['move_costs'][0]))
-
-        print(def_equilibrium[0] == test_def_equilibrium, att_equilibrium[0] == test_att_equilibrium)
-
-        print(test_def_equilibrium, def_equilibrium)
-        print(test_att_equilibrium, att_equilibrium)
+        print("Calculated defender equilibrium", def_equilibrium)
+        print("Calculated attacker equilibrium", att_equilibrium)
 
         def_reward, att_reward = reward_functions.exponential.reward(self.tournament_properties['attacker_threshold'],
                                                                      def_equilibrium,
@@ -234,10 +234,7 @@ class GeneticAlgorithm(GA):
                                                                      self.defender_ga_properties['move_costs'],
                                                                      self.attacker_ga_properties['move_costs'])
 
-        print('Rewards: ', def_reward, att_reward)
 
-        # test_def_equilibrium, test_att_equilibrium = reward_functions.exponential.full_threshold_equilibrium(2, self.defender_ga_properties['move_costs'],
-        #                                                         self.attacker_ga_properties['move_costs'])
 
         fig = plt.figure(figsize=(15, 9))
 
@@ -278,7 +275,7 @@ class GeneticAlgorithm(GA):
 
 tournament_properties = {
     'number_of_rounds': 1,
-    'attacker_threshold': 1,
+    'attacker_threshold': 3,
     'defender_threshold': 1,
     'selection_ratio': 1.0
 }
@@ -287,23 +284,21 @@ tournament_properties = {
 
 ga_properties = {
     'mutation_rate': 0.2,
-    'file_location': 'data/temp/'
+    'file_location': 'data/bestresponse/'
 }
 
 defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.5040,),
+    'move_costs': (0.21, 0.2, 0.32),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.25,),
-
-
+    'move_costs': (0.09, 0.1, 0.11),
 }
 
 attacker_properties = {'move_costs': attacker_ga_properties['move_costs'],
