@@ -191,41 +191,41 @@ def t_attacker_equilibrium(defender_cost, attacker_cost):
 # print(reward(1, [sol, 0.7284079084287199], att_equ, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
 
 
-
-defender_ga_properties = {
-    'name': "Defender ",
-
-    'move_costs': (0.6, 0.04, 0.06),
-}
-
-attacker_ga_properties = {
-    'name': "Attacker ",
-    'move_costs': (0.09, 0.1, 0.11),
-}
-
-de = (0.061366059165605218, 1.4683251511613427, 1.9929944193136284)
-
-at = (0.79377286895438315,  0.10498614404227513, 0.61230177280203468)
-
-u1 = symbols('u1', positive=True)
-u2 = symbols('u2', positive=True)
-u3 = symbols('u3', positive=True)
-
-
-print(reward(2, de, at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
-
-def_reward = reward(2, [0.061366059165605218,  u2, 1.9929944193136284], at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])[0]
-
-print(sympy.simplify(def_reward))
-
-equ1 = sympy.diff(def_reward, u2)
-print(equ1)
-# equ2 = sympy.diff(def_reward, u2)
-# equ3 = sympy.diff(def_reward, u3)
-
-us2 = sympy.solve(equ1)[0]
-
-print(us2)
-
-def_reward = reward(2, [0.061366059165605218,  us2, 1.9929944193136284], at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])
-print(def_reward)
+#
+# defender_ga_properties = {
+#     'name': "Defender ",
+#
+#     'move_costs': (0.6, 0.04, 0.06),
+# }
+#
+# attacker_ga_properties = {
+#     'name': "Attacker ",
+#     'move_costs': (0.09, 0.1, 0.11),
+# }
+#
+# de = (0.061366059165605218, 1.4683251511613427, 1.9929944193136284)
+#
+# at = (0.79377286895438315,  0.10498614404227513, 0.61230177280203468)
+#
+# u1 = symbols('u1', positive=True)
+# u2 = symbols('u2', positive=True)
+# u3 = symbols('u3', positive=True)
+#
+#
+# print(reward(2, de, at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs']))
+#
+# def_reward = reward(2, [0.061366059165605218,  u2, 1.9929944193136284], at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])[0]
+#
+# print(sympy.simplify(def_reward))
+#
+# equ1 = sympy.diff(def_reward, u2)
+# print(equ1)
+# # equ2 = sympy.diff(def_reward, u2)
+# # equ3 = sympy.diff(def_reward, u3)
+#
+# us2 = sympy.solve(equ1)[0]
+#
+# print(us2)
+#
+# def_reward = reward(2, [0.061366059165605218,  us2, 1.9929944193136284], at, defender_ga_properties['move_costs'], attacker_ga_properties['move_costs'])
+# print(def_reward)

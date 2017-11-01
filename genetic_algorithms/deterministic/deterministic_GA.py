@@ -97,7 +97,6 @@ class DeterministicGeneticAlgorithm(GA):
             #                                                                              #
             ################################################################################
 
-
             for r in sorted_defender_results:
                 rates = []
                 for strategy in r[0].get_strategies():
@@ -134,14 +133,8 @@ class DeterministicGeneticAlgorithm(GA):
                                                                                     self.defender_ga_properties['move_costs'],
                                                                                     self.attacker_ga_properties['move_costs'])
 
-        test_def_equilibrium = reward_functions.exponential.t_defender_equilibrium(
-            self.defender_ga_properties['move_costs'],
-            self.attacker_ga_properties['move_costs'])
-
-        test_att_equilibrium = reward_functions.exponential.t_attacker_equilibrium(
-            self.defender_ga_properties['move_costs'],
-            self.attacker_ga_properties['move_costs'])
-
+        print("Calculated defender equilibrium", def_equilibrium)
+        print("Calculated attacker equilibrium", att_equilibrium)
 
         def_reward, att_reward = reward_functions.exponential.reward(self.tournament_properties['attacker_threshold'],
                                                                      def_equilibrium,
@@ -149,12 +142,7 @@ class DeterministicGeneticAlgorithm(GA):
                                                                      self.defender_ga_properties['move_costs'],
                                                                      self.attacker_ga_properties['move_costs'])
 
-
-
-
-
-
-
+        print("Rewards: ", def_reward, att_reward)
         fig = plt.figure(figsize=(15, 9))
 
         axs1 = fig.add_subplot(221)
@@ -164,7 +152,6 @@ class DeterministicGeneticAlgorithm(GA):
         for s in range(0, len(self.def_strategy_population_average_average)):
             axs1.plot(self.def_strategy_population_average_average[s], c=colors[s])
             axs1.plot([def_equilibrium[s]] * len(self.def_strategy_population_average_average[s]), c=colors[s])
-            axs1.plot([test_def_equilibrium] * len(self.def_strategy_population_average_average[s]), c='r')
 
         axs2 = fig.add_subplot(222)
         plt.xlabel('Time (iterations)')
@@ -180,7 +167,6 @@ class DeterministicGeneticAlgorithm(GA):
         for s in range(0, len(self.att_strategy_population_average_average)):
             axs3.plot(self.att_strategy_population_average_average[s], c=colors[s])
             axs3.plot([att_equilibrium[s]] * len(self.att_strategy_population_average_average[s]), c=colors[s])
-            axs3.plot([test_att_equilibrium] * len(self.att_strategy_population_average_average[s]), c='r')
 
         axs4 = fig.add_subplot(224)
         plt.xlabel('Time (iterations)')
@@ -190,7 +176,6 @@ class DeterministicGeneticAlgorithm(GA):
         axs4.plot([att_reward] * len(self.att_benefit_average), 'r')
 
         plt.show()
-
 
 
 tournament_properties = {

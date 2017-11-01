@@ -137,13 +137,13 @@ class GA:
                 # print(result[0].get_name(), rate, "---->", result[0].get_strategy_rate(s))
 
         # Mutation 1
-        mut = np.random.randint(self.att_keep_number, len(sorted_results))
-        strat = np.random.randint(0, self.system.get_number_of_servers())
-        sorted_results[mut][0].update_strategy_rate(strat, np.random.uniform(0, 3))
-        # # Mutation 2
-        mut = np.random.randint(self.att_keep_number, len(sorted_results))
-        strat = np.random.randint(0, self.system.get_number_of_servers())
-        sorted_results[mut][0].update_strategy_rate(strat, np.random.uniform(0, 3))
+        # mut = np.random.randint(self.att_keep_number, len(sorted_results))
+        # strat = np.random.randint(0, self.system.get_number_of_servers())
+        # sorted_results[mut][0].update_strategy_rate(strat, np.random.uniform(0, 3))
+        # # # Mutation 2
+        # mut = np.random.randint(self.att_keep_number, len(sorted_results))
+        # strat = np.random.randint(0, self.system.get_number_of_servers())
+        # sorted_results[mut][0].update_strategy_rate(strat, np.random.uniform(0, 3))
 
 
     def define_parents(self, keep_number, results):

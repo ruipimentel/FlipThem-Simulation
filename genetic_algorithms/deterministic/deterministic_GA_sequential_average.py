@@ -234,8 +234,7 @@ class GeneticAlgorithm(GA):
                                                                      self.defender_ga_properties['move_costs'],
                                                                      self.attacker_ga_properties['move_costs'])
 
-
-
+        print("Rewards: ", def_reward, att_reward)
         fig = plt.figure(figsize=(15, 9))
 
         axs1 = fig.add_subplot(221)
@@ -275,7 +274,7 @@ class GeneticAlgorithm(GA):
 
 tournament_properties = {
     'number_of_rounds': 1,
-    'attacker_threshold': 3,
+    'attacker_threshold': 1,
     'defender_threshold': 1,
     'selection_ratio': 1.0
 }
@@ -291,15 +290,16 @@ defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.21, 0.2, 0.32),
+    'move_costs': (0.2,),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.09, 0.1, 0.11),
+    'move_costs': (0.1,),
 }
+
 
 attacker_properties = {'move_costs': attacker_ga_properties['move_costs'],
                        'threshold': tournament_properties['attacker_threshold']
