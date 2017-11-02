@@ -51,14 +51,14 @@ class GA:
                 self.defender_ga_properties = defenders
                 self.defenders = self.generate_players(defenders, 2.0)
             else:
-                self.defender_ga_properties = {defenders.get_player_properties['move_costs']}
+                self.defender_ga_properties = {'move_costs': defenders[0].get_player_properties()['move_costs']}
                 self.defenders = defenders
 
             if type(attackers) is dict:
                 self.attacker_ga_properties = attackers
                 self.attackers = self.generate_players(attackers, 2.0)
             else:
-                self.defender_ga_properties = {attackers.get_player_properties['move_costs']}
+                self.attacker_ga_properties = {'move_costs': attackers[0].get_player_properties()['move_costs']}
                 self.attackers = attackers
 
         self.ga_properties = ga_properties

@@ -282,11 +282,12 @@ attacker_ga_properties = {
     'move_costs': (0.1,),
 }
 
+
 ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
                       ga_properties=ga_properties,
                       tournament_properties=tournament_properties)
-ga.start(1000)
+ga.start(100)
 ga.plot()
 #
 # for i in range(0, 30):

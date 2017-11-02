@@ -34,7 +34,7 @@ example_ga_properties = {
 
 class DeterministicGeneticAlgorithm(GA):
 
-    def start(self, number_of_rounds, file_write=0):
+    def start(self, number_of_rounds, file_write=1000):
 
         if file_write == 0:
             file_write = number_of_rounds
@@ -150,7 +150,7 @@ class DeterministicGeneticAlgorithm(GA):
         plt.ylabel('Defender Rate')
         plt.title('Defender\'s Rate Over Time')
         for s in range(0, len(self.def_strategy_population_average_average)):
-            axs1.plot(self.def_strategy_population_average_average[s], c=colors[s])
+            axs1.plot(self.def_strategy_population_average[s], c=colors[s])
             axs1.plot([def_equilibrium[s]] * len(self.def_strategy_population_average_average[s]), c=colors[s])
 
         axs2 = fig.add_subplot(222)
@@ -165,7 +165,7 @@ class DeterministicGeneticAlgorithm(GA):
         plt.ylabel('Attacker Rate')
         plt.title('Attacker\'s Rate Over Time')
         for s in range(0, len(self.att_strategy_population_average_average)):
-            axs3.plot(self.att_strategy_population_average_average[s], c=colors[s])
+            axs3.plot(self.att_strategy_population_average[s], c=colors[s])
             axs3.plot([att_equilibrium[s]] * len(self.att_strategy_population_average_average[s]), c=colors[s])
 
         axs4 = fig.add_subplot(224)
@@ -177,41 +177,57 @@ class DeterministicGeneticAlgorithm(GA):
 
         plt.show()
 
+#
+# tournament_properties = {
+#     'number_of_rounds': 1,
+#     'attacker_threshold': 2,
+#     'defender_threshold': 1,
+#     'selection_ratio': 0.3
+# }
+#
+# # TODO still don't actually use this mutation rate
+#
+# ga_properties = {
+#     'mutation_rate': 0.2,
+#     'file_location': 'data/Deterministic/Exponential/'
+# }
+#
+# defender_ga_properties = {
+#     'name': "Defender ",
+#     'number_of_players': 50,
+#     'strategy_classes': (Exponential,),
+#     'move_costs': (0.3, 0.38, 0.45,),
+# }
+#
+# attacker_ga_properties = {
+#     'name': "Attacker ",
+#     'number_of_players': 50,
+#     'strategy_classes': (Exponential,),
+#     'move_costs': (0.3, 0.32, 0.36),
+# }
 
-tournament_properties = {
-    'number_of_rounds': 1,
-    'attacker_threshold': 1,
-    'defender_threshold': 1,
-    'selection_ratio': 0.6
-}
-
-# TODO still don't actually use this mutation rate
-
-ga_properties = {
-    'mutation_rate': 0.2,
-    'file_location': 'data/Deterministic/Exponential/'
-}
-
-defender_ga_properties = {
-    'name': "Defender ",
-    'number_of_players': 50,
-    'strategy_classes': (Exponential,),
-    'move_costs': (0.2,),
-}
-
-attacker_ga_properties = {
-    'name': "Attacker ",
-    'number_of_players': 50,
-    'strategy_classes': (Exponential,),
-    'move_costs': (0.1,),
-}
-
-ga = DeterministicGeneticAlgorithm(defenders=defender_ga_properties,
-                                   attackers=attacker_ga_properties,
-                                   ga_properties=ga_properties,
-                                   tournament_properties=tournament_properties)
-ga.start(100)
-ga.plot()
+#
+# def_equilibrium, att_equilibrium = reward_functions.exponential.equilibrium(tournament_properties['attacker_threshold'],
+#                                                                                     defender_ga_properties['move_costs'],
+#                                                                                     attacker_ga_properties['move_costs'])
+#
+#
+#
+# attacker_properties = {'move_costs': attacker_ga_properties['move_costs']}
+# defender_properties = {'move_costs': defender_ga_properties['move_costs']}
+#
+# single_attacker = (Player("Attacker ", player_properties=copy(attacker_properties), strategies=(Exponential(att_equilibrium[0]), )),)
+# single_defender = (Player("Defender ", player_properties=copy(defender_properties), strategies=(Exponential(def_equilibrium[0]), )),)
+#
+#
+#
+#
+# ga = DeterministicGeneticAlgorithm(defenders=defender_ga_properties,
+#                                    attackers=attacker_ga_properties,
+#                                    ga_properties=ga_properties,
+#                                    tournament_properties=tournament_properties)
+# ga.start(10000)
+# ga.plot()
 #
 # for i in range(0, 30):
 #
