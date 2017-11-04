@@ -5,7 +5,7 @@ import time
 import multiprocessing
 
 from game import Game
-
+from multiprocessing import Process, Queue
 
 example_tournament_properties = {
     'number_of_rounds': 1,
@@ -52,7 +52,7 @@ class Tournament(object):
             self.mean_defender_results[defender] = {}
 
 
-    def play_games(self, players):
+    def play_games(self, queue,  players):
         defender = players[0]
         defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
         attacker = players[1]
@@ -74,6 +74,8 @@ class Tournament(object):
             g.reset()
             self.system = System(self.system.get_number_of_servers())
 
+            queue.put(self.defender_results)
+
             # print("here")
             # print(self.defender_results[defender][attacker])
 
@@ -86,8 +88,8 @@ class Tournament(object):
             np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
             np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
 
-        print("MEAN: ", self.mean_defender_results[defender])
-        print("this")
+        # print("MEAN: ", self.mean_defender_results[defender])
+        # print("this")
 
 
     def play_tournament(self):
@@ -101,8 +103,25 @@ class Tournament(object):
 
             game_set.add((np.random.choice(self.defender_strategies), np.random.choice(self.attacker_strategies)))
 
-        pool = multiprocessing.Pool()
-        pool.map(self.play_games, game_set)
+        procs = list()
+
+        # pool = multiprocessing.Pool()
+        # pool.map(self.play_games, game_set)
+        queue = Queue()
+        for game in game_set:
+            p = Process(target=self.play_games, args=(queue, game))
+            procs.append(p)
+            p.start()
+
+        for _ in procs:
+            val = queue.get()
+            print(val)
+
+        # print("MEAN: ", self.mean_defender_results)
+        # print("this")
+
+        for p in procs:
+            p.join()
 
     def get_mean_defense(self):
         mean_defense = {}

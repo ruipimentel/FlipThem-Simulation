@@ -5,15 +5,20 @@ import time
 
 from game import Game
 from enum import Enum
+from reward_functions.exponential import reward
+from enum import Enum
 
+class TOURNAMENT_TYPE(Enum):
+    STOCHASTIC = 1
+    DETERMINISTIC = 2
 
 example_tournament_properties = {
     'number_of_rounds': 1,
     'attacker_threshold': 1,
     'defender_threshold': 1,
-    'selection_ratio': 0.5
+    'selection_ratio': 0.5,
+    'tournament_type': TOURNAMENT_TYPE.STOCHASTIC
 }
-
 
 class Tournament(object):
     """
@@ -24,7 +29,7 @@ class Tournament(object):
     - Best way to record all results. (Writing to text files, retrieving these files and using Pandas to analyse the data)
     """
 
-    def __init__(self, defender_strategies, attacker_strategies, system,  game_properties, tournament_properties):
+    def __init__(self, defender_strategies=None, attacker_strategies=None, system=None,  game_properties=None, tournament_properties=None):
         """
         :param player_strategies: a tuple of players with different (or the same strategies)
         :param game_properties: game properties to be played throughout the tournament
@@ -72,16 +77,32 @@ class Tournament(object):
                     correct_choice = True
 
             for i in range(0, self.tournament_properties['number_of_rounds']):
-                g = Game((defender, attacker), self.system, self.game_properties)
+                defenders_reward = None
+                attackers_reward = None
+                if self.tournament_properties['tournament_type'] == TOURNAMENT_TYPE.STOCHASTIC:
+                    g = Game((defender, attacker), self.system, self.game_properties)
 
-                g.play()
-                self.defender_results[defender][attacker].append((self.system.get_system_reward(defender),
-                                                                  self.system.get_system_reward(attacker)))
+                    g.play()
 
-                self.attacker_results[attacker][defender].append((self.system.get_system_reward(attacker),
-                                                                  self.system.get_system_reward(defender)))
-                g.reset()
-                self.system = System(self.system.get_number_of_servers())
+                    defenders_reward = self.system.get_system_reward(defender)
+                    attackers_reward = self.system.get_system_reward(attacker)
+
+                    g.reset()
+                    self.system = System(self.system.get_number_of_servers())
+                elif self.tournament_properties['tournament_type'] == TOURNAMENT_TYPE.DETERMINISTIC:
+                    defender_rates = [s.get_rate() for s in defender.get_strategies()]
+                    attacker_rates = [s.get_rate() for s in attacker.get_strategies()]
+
+                    defender_costs = defender.get_player_properties()['move_costs']
+                    attacker_costs = attacker.get_player_properties()['move_costs']
+
+                    threshold = self.tournament_properties['attacker_threshold']
+                    defenders_reward, attackers_reward = reward(threshold, defender_rates,
+                                                                attacker_rates, defender_costs, attacker_costs)
+
+                self.defender_results[defender][attacker].append((defenders_reward, attackers_reward))
+
+                self.attacker_results[attacker][defender].append((attackers_reward, defenders_reward))
 
             # Need to calculate the mean of the results for each playoff
             self.mean_defender_results[defender][attacker] = (

@@ -1,22 +1,15 @@
 from tournament import Tournament
+from tournament import TOURNAMENT_TYPE
 from system import System
-from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.exponential import Exponential
-from strategies.player import Player
 import reward_functions.exponential
-from copy import copy
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-from pathlib import Path
 from genetic_algorithms.GA import GA
 
 
-# TODO: Better Ranking system
 # TODO: Decide on mutation
 # TODO: Generalise to allow any strategy
-# TODO: Clean up the shitty code
-# We are keeping the keep rate constant at 50% for now
 
 example_tournament_properties = {
     'number_of_rounds': 1,
@@ -120,11 +113,15 @@ class StochasticGeneticAlgorithm(GA):
             if len(self.attackers) > 1:
                 self.create_new_generation(sorted_attacker_results, self.att_keep_number, i)
 
+
     def plot(self):
 
         def_equilibrium, att_equilibrium = reward_functions.exponential.equilibrium(self.tournament_properties['attacker_threshold'],
                                                                                     self.defender_ga_properties['move_costs'],
                                                                                     self.attacker_ga_properties['move_costs'])
+
+        print("Calculated defender equilibrium", def_equilibrium)
+        print("Calculated attacker equilibrium", att_equilibrium)
 
         def_reward, att_reward = reward_functions.exponential.reward(self.tournament_properties['attacker_threshold'],
                                                                      def_equilibrium,
@@ -132,38 +129,57 @@ class StochasticGeneticAlgorithm(GA):
                                                                      self.defender_ga_properties['move_costs'],
                                                                      self.attacker_ga_properties['move_costs'])
 
+        print("Rewards: ", def_reward, att_reward)
         fig = plt.figure(figsize=(15, 9))
 
-        axs1 = fig.add_subplot(221)
+
+        axs1 = fig.add_subplot(321)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Stochastic Defender Rate')
-        plt.title('Defender\'s Rate Over Time')
+        plt.ylabel('Defender Rate')
+        plt.title('Defender\'s Average Rate Over Time')
         for s in range(0, len(self.def_strategy_population_average_average)):
             axs1.plot(self.def_strategy_population_average_average[s], c=colors[s])
             axs1.plot([def_equilibrium[s]] * len(self.def_strategy_population_average_average[s]), c=colors[s])
 
-        axs2 = fig.add_subplot(222)
+        axs2 = fig.add_subplot(323)
+        plt.xlabel('Time (iterations)')
+        plt.ylabel('Defender Rate')
+        plt.title('Defender\'s Rate Over Time')
+        for s in range(0, len(self.def_strategy_population_average)):
+            axs2.plot(self.def_strategy_population_average[s], c=colors[s])
+            axs2.plot([def_equilibrium[s]] * len(self.def_strategy_population_average[s]), c=colors[s])
+
+        axs3 = fig.add_subplot(325)
         plt.xlabel('Time (iterations)')
         plt.ylabel('Defender Payoff')
         plt.title('Defender\'s Payoff Over Time')
-        axs2.plot(self.def_benefit_average, 'b')
-        axs2.plot([def_reward] * len(self.def_benefit_average), 'b')
+        axs3.plot(self.def_benefit_average, 'b')
+        axs3.plot([def_reward] * len(self.def_benefit_average), 'b')
 
-        axs3 = fig.add_subplot(223)
+        axs4 = fig.add_subplot(322)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Stochastic Attacker Rate')
-        plt.title('Attacker\'s Rate Over Time')
+        plt.ylabel('Attacker Rate')
+        plt.title('Attacker\'s Average Rate Over Time')
         for s in range(0, len(self.att_strategy_population_average_average)):
-            axs3.plot(self.att_strategy_population_average_average[s], c=colors[s])
-            axs3.plot([att_equilibrium[s]] * len(self.att_strategy_population_average_average[s]), c=colors[s])
+            axs4.plot(self.att_strategy_population_average_average[s], c=colors[s])
+            axs4.plot([att_equilibrium[s]] * len(self.att_strategy_population_average_average[s]), c=colors[s])
 
-        axs4 = fig.add_subplot(224)
+        axs5 = fig.add_subplot(324)
+        plt.xlabel('Time (iterations)')
+        plt.ylabel('Attacker Rate')
+        plt.title('Attacker\'s Rate Over Time')
+        for s in range(0, len(self.att_strategy_population_average)):
+            axs5.plot(self.att_strategy_population_average[s], c=colors[s])
+            axs5.plot([att_equilibrium[s]] * len(self.att_strategy_population_average[s]), c=colors[s])
+
+        axs6 = fig.add_subplot(326)
         plt.xlabel('Time (iterations)')
         plt.ylabel('Attacker Payoff')
         plt.title('Attacker\'s Payoff Over Time')
-        axs4.plot(self.att_benefit_average, 'r')
-        axs4.plot([att_reward] * len(self.att_benefit_average), 'r')
+        axs6.plot(self.att_benefit_average, 'r')
+        axs6.plot([att_reward] * len(self.att_benefit_average), 'r')
 
+        fig.tight_layout()
         plt.show()
 
 
@@ -171,7 +187,8 @@ tournament_properties = {
     'number_of_rounds': 1,
     'attacker_threshold': 3,
     'defender_threshold': 1,
-    'selection_ratio': 0.5
+    'selection_ratio': 0.3,
+    'tournament_type': TOURNAMENT_TYPE.STOCHASTIC
 }
 
 game_properties = {
@@ -189,21 +206,15 @@ defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.2, 0.3, 0.1),
+    'move_costs': (0.3, 0.38, 0.45,),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.1, 0.2, 0.3),
+    'move_costs': (0.15, 0.12, 0.23),
 }
-
-attacker_properties = {'move_costs': attacker_ga_properties['move_costs']}
-defender_properties = {'move_costs': defender_ga_properties['move_costs']}
-
-single_attacker = (Player("Attacker ", player_properties=copy(attacker_properties), strategies=(Periodic(0.055), )),)
-single_defender = (Player("Defender ", player_properties=copy(defender_properties), strategies=(Periodic(0.166), )),)
 
 ga = StochasticGeneticAlgorithm(defenders=defender_ga_properties,
                                 attackers=attacker_ga_properties,
@@ -211,7 +222,7 @@ ga = StochasticGeneticAlgorithm(defenders=defender_ga_properties,
                                 ga_properties=ga_properties,
                                 tournament_properties=tournament_properties,
                                 game_properties=game_properties)
-ga.start(50)
+ga.start(30)
 ga.plot()
 #
 # for i in range(0, 30):

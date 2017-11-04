@@ -1,4 +1,5 @@
-from deterministic_tournament import DeterministicTournament
+from tournament import Tournament
+from tournament import TOURNAMENT_TYPE
 from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.exponential import Exponential
 from strategies.player import Player
@@ -51,7 +52,7 @@ class DeterministicGeneticAlgorithm(GA):
         for i in range(0, number_of_rounds):
             print("------ Round " + str(i + 1) + " --------")
 
-            t = DeterministicTournament(defender_strategies=self.defenders, attacker_strategies=self.attackers,
+            t = Tournament(defender_strategies=self.defenders, attacker_strategies=self.attackers,
                                         tournament_properties=self.tournament_properties)
 
             t.play_tournament()
@@ -145,103 +146,122 @@ class DeterministicGeneticAlgorithm(GA):
         print("Rewards: ", def_reward, att_reward)
         fig = plt.figure(figsize=(15, 9))
 
-        axs1 = fig.add_subplot(221)
+
+        axs1 = fig.add_subplot(321)
+        plt.xlabel('Time (iterations)')
+        plt.ylabel('Defender Rate')
+        plt.title('Defender\'s Average Rate Over Time')
+        for s in range(0, len(self.def_strategy_population_average_average)):
+            axs1.plot(self.def_strategy_population_average_average[s], c=colors[s])
+            axs1.plot([def_equilibrium[s]] * len(self.def_strategy_population_average_average[s]), c=colors[s])
+
+        axs2 = fig.add_subplot(323)
         plt.xlabel('Time (iterations)')
         plt.ylabel('Defender Rate')
         plt.title('Defender\'s Rate Over Time')
-        for s in range(0, len(self.def_strategy_population_average_average)):
-            axs1.plot(self.def_strategy_population_average[s], c=colors[s])
-            axs1.plot([def_equilibrium[s]] * len(self.def_strategy_population_average_average[s]), c=colors[s])
+        for s in range(0, len(self.def_strategy_population_average)):
+            axs2.plot(self.def_strategy_population_average[s], c=colors[s])
+            axs2.plot([def_equilibrium[s]] * len(self.def_strategy_population_average[s]), c=colors[s])
 
-        axs2 = fig.add_subplot(222)
+        axs3 = fig.add_subplot(325)
         plt.xlabel('Time (iterations)')
         plt.ylabel('Defender Payoff')
         plt.title('Defender\'s Payoff Over Time')
-        axs2.plot(self.def_benefit_average, 'b')
-        axs2.plot([def_reward] * len(self.def_benefit_average), 'b')
+        axs3.plot(self.def_benefit_average, 'b')
+        axs3.plot([def_reward] * len(self.def_benefit_average), 'b')
 
-        axs3 = fig.add_subplot(223)
+        axs4 = fig.add_subplot(322)
+        plt.xlabel('Time (iterations)')
+        plt.ylabel('Attacker Rate')
+        plt.title('Attacker\'s Average Rate Over Time')
+        for s in range(0, len(self.att_strategy_population_average_average)):
+            axs4.plot(self.att_strategy_population_average_average[s], c=colors[s])
+            axs4.plot([att_equilibrium[s]] * len(self.att_strategy_population_average_average[s]), c=colors[s])
+
+        axs5 = fig.add_subplot(324)
         plt.xlabel('Time (iterations)')
         plt.ylabel('Attacker Rate')
         plt.title('Attacker\'s Rate Over Time')
-        for s in range(0, len(self.att_strategy_population_average_average)):
-            axs3.plot(self.att_strategy_population_average[s], c=colors[s])
-            axs3.plot([att_equilibrium[s]] * len(self.att_strategy_population_average_average[s]), c=colors[s])
+        for s in range(0, len(self.att_strategy_population_average)):
+            axs5.plot(self.att_strategy_population_average[s], c=colors[s])
+            axs5.plot([att_equilibrium[s]] * len(self.att_strategy_population_average[s]), c=colors[s])
 
-        axs4 = fig.add_subplot(224)
+        axs6 = fig.add_subplot(326)
         plt.xlabel('Time (iterations)')
         plt.ylabel('Attacker Payoff')
         plt.title('Attacker\'s Payoff Over Time')
-        axs4.plot(self.att_benefit_average, 'r')
-        axs4.plot([att_reward] * len(self.att_benefit_average), 'r')
+        axs6.plot(self.att_benefit_average, 'r')
+        axs6.plot([att_reward] * len(self.att_benefit_average), 'r')
 
+        fig.tight_layout()
         plt.show()
 
-#
-# tournament_properties = {
-#     'number_of_rounds': 1,
-#     'attacker_threshold': 2,
-#     'defender_threshold': 1,
-#     'selection_ratio': 0.3
-# }
-#
-# # TODO still don't actually use this mutation rate
-#
-# ga_properties = {
-#     'mutation_rate': 0.2,
-#     'file_location': 'data/Deterministic/Exponential/'
-# }
-#
-# defender_ga_properties = {
-#     'name': "Defender ",
-#     'number_of_players': 50,
-#     'strategy_classes': (Exponential,),
-#     'move_costs': (0.3, 0.38, 0.45,),
-# }
-#
-# attacker_ga_properties = {
-#     'name': "Attacker ",
-#     'number_of_players': 50,
-#     'strategy_classes': (Exponential,),
-#     'move_costs': (0.3, 0.32, 0.36),
-# }
 
-#
-# def_equilibrium, att_equilibrium = reward_functions.exponential.equilibrium(tournament_properties['attacker_threshold'],
-#                                                                                     defender_ga_properties['move_costs'],
-#                                                                                     attacker_ga_properties['move_costs'])
-#
-#
-#
-# attacker_properties = {'move_costs': attacker_ga_properties['move_costs']}
-# defender_properties = {'move_costs': defender_ga_properties['move_costs']}
-#
-# single_attacker = (Player("Attacker ", player_properties=copy(attacker_properties), strategies=(Exponential(att_equilibrium[0]), )),)
-# single_defender = (Player("Defender ", player_properties=copy(defender_properties), strategies=(Exponential(def_equilibrium[0]), )),)
-#
-#
-#
-#
-# ga = DeterministicGeneticAlgorithm(defenders=defender_ga_properties,
-#                                    attackers=attacker_ga_properties,
-#                                    ga_properties=ga_properties,
-#                                    tournament_properties=tournament_properties)
-# ga.start(10000)
-# ga.plot()
-#
-# for i in range(0, 30):
-#
-#     genetic_algorithms = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
-#                           tournament_properties, game_properties)
-#
-#     genetic_algorithms.start(500)
-#
-#     genetic_algorithms.write_to_file(i)
-# # # #
-# # #
-# genetic_algorithms = DeterministicGeneticAlgorithm(ga_properties=ga_properties)
-# genetic_algorithms.read_from_file(700)
-# genetic_algorithms.plot()
+tournament_properties = {
+    'number_of_rounds': 1,
+    'attacker_threshold': 2,
+    'defender_threshold': 1,
+    'selection_ratio': 0.3,
+    'tournament_type': TOURNAMENT_TYPE.DETERMINISTIC
+}
 
-#
-# plot_universes(ga_properties['file_location'], 30)
+# TODO still don't actually use this mutation rate
+
+ga_properties = {
+    'mutation_rate': 0.2,
+    'file_location': 'data/Deterministic/Exponential/'
+}
+
+defender_ga_properties = {
+    'name': "Defender ",
+    'number_of_players': 50,
+    'strategy_classes': (Exponential,),
+    'move_costs': (0.3, 0.38, 0.45,),
+}
+
+attacker_ga_properties = {
+    'name': "Attacker ",
+    'number_of_players': 50,
+    'strategy_classes': (Exponential,),
+    'move_costs': (0.3, 0.32, 0.36),
+}
+
+
+if __name__ == "__main__":
+
+    def_equilibrium, att_equilibrium = reward_functions.exponential.equilibrium(tournament_properties['attacker_threshold'],
+                                                                                        defender_ga_properties['move_costs'],
+                                                                                        attacker_ga_properties['move_costs'])
+
+    # attacker_properties = {'move_costs': attacker_ga_properties['move_costs']}
+    # defender_properties = {'move_costs': defender_ga_properties['move_costs']}
+    #
+    # single_attacker = (Player("Attacker ", player_properties=copy(attacker_properties), strategies=(Exponential(att_equilibrium[0]), )),)
+    # single_defender = (Player("Defender ", player_properties=copy(defender_properties), strategies=(Exponential(def_equilibrium[0]), )),)
+    #
+    #
+    #
+    #
+    ga = DeterministicGeneticAlgorithm(defenders=defender_ga_properties,
+                                       attackers=attacker_ga_properties,
+                                       ga_properties=ga_properties,
+                                       tournament_properties=tournament_properties)
+    ga.start(10)
+    ga.plot()
+
+    # for i in range(0, 30):
+    #
+    #     genetic_algorithms = GeneticAlgorithm(defender_ga_properties, attacker_ga_properties, System(1), ga_properties,
+    #                           tournament_properties, game_properties)
+    #
+    #     genetic_algorithms.start(500)
+    #
+    #     genetic_algorithms.write_to_file(i)
+    # # # #
+    # # #
+    # genetic_algorithms = DeterministicGeneticAlgorithm(ga_properties=ga_properties)
+    # genetic_algorithms.read_from_file(700)
+    # genetic_algorithms.plot()
+    #
+    #
+    # plot_universes(ga_properties['file_location'], 30)

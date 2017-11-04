@@ -4,7 +4,7 @@ from tournament import TOURNAMENT_TYPE
 
 tournament_properties = {
     'number_of_rounds': 1,
-    'attacker_threshold': 1,
+    'attacker_threshold': 3,
     'defender_threshold': 1,
     'selection_ratio': 0.3,
     'tournament_type': TOURNAMENT_TYPE.DETERMINISTIC
@@ -21,14 +21,14 @@ defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.4,),
+    'move_costs': (0.3, 0.38, 0.45,),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.4,),
+    'move_costs': (0.15, 0.12, 0.23),
 }
 
 ga = DeterministicGeneticAlgorithm(defenders=defender_ga_properties,

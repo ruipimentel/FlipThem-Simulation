@@ -1,4 +1,5 @@
-from deterministic_tournament import DeterministicTournament
+from tournament import Tournament
+from tournament import TOURNAMENT_TYPE
 from strategies.server_strategies.exponential import Exponential
 from strategies.player import Player
 from system import System
@@ -87,7 +88,7 @@ class GeneticAlgorithm(GA):
             for d in range(0, self.single_population_update):
                 # Here the defender updates his rates
 
-                t = DeterministicTournament(defender_strategies=self.defenders, attacker_strategies=self.fixed_attacker,
+                t = Tournament(defender_strategies=self.defenders, attacker_strategies=self.fixed_attacker,
                                             tournament_properties=self.tournament_properties)
 
                 t.play_tournament()
@@ -151,7 +152,7 @@ class GeneticAlgorithm(GA):
             for a in range(0, self.single_population_update):
                 # Here the attacker updates his rates
 
-                t = DeterministicTournament(defender_strategies=self.fixed_defender, attacker_strategies=self.attackers,
+                t = Tournament(defender_strategies=self.fixed_defender, attacker_strategies=self.attackers,
                                             tournament_properties=self.tournament_properties)
 
                 t.play_tournament()
@@ -276,7 +277,8 @@ tournament_properties = {
     'number_of_rounds': 1,
     'attacker_threshold': 1,
     'defender_threshold': 1,
-    'selection_ratio': 1.0
+    'selection_ratio': 1.0,
+    'tournament_type': TOURNAMENT_TYPE.DETERMINISTIC
 }
 
 # TODO still don't actually use this mutation rate
