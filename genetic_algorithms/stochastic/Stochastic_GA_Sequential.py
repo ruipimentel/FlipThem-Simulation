@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from pathlib import Path
-from genetic_algorithms import GA
+from genetic_algorithms import GeneticAlgorithm
 
 #
 # TODO: Better Ranking system
@@ -37,7 +37,7 @@ example_ga_properties = {
 
 
 
-class GeneticAlgorithm(GA):
+class GeneticAlgorithm(GeneticAlgorithm):
 
     def start(self, number_of_rounds):
 

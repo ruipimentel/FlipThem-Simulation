@@ -1,6 +1,7 @@
-from genetic_algorithms.deterministic.deterministic_GA import DeterministicGeneticAlgorithm
+from genetic_algorithms.GeneticAlgorithm import GeneticAlgorithm
 from strategies.server_strategies.exponential import Exponential
 from tournament import TOURNAMENT_TYPE
+
 
 tournament_properties = {
     'number_of_rounds': 1,
@@ -31,9 +32,9 @@ attacker_ga_properties = {
     'move_costs': (0.15, 0.12, 0.23),
 }
 
-ga = DeterministicGeneticAlgorithm(defenders=defender_ga_properties,
-                                   attackers=attacker_ga_properties,
-                                   ga_properties=ga_properties,
-                                   tournament_properties=tournament_properties)
+ga = GeneticAlgorithm(defenders=defender_ga_properties,
+                      attackers=attacker_ga_properties,
+                      ga_properties=ga_properties,
+                      tournament_properties=tournament_properties)
 ga.start(10000)
 ga.plot()

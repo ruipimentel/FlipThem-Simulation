@@ -145,37 +145,39 @@ class Game(object):
         print("----------------------------------------------------------")
 
 
-attacker_properties = {'move_costs': (3.0, ),
-                       'threshold': 1
-                       }
+if __name__ == '__main__':
 
-defender_properties = {'move_costs': (1.0, ),
-                       'threshold': 1
-                       }
+    attacker_properties = {'move_costs': (3.0, ),
+                           'threshold': 1
+                           }
 
-defender = Player("Defender ", player_properties=copy(defender_properties), strategies=Periodic(0.19))
-attacker = Player("Attacker ", player_properties=copy(attacker_properties), strategies=Periodic(0.16))
-s = System(1)
-defender_results = []
-attacker_results = []
+    defender_properties = {'move_costs': (1.0, ),
+                           'threshold': 1
+                           }
 
-for i in range(0, 100):
+    defender = Player("Defender ", player_properties=copy(defender_properties), strategies=Periodic(0.19))
+    attacker = Player("Attacker ", player_properties=copy(attacker_properties), strategies=Periodic(0.16))
+    s = System(1)
+    defender_results = []
+    attacker_results = []
 
-    g = Game((defender, attacker), s)
+    for i in range(0, 100):
 
-    g.play()
-    defender_results.append(g.get_system().get_system_reward(defender))
-    attacker_results.append(g.get_system().get_system_reward(attacker))
+        g = Game((defender, attacker), s)
 
-#
-# a = Animate()
-#
+        g.play()
+        defender_results.append(g.get_system().get_system_reward(defender))
+        attacker_results.append(g.get_system().get_system_reward(attacker))
 
-# a.start(g)
+    #
+    # a = Animate()
+    #
 
-def_mean = np.mean(defender_results)
-att_mean = np.mean(attacker_results)
+    # a.start(g)
 
-print("Defender mean: ", def_mean)
+    def_mean = np.mean(defender_results)
+    att_mean = np.mean(attacker_results)
 
-print("Attacker mean: ", att_mean)
+    print("Defender mean: ", def_mean)
+
+    print("Attacker mean: ", att_mean)

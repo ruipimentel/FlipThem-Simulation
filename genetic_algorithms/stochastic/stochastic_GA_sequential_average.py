@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import math
 from pathlib import Path
 import os
-from genetic_algorithms.GA import GA
+from genetic_algorithms.GeneticAlgorithm import GeneticAlgorithm
 import reward_functions.exponential
 
 #
@@ -48,7 +48,7 @@ colors = ['#12efff','#eee00f','#e00fff','#123456','#abc222','#000000','#123fff',
 # Perhaps put some kind of weighting in there??
 
 
-class GeneticAlgorithm(GA):
+class GeneticAlgorithm(GeneticAlgorithm):
 
     def __init__(self,
                  defenders=None,

@@ -1,12 +1,11 @@
 from game import Game
 from system import System
 import numpy as np
-import time
 
 from game import Game
 from enum import Enum
 from reward_functions.exponential import reward
-from enum import Enum
+
 
 class TOURNAMENT_TYPE(Enum):
     STOCHASTIC = 1
@@ -29,7 +28,7 @@ class Tournament(object):
     - Best way to record all results. (Writing to text files, retrieving these files and using Pandas to analyse the data)
     """
 
-    def __init__(self, defender_strategies=None, attacker_strategies=None, system=None,  game_properties=None, tournament_properties=None):
+    def __init__(self, defender_strategies=None, attacker_strategies=None, tournament_properties=None):
         """
         :param player_strategies: a tuple of players with different (or the same strategies)
         :param game_properties: game properties to be played throughout the tournament
@@ -39,14 +38,14 @@ class Tournament(object):
         #
         self.attacker_strategies = attacker_strategies
         self.defender_strategies = defender_strategies
-        self.game_properties = game_properties
+
         self.tournament_properties = tournament_properties
-        self.system = system
+        number_of_resources = len(attacker_strategies[0].get_strategies())
+        self.system = System(number_of_resources)
         self.defender_results = {}
         self.attacker_results = {}
         self.mean_defender_results = {}
         self.mean_attacker_results = {}
-
 
         for attacker in self.attacker_strategies:
             self.attacker_results[attacker] = {}
@@ -80,7 +79,7 @@ class Tournament(object):
                 defenders_reward = None
                 attackers_reward = None
                 if self.tournament_properties['tournament_type'] == TOURNAMENT_TYPE.STOCHASTIC:
-                    g = Game((defender, attacker), self.system, self.game_properties)
+                    g = Game((defender, attacker), self.system, self.tournament_properties['game_properties'])
 
                     g.play()
 
