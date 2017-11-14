@@ -1,8 +1,8 @@
 from genetic_algorithms.GeneticAlgorithm import GeneticAlgorithm
 from strategies.server_strategies.exponential import Exponential
-from tournament import TOURNAMENT_TYPE
 
 game_properties = {'time_limit': 1000}
+
 
 tournament_properties = {
     'number_of_rounds': 1,
@@ -13,30 +13,30 @@ tournament_properties = {
     'game_properties': game_properties
 }
 
-# TODO still don't actually use this mutation rate
 
 ga_properties = {
     'mutation_rate': 0.2,
-    'file_location': 'deterministic/data/exponential/1_resource/temp'
+    'file_location': 'stochastic/data/exponential/3_resource/2_Threshold/'
 }
+
 
 defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.4, 0.5),
+    'move_costs': (0.2, 0.25, 0.15,),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Exponential,),
-    'move_costs': (0.25, 0.3),
+    'move_costs': (0.2, 0.15, 0.23,),
 }
 
 ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
                       ga_properties=ga_properties,
                       tournament_properties=tournament_properties)
-ga.start(10)
-ga.plot()
+
+ga.start(10000, 100)

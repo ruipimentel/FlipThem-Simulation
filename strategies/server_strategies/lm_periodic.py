@@ -3,7 +3,7 @@ import numpy as np
 from strategies.server_strategies.server_strategy import ServerStrategy
 
 
-class Periodic(ServerStrategy):
+class LastMovePeriodic(ServerStrategy):
     """
     This is a class that gets allocated by a Player class to a particular server.
     Need to decide how best to call the 'Check for next move' method.

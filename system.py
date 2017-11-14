@@ -12,7 +12,6 @@ class System(object):
     def __init__(self, number_of_servers):
         """
         :param number_of_servers: Number of servers in the system
-        :param server_costs: This is a List of dictionary with defender and attacker costs for each server
         """
         self.__servers = []
         self.__player_benefits = {}
@@ -20,11 +19,12 @@ class System(object):
         self.players = ()
         self.player_ownership = {}
         self.game_properties = None
-        self.thresholds = {}
         self.number_of_servers = number_of_servers
 
         for i in range(0, self.number_of_servers):
                 self.__servers.append(Server("Server " + str(i)))
+
+        self.__servers = tuple(self.__servers)
 
     def initialise_system(self, players, game_properties=None):
 
@@ -102,7 +102,6 @@ class System(object):
             return [move for move in self.__player_benefits.get(player) if move <= time]
         else:
             return []
-
 
     def get_all_player_benefit_times(self):
         return self.__player_benefits

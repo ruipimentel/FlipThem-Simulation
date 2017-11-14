@@ -1,4 +1,4 @@
-from tournament import Tournament
+from old_tournament import Tournament
 from system import System
 from strategies.player import Player
 from strategies.server_strategies.exponential import Exponential

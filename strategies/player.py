@@ -2,12 +2,11 @@ from system import System
 from strategies.server_strategies.periodic import Periodic
 
 from strategies.server_strategies.server_strategy import ServerStrategy
-
+import game
 
 
 base_properties = {
     'move_costs': (1.0,),
-    'threshold': 1
 }
 
 
@@ -111,53 +110,46 @@ class Player:
         self.strategies = strategies
 
 
-s = System(1)
+if __name__ == "__main__":
+    s = System(1)
+    p1_properties = {
+        'move_costs': (1.0, 1.2, 0.6, 0.4, 0,23),
+        'threshold': 1
+    }
+    p2_properties = {
+        'move_costs': (1.0, 0.23, 0.1, 0.12, 0.45),
+        'threshold': 5
+    }
+    p3_properties = {
+        'move_costs': (1.1, ),
+        'threshold': 1
+    }
+    p4_properties = {
+        'move_costs': (0.3, ),
+        'threshold': 1
+    }
+    #
+    #
+    strategies1 = (Periodic(0.25), Periodic(0.34), Periodic(0.79), Periodic(0.25), Periodic(0.34))
+    strategies2 = (Periodic(0.2), Periodic(0.4), Periodic(0.9), Periodic(0.4), Periodic(0.9))
 
+    #
+    #
+    # p1 = Player("Defender 1", player_properties=p1_properties, strategies=strategies1)
+    #
+    # p2 = Player("Attacker 1", player_properties=p2_properties, strategies=strategies2)
 
-p1_properties = {
-    'move_costs': (1.0, 1.2, 0.6, 0.4, 0,23),
-    'threshold': 1
-}
+    p3 = Player("D1",  player_properties=p3_properties, strategies=(Periodic(0.3), ))
 
+    p4 = Player("A1",  player_properties=p4_properties, strategies=(Periodic(0.2), ))
+    #
 
-p2_properties = {
-    'move_costs': (1.0, 0.23, 0.1, 0.12, 0.45),
-    'threshold': 5
-}
+    g = game.Game((p3, p4), System(1))
 
-
-p3_properties = {
-    'move_costs': (1.1, ),
-    'threshold': 1
-}
-
-
-p4_properties = {
-    'move_costs': (0.3, ),
-    'threshold': 1
-}
-#
-#
-# strategies1 = (Periodic(0.25), Periodic(0.34), Periodic(0.79), Periodic(0.25), Periodic(0.34))
-# strategies2 = (Periodic(0.2), Periodic(0.4), Periodic(0.9), Periodic(0.4), Periodic(0.9))
-#
-#
-#
-# p1 = Player("Defender 1", p1_properties, strategies=strategies1)
-#
-# p2 = Player("Attacker 1", p2_properties, strategies=strategies2)
-#
-# p3 = Player("D1",  p3_properties, (Periodic(0.3), ))
-#
-# p4 = Player("A1",  p4_properties, (Periodic(0.2), ))
-#
-#
-# g = Game((p3, p4), System(1))
-#
-#
-# g.play()
-#
-# g.print_full_game_summary()
-#
-# print(g.get_system().get_system_gain_times(p3))
-# print(g.get_system().get_system_gain_times(p4))
+    #
+    g.play()
+    #
+    g.print_full_game_summary()
+    #
+    # print(g.get_system().get_system_gain_times(p3))
+    # print(g.get_system().get_system_gain_times(p4))

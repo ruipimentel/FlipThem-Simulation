@@ -1,6 +1,7 @@
 import numpy as np
 from strategies.server_strategies.server_strategy import ServerStrategy
 
+
 class Exponential(ServerStrategy):
     """
         This is a class that gets allocated by a Player class to a particular server.
@@ -27,4 +28,3 @@ class Exponential(ServerStrategy):
 
     def __str__(self):
         return "Exponential " + str(self.rate)
-

@@ -1,5 +1,5 @@
 from system import System
-from tournament import Tournament
+from old_tournament import Tournament
 from strategies.server_strategies.exponential import Exponential
 from strategies.server_strategies.periodic import Periodic
 from strategies.player import Player

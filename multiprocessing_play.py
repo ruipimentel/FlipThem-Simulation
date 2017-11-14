@@ -1,57 +1,31 @@
-# import multiprocessing
-# import time
-#
-# # def worker(j):
-# #     if j == 3:
-# #         time.sleep(1)
-# #     print("Worker:" + str(j))
-# #
-# #
-# # pool = multiprocessing.Pool(processes=4)
-# # t = pool.map(worker, range(10))
-# #
-# # print("hellooooooo")
-#
-# s = {(1,3), (1,4), (2, 6)}
-#
-# l = []
-#
-# def add(t):
-#     if t == (1, 3):
-#         time.sleep(8)
-#     l.append(t[0])
-#     print(t[0] + t[1])
-#
-#
-# pool = multiprocessing.Pool()
-# pool.map(add, s)
-#
-#
-# pool.close()
-# pool.join()
-#
-#
-# print(l)
-#
-# print("finished")
-from multiprocessing import Process, Queue
+from multiprocessing import Pool
+import time
 
+def f(x):
+    return x[0]*x[1]
 
-def computeCopyNum(queue, val):
-    queue.put(val) # can also put a tuple of thread-id and value if we would like to
+if __name__ == '__main__':
 
-procs=list()
+    s = set()
+    s.add((1, 2))
+    s.add((3, 2.1))
+    s.add((1.2, 0.9))
+    s.add((1.1, 2.2))
 
-queue = Queue()
-for i in range(1, 10):
-    p = Process(target=computeCopyNum, args=(queue, i))
-    procs.append(p)
-    p.start()
+    print(s)
+    t1 = time.time()
+    with Pool(5) as p:
+        t = p.map(f, s)
 
-for _ in procs:
-    val = queue.get()
-    print(val)
-    # do whatever with val
+    t2 = time.time()
 
-for p in procs:
-    p.join()
+    print(t2 - t1)
+    l = []
+
+    t3 = time.time()
+    for v in s:
+        l.append(v[0]*v[1])
+
+    print(l)
+    t4 = time.time()
+    print(t4-t3)
