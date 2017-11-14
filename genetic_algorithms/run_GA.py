@@ -1,5 +1,6 @@
 from genetic_algorithms.GeneticAlgorithm import GeneticAlgorithm
 from strategies.server_strategies.exponential import Exponential
+from strategies.player import Player
 from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.lm_periodic import LastMovePeriodic
 from strategies.server_strategies.phase_periodic import PhasePeriodic
@@ -12,15 +13,15 @@ tournament_properties = {
     'attacker_threshold': 1,
     'defender_threshold': 1,
     'selection_ratio': 0.3,
-    'tournament_type': TOURNAMENT_TYPE.DETERMINISTIC,
-    'game_properties': game_properties
+    'tournament_type': TOURNAMENT_TYPE.STOCHASTIC,
+    'game_properties': game_properties,
 }
 
 # TODO still don't actually use this mutation rate
 
 ga_properties = {
     'mutation_rate': 0.01,
-    'file_location': 'data/deterministic/1_resource/profiling/',
+    'file_location': 'data/stochastic/1_resource/defender_04_attacker_04/',
     'print_out': False
 }
 
@@ -38,9 +39,13 @@ attacker_ga_properties = {
     'move_costs': (0.4,)
 }
 
+attacker_properties = {'move_costs': (0.4,)}
+
+fixed_attacker = Player(name="Fixed Attacker", strategies=(Exponential(0.625),), player_properties=attacker_properties)
+
 ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
                       ga_properties=ga_properties,
                       tournament_properties=tournament_properties)
-ga.run(100, 20)
+ga.run(1000, 50)
 ga.plot()
