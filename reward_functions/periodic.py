@@ -1,19 +1,5 @@
 import math
-
-def reward(threshold, defender_rates, attacker_rates, defender_costs, attacker_costs):
-    # For now assuming just one resource
-    if threshold == 1:
-        if defender_rates[0] >= attacker_rates[0]:
-            gain = attacker_rates[0]/(2 * defender_rates[0])
-
-            return 1 - gain - defender_costs[0] * defender_rates[0], gain - attacker_costs[0] * attacker_rates[0]
-        else:
-            gain = defender_rates[0] / (2 * attacker_rates[0])
-
-            return gain - defender_costs * defender_rates[0], 1 - gain - attacker_costs[0] * attacker_rates[0]
-
-    else:
-        raise NotImplementedError("We don't have the formula yet")
+import reward_functions.renewal
 
 
 def calculate_periodic_equilibrium(defender_costs, attacker_costs):
@@ -25,6 +11,7 @@ def calculate_periodic_equilibrium(defender_costs, attacker_costs):
     else:
         return attacker_costs[0] / (2 * defender_costs[0] ** 2), 1 / (2 * defender_costs[0])
 
+
 def periodic_opt_response(player, opponent):
     move_cost = player.get_player_properties()['move_costs'][0]
     test = 1 / (2 * move_cost)
@@ -33,3 +20,42 @@ def periodic_opt_response(player, opponent):
         return math.sqrt(opponent_rate * test)
     else:
         return 0
+
+
+def age_density(z, rate):
+
+    if z < 1/rate:
+        return rate
+    else:
+        return 0
+
+def age_distribution(z, rate):
+    if z < 1/rate:
+        return rate * z
+    else:
+        return 1
+
+
+if __name__ == '__main__':
+
+
+    # print(calculate_periodic_equilibrium((0.2,), (0.2,)))
+
+    print(reward_functions.renewal.reward(1, ((age_density,),(age_distribution,)), ((age_density,),(age_distribution,)),
+                                         (1.8,), (1.8,), (0.2,), (0.2,)))
+
+    print(
+        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (2.0,), (1.8,), (0.2,), (0.2,)))
+
+    print(
+        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (2.2,), (1.8,), (0.2,), (0.2,)))
+
+    print(
+        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (2.5,), (1.8,), (0.2,), (0.2,)))
+
+    print(
+        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (2.0,), (2.0,), (0.2,), (0.2,)))

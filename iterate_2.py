@@ -117,8 +117,12 @@ class Iterate:
         camap = cm.Reds
 
         cdmap.set_bad(color='white')
+        print("this")
         np_defender_data = np.ma.masked_where(np_defender_data <= 0.0, np_defender_data)
+        print(np_defender_data)
         np_attacker_data = np.ma.masked_where(np_attacker_data <= 0.0, np_attacker_data)
+        print(np_attacker_data)
+        print("that")
 
         axs1.grid(b=True, which='major', color='black', linestyle='-')
         dcs = axs1.contourf(X, Y, np_defender_data, cmap=cdmap)
@@ -183,6 +187,20 @@ class Iterate:
         else:
             return 0
 
+
+
+# base_defender_properties['delay'] = 1.0
+#
+# defender = Periodic("Defender 1", copy(base_defender_properties))
+# attacker = LastMovePeriodic("Attacker 1", copy(base_attacker_properties))
+#
+# it = Iterate(defender, attacker, [0.01, 0.6], [0.01, 0.6])
+# it.start_iteration(0.05)
+#
+# it.show_plot()
+#
+
+
 game_properties = {'time_limit': 1000}
 
 tournament_properties = {
@@ -190,18 +208,18 @@ tournament_properties = {
     'attacker_threshold': 1,
     'defender_threshold': 1,
     'selection_ratio': 1.0,
-    'tournament_type': TOURNAMENT_TYPE.DETERMINISTIC,
+    'tournament_type': TOURNAMENT_TYPE.STOCHASTIC,
     'game_properties': game_properties,
 }
 
-attacker_properties = {'move_costs': (2,)}
-defender_properties = {'move_costs': (2,)}
+attacker_properties = {'move_costs': (1,)}
+defender_properties = {'move_costs': (3,)}
 
 defender = Player("Defender ", strategies=(Periodic(1.0),), player_properties=defender_properties)
 attacker = Player("Attacker ", strategies=(Periodic(1.0),), player_properties=attacker_properties)
 
-it = Iterate(defender, attacker, [0.01, 0.4], [0.01, 0.4], tournament_properties)
-it.start_iteration(0.001)
+it = Iterate(defender, attacker, [0.01, 0.5], [0.01, 0.5], tournament_properties)
+it.start_iteration(0.01)
 # name = "d" + str(int(cost[0])) + "a" + str(int(cost[1]))
 # it.save_plot("../../PhD/MyWork/Updates/Main/Images/Software/FlipIt/", name)
 it.show_plot()

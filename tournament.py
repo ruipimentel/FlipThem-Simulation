@@ -4,7 +4,7 @@ from enum import Enum
 
 from game import Game
 from system import System
-from reward_functions.exponential import reward
+from reward_functions.renewal import reward
 
 class TOURNAMENT_TYPE(Enum):
     STOCHASTIC = 1
@@ -65,12 +65,20 @@ class Tournament(object):
             defender_rates = [s.get_rate() for s in defender.get_strategies()]
             attacker_rates = [s.get_rate() for s in attacker.get_strategies()]
 
+            defender_functions = ([s.age_density for s in defender.get_strategies()],
+                                  [s.age_distribution for s in defender.get_strategies()])
+
+            attacker_functions = ([s.age_density for s in attacker.get_strategies()],
+                                  [s.age_distribution for s in attacker.get_strategies()])
+
+
             defender_costs = defender.get_player_properties()['move_costs']
             attacker_costs = attacker.get_player_properties()['move_costs']
 
             threshold = self.tournament_properties['attacker_threshold']
-            defenders_reward, attackers_reward = reward(threshold, defender_rates,
-                                                        attacker_rates, defender_costs, attacker_costs)
+            defenders_reward, attackers_reward = reward(threshold, defender_functions, attacker_functions,
+                                                        defender_rates, attacker_rates, defender_costs,
+                                                        attacker_costs)
 
             defender_results.append((defenders_reward, attackers_reward))
             attacker_results.append((attackers_reward, defenders_reward))

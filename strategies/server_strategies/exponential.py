@@ -14,17 +14,23 @@ class Exponential(ServerStrategy):
         """
         self.rate = rate
 
-    def get_next_move_time(self, game_properties, system, current_time):
+    def get_next_move_time(self, information):
         """
-        :param game_properties:
-        :param system:
-        :param current_time: Time of the game
-        :return: Returns the next move time
+
+        :param information:
+        :return:
         """
-        return current_time + np.random.exponential(1/self.rate)
+        return information['current_time'] + np.random.exponential(1/self.rate)
 
     def get_rate(self):
         return self.rate
 
     def __str__(self):
         return "Exponential " + str(self.rate)
+
+    def age_density(self, z, rate):
+        return rate * np.exp(-rate * z)
+
+    def age_distribution(self, z, rate):
+        return 1 - np.exp(-rate * z)
+

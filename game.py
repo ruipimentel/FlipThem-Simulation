@@ -1,10 +1,11 @@
 from system import System
 # If threshold is false, we assume attackers must get into whole system for benefit and defender has benefit whenever
 # they are in control of one or more servers
-
+from graphics.multi_player_animate import Animate
 from strategies.player import Player
 from strategies.server_strategies.exponential import Exponential
 from strategies.server_strategies.periodic import Periodic
+from strategies.server_strategies.lm_periodic import LastMove
 
 import numpy as np
 
@@ -147,7 +148,7 @@ class Game(object):
 
 if __name__ == '__main__':
 
-    attacker_properties = {'move_costs': (3.0, ),
+    attacker_properties = {'move_costs': (1.0, ),
                            'threshold': 1
                            }
 
@@ -155,29 +156,19 @@ if __name__ == '__main__':
                            'threshold': 1
                            }
 
-    defender = Player("Defender ", player_properties=copy(defender_properties), strategies=Periodic(0.19))
-    attacker = Player("Attacker ", player_properties=copy(attacker_properties), strategies=Periodic(0.16))
+    game_properties = {'time_limit': 100}
+
+    defender = Player("Defender ", player_properties=copy(defender_properties), strategies=LastMove(1.1))
+    attacker = Player("Attacker ", player_properties=copy(attacker_properties), strategies=Periodic(0.9))
     s = System(1)
-    defender_results = []
-    attacker_results = []
 
-    for i in range(0, 100):
+    g = Game(players=(defender, attacker), system=s, game_properties=game_properties)
 
-        g = Game((defender, attacker), s)
-
-        g.play()
-        defender_results.append(g.get_system().get_system_reward(defender))
-        attacker_results.append(g.get_system().get_system_reward(attacker))
+    g.play()
 
     #
     # a = Animate()
-    #
 
+    g.print_full_game_summary()
     # a.start(g)
 
-    def_mean = np.mean(defender_results)
-    att_mean = np.mean(attacker_results)
-
-    print("Defender mean: ", def_mean)
-
-    print("Attacker mean: ", att_mean)

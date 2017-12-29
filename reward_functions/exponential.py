@@ -1,5 +1,6 @@
 import itertools
 import tools
+import numpy as np
 
 from sympy import symbols
 import sympy
@@ -43,27 +44,6 @@ def reward(threshold, defender_rates, attacker_rates, defender_costs, attacker_c
         attacker_reward = gain - attacker_move_cost
 
         return defender_reward, attacker_reward
-
-
-def full_threshold_equilibrium(n, defender_costs, attacker_costs):
-
-    defender_equilibrium = []
-    attacker_equilibrium = []
-
-    for i in range(0, n):
-        outer = 1/((attacker_costs[i] + defender_costs[i]))**2
-        prod = 1
-        for j in range(0, n):
-            if j != i:
-                prod *= (defender_costs[j]/(attacker_costs[j] + defender_costs[j]))
-
-        total = outer * prod
-
-        defender_equilibrium.append(attacker_costs[i] * total)
-        attacker_equilibrium.append(defender_costs[i] * total)
-
-    return defender_equilibrium, attacker_equilibrium
-
 
 def equilibrium(threshold, defender_costs, attacker_costs):
 
@@ -116,3 +96,12 @@ def equilibrium(threshold, defender_costs, attacker_costs):
             att_equilibrium.append(attacker_point)
 
         return def_equilibrium, att_equilibrium
+
+
+def age_density(z, rate):
+
+    return rate * np.exp(-rate * z)
+
+def age_distribution(z, rate):
+    return 1 - np.exp(-rate * z)
+

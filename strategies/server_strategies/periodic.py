@@ -15,7 +15,7 @@ class Periodic(ServerStrategy):
         """
         self.rate = rate
 
-    def get_next_move_time(self, game_properties, system, current_time):
+    def get_next_move_time(self, information):
         """
         :param game_properties:
         :param system:
@@ -23,14 +23,27 @@ class Periodic(ServerStrategy):
         :return: Returns the next move time
         """
 
-        if current_time == 0:
+        if information['current_time'] == 0:
             return np.random.uniform(0.0, 1/self.rate)
 
         else:
-            return current_time + 1/self.rate
+            return information['current_time'] + 1/self.rate
 
     def get_rate(self):
         return self.rate
 
     def __str__(self):
         return "Periodic " + str(self.rate)
+
+    def age_density(self, z, rate):
+
+        if z < 1 / rate:
+            return rate
+        else:
+            return 0
+
+    def age_distribution(self, z, rate):
+        if z < 1 / rate:
+            return rate * z
+        else:
+            return 1

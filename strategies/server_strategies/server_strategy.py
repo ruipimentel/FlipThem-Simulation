@@ -1,11 +1,8 @@
 class ServerStrategy:
-    def get_next_move_time(self, game_properties, system, current_time):
+    def get_next_move_time(self, information):
         """
-        :param game_properties:
-        :param counter:
-        :param system:
-        :param current_time: Time of the game
-        :return: Returns the next move time
+        :param information: Dictionary containing game information
+        :return:
         """
         raise NotImplementedError("get_next_move_time method has not been implemented within strategy subclass")
 

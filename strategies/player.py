@@ -1,8 +1,8 @@
 from system import System
+import reward_functions.renewal as renewal
 from strategies.server_strategies.periodic import Periodic
 
 from strategies.server_strategies.server_strategy import ServerStrategy
-import game
 
 
 base_properties = {
@@ -59,9 +59,14 @@ class Player:
         # For now, go through each server and find new move times
         # Check the time and see if the individual server strategies have been allocated to each server.
         playing_times = {}
+        information = {'game_properties': game_properties,
+                       'system': system,
+                       'current_time': current_time,
+                       'who_am_i': self}
         if current_time == 0.0:
             for server in system.get_all_servers():
-                playing_times[server] = self.server_strategies.get(server).get_next_move_time(game_properties, system, current_time)
+                information['server'] = server
+                playing_times[server] = self.server_strategies.get(server).get_next_move_time(information)
 
             self.planned_moves = playing_times
 
@@ -71,9 +76,8 @@ class Player:
         new_move = {server: time for server, time in self.planned_moves.items() if time <= current_time}
         playing_times = self.planned_moves
         for server in new_move.keys():
-            playing_times[server] = self.server_strategies.get(server).get_next_move_time(game_properties,
-                                                                                          system,
-                                                                                          current_time)
+            information['server'] = server
+            playing_times[server] = self.server_strategies.get(server).get_next_move_time(information)
 
         self.planned_moves = playing_times
 
@@ -97,6 +101,11 @@ class Player:
         temp_list[strategy_number] = type(self.strategies[strategy_number])(rate)
         self.strategies = tuple(temp_list)
 
+    def update_strategy(self, strategy_number, strategy):
+        temp_list = list(self.strategies)
+        temp_list[strategy_number] = strategy
+        self.strategies = tuple(temp_list)
+
     def get_strategies(self):
         return self.strategies
 
@@ -108,48 +117,3 @@ class Player:
 
     def set_strategies(self, strategies):
         self.strategies = strategies
-
-
-if __name__ == "__main__":
-    s = System(1)
-    p1_properties = {
-        'move_costs': (1.0, 1.2, 0.6, 0.4, 0,23),
-        'threshold': 1
-    }
-    p2_properties = {
-        'move_costs': (1.0, 0.23, 0.1, 0.12, 0.45),
-        'threshold': 5
-    }
-    p3_properties = {
-        'move_costs': (1.1, ),
-        'threshold': 1
-    }
-    p4_properties = {
-        'move_costs': (0.3, ),
-        'threshold': 1
-    }
-    #
-    #
-    strategies1 = (Periodic(0.25), Periodic(0.34), Periodic(0.79), Periodic(0.25), Periodic(0.34))
-    strategies2 = (Periodic(0.2), Periodic(0.4), Periodic(0.9), Periodic(0.4), Periodic(0.9))
-
-    #
-    #
-    # p1 = Player("Defender 1", player_properties=p1_properties, strategies=strategies1)
-    #
-    # p2 = Player("Attacker 1", player_properties=p2_properties, strategies=strategies2)
-
-    p3 = Player("D1",  player_properties=p3_properties, strategies=(Periodic(0.3), ))
-
-    p4 = Player("A1",  player_properties=p4_properties, strategies=(Periodic(0.2), ))
-    #
-
-    g = game.Game((p3, p4), System(1))
-
-    #
-    g.play()
-    #
-    g.print_full_game_summary()
-    #
-    # print(g.get_system().get_system_gain_times(p3))
-    # print(g.get_system().get_system_gain_times(p4))
