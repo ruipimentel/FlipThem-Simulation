@@ -2,7 +2,7 @@ from genetic_algorithms.genetic_algorithm import GeneticAlgorithm
 
 
 ga_properties = {
-    'file_location': 'genetic_algorithms/data/deterministic/1_resource/periodic/larger_bounds/',
+    'file_location': 'genetic_algorithms/data/deterministic/1_resource/periodic/larger_bounds/take_two/',
 }
 
 ga = GeneticAlgorithm(ga_properties=ga_properties)

@@ -475,8 +475,8 @@ class GeneticAlgorithm:
 
         axs2 = plt.subplot(122, sharex=axs1)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Defender Rate')
-        plt.title('Attacker\'s Population Standard Deviation Over Time')
+        plt.ylabel('Attacker Statistics ')
+        plt.title('Attacker\'s Statistics Over Time')
         for s in range(0, len(self.attacker_population)):
             plt.plot(np.max(self.attacker_population[s], axis=1)
                      - np.min(self.attacker_population[s], axis=1), 'b', label='Max - Min')

@@ -19,7 +19,7 @@ tournament_properties = {
 
 ga_properties = {
     'mutation_rate': 0.002,
-    'file_location': 'data/deterministic/1_resource/periodic/larger_bounds/',
+    'file_location': 'data/deterministic/1_resource/periodic/larger_bounds/take_two/',
     'upper_bound': 5.0,
     'print_out': False
 }
