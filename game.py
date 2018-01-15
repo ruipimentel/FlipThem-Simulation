@@ -19,9 +19,9 @@ base_properties = {
     }
 
 
-class Game(object):
-    """ Abstract class to represent a game played between two different players.
-      Subclasses will be FlipIt, FlipThem, MultiRateFlipThem etc.
+class Game:
+    """
+      Representing the FlipThem Game etc. etc. etc.
 
       This will contain the number of resources of type Resource included in the game.
       At any point in time we can view the number of resources each player is currently in control of.
@@ -29,6 +29,15 @@ class Game(object):
     """
 
     def __init__(self, players, system, game_properties=base_properties):
+        """
+
+        :param players:
+        :type players:
+        :param system:
+        :type system:
+        :param game_properties:
+        :type game_properties:
+        """
 
         self.current_time = 0.0
         self.time_limit = game_properties['time_limit']
@@ -148,27 +157,47 @@ class Game(object):
 
 if __name__ == '__main__':
 
-    attacker_properties = {'move_costs': (1.0, ),
+    # defender_properties = {'move_costs': (0.6, 0.4, 0.3),
+    #                        'threshold': 2
+    #                        }
+    # attacker_properties = {'move_costs': (0.3, 0.3, 0.2),
+    #                        'threshold': 2
+    #                        }
+
+    # game_properties = {'time_limit': 5}
+    #
+    # defender = Player("Defender ", player_properties=copy(defender_properties),
+    #                   strategies=(Periodic(0.5), Periodic(0.8), Periodic(0.3)))
+    # attacker = Player("Attacker ",
+    #                   player_properties=copy(attacker_properties),
+    #                   strategies=(Periodic(0.7), Periodic(0.8), Periodic(0.7)))
+    # s = System(3)
+
+    defender_properties = {'move_costs': (0.6,),
+                           'threshold': 1
+                           }
+    attacker_properties = {'move_costs': (0.3,),
                            'threshold': 1
                            }
 
-    defender_properties = {'move_costs': (1.0, ),
-                           'threshold': 1
-                           }
+    game_properties = {'time_limit': 5}
 
-    game_properties = {'time_limit': 100}
-
-    defender = Player("Defender ", player_properties=copy(defender_properties), strategies=LastMove(1.1))
-    attacker = Player("Attacker ", player_properties=copy(attacker_properties), strategies=Periodic(0.9))
+    defender = Player("Defender ", player_properties=copy(defender_properties),
+                      strategies=(Exponential(1.0),))
+    attacker = Player("Attacker ",
+                      player_properties=copy(attacker_properties),
+                      strategies=(Exponential(1.0),))
     s = System(1)
+
+
 
     g = Game(players=(defender, attacker), system=s, game_properties=game_properties)
 
     g.play()
 
     #
-    # a = Animate()
+    a = Animate()
 
     g.print_full_game_summary()
-    # a.start(g)
+    a.start(g)
 

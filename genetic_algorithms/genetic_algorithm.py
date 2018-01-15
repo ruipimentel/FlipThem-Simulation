@@ -264,6 +264,8 @@ class GeneticAlgorithm:
         mas = self.define_parents(keep_number, sorted_results)
         pas = self.define_parents(keep_number, sorted_results)
 
+        print("Mas:", mas)
+
         for counter1, ma in enumerate(mas):
             # We are creating the offspring to update the sorted results, ready for the next round
 

@@ -39,23 +39,11 @@ def age_distribution(z, rate):
 if __name__ == '__main__':
 
 
-    # print(calculate_periodic_equilibrium((0.2,), (0.2,)))
-
-    print(reward_functions.renewal.reward(1, ((age_density,),(age_distribution,)), ((age_density,),(age_distribution,)),
-                                         (1.8,), (1.8,), (0.2,), (0.2,)))
+    print(calculate_periodic_equilibrium((0.2,), (0.2,)))
 
     print(
         reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (2.0,), (1.8,), (0.2,), (0.2,)))
-
+                                        (2.5,), (2.5,), (0.2,), (0.2,)))
     print(
         reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (2.2,), (1.8,), (0.2,), (0.2,)))
-
-    print(
-        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (2.5,), (1.8,), (0.2,), (0.2,)))
-
-    print(
-        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (2.0,), (2.0,), (0.2,), (0.2,)))
+                                        (0.000000001,), (2.49,), (0.2,), (0.2,)))

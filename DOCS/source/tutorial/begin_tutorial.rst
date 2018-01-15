@@ -1,7 +1,11 @@
-************************
-Creating Your First Game
-************************
+.. _whetting_the_appetite:
 
+*********************
+Whetting The Appetite
+*********************
+
+
+The first thing we'd like to do is play a quick game of FlipIt. etc. etc.
 To begin simulating games within the library we need to understand how to create players::
 
     from strategies.player import Player
@@ -39,7 +43,7 @@ We are now ready to create and play the game::
     g.play()
 
 First, we import the system the game is to be played over (explain system later)
-NExt, we create the game properties to choose the amount of time the game is played for.
+Next, we create the game properties to choose the amount of time the game is played for.
 Then, we create the game and play.
 
 Full code::
@@ -69,6 +73,8 @@ Full code::
     g.print_full_game_summary()
 
 
+.. _animating_game:
+
 ==================
 Animating the Game
 ==================
@@ -79,4 +85,5 @@ This game can easily be animated::
 
     a = Animate()
     a.start(g)
+
 

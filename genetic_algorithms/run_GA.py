@@ -13,13 +13,13 @@ tournament_properties = {
     'attacker_threshold': 1,
     'defender_threshold': 1,
     'selection_ratio': 0.3,
-    'tournament_type': TOURNAMENT_TYPE.DETERMINISTIC,
+    'tournament_type': TOURNAMENT_TYPE.STOCHASTIC,
     'game_properties': game_properties,
 }
 
 ga_properties = {
     'mutation_rate': 0.002,
-    'file_location': 'data/deterministic/1_resource/periodic/larger_bounds/take_two/',
+    'file_location': 'data/stochastic/1_resource/periodic/both_playing/0202/',
     'upper_bound': 5.0,
     'print_out': False
 }
@@ -28,17 +28,22 @@ defender_ga_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Periodic,),
-    # 'move_costs': (0.2, 0.3, 0.1)
     'move_costs': (0.2,),
+    # 'move_costs': (0.2, 0.15, 0.12,),
 }
 
 attacker_ga_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Periodic,),
-    # 'move_costs': (0.1, 0.2, 0.3),
     'move_costs': (0.2,),
+    # 'move_costs': (0.18, 0.13, 0.09,),
 }
+#
+# fixed_attacker_properties = {'move_costs': (0.2,),}
+#
+# fixed_attacker = Player(name="Fixed Attacker", strategies=(Periodic(2.5),), player_properties=fixed_attacker_properties)
+
 
 ga = GeneticAlgorithm(defenders=defender_ga_properties,
                       attackers=attacker_ga_properties,
