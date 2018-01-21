@@ -2,8 +2,8 @@ import itertools
 import tools
 import numpy as np
 
-from sympy import symbols
-import sympy
+import reward_functions.renewal
+import matplotlib.pyplot as plt
 
 
 def reward(threshold, defender_rates, attacker_rates, defender_costs, attacker_costs):
@@ -105,3 +105,35 @@ def age_density(z, rate):
 def age_distribution(z, rate):
     return 1 - np.exp(-rate * z)
 
+
+
+if __name__ == '__main__':
+
+
+    print(equilibrium(1, (1.0,), (1.0,)))
+
+    print(
+        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (0.7,), (1.0,), (1.0,), (1.0,)))
+
+    print(
+        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (0.01,), (1.0,), (1.0,), (1.0,)))
+
+
+    y1 = []
+    y2 = []
+    for i in range(1, 500):
+
+        y1.append(reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                        (i * 0.01,), (0.8,), (1.0,), (1.0,))[0])
+
+        y2.append(reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)),
+                                                  ((age_density,), (age_distribution,)),
+                                                  (i * 0.01,), (0.8,), (1.0,), (1.0,))[1])
+
+
+    plt.plot(y1)
+    plt.plot(y2)
+
+    plt.show()

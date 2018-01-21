@@ -1,16 +1,17 @@
-
+# from strategies.player import Player
 
 class Server:
-    """ - Keeps record of who currently owns this resource
-        - Keeps the complete move history of the resource
-        - Holds a dictionary move costs (this could be compromising (attacking), resetting (defending), peeking etc.
-        - Keeps a dictionary of when each player was in control of the resource
+    """
+    - Keeps record of who currently owns this resource \n
+    - Keeps the complete move history of the resource for every player \n
+    - Holds a dictionary move costs (this could be compromising (attacking), resetting (defending), peeking etc. \n
+    - Keeps a dictionary of when each player was in control of the resource
     """
 
     def __init__(self, name):
         """
-        :param name: Name of the resource 
-        :param move_type_costs: A dictionary of costs for the move costs based on player type (Def or Att)
+        :param name: String to signify the name of the server
+        :type name: str
         """
         self.__name = name
         self.__current_controller = None
@@ -20,7 +21,17 @@ class Server:
         self.__player_benefits = {}  # Dictionary {Player: (Benefit start, Benefit end)}
         self.__player_costs = {}
 
-    def initialise_server(self, players, game_properties=None, server_number=0):
+    def initialise_server(self, players, game_properties=None, server_number=0) -> None:
+        """
+        :param players: list/tuple of players fighting over the server
+        :type players: tuple of Player
+        :param game_properties: Contains the properties for the game (currently not used here)
+        :type game_properties: dict
+        :param server_number: The server number in the list of servers for the system
+        :type server_number: int
+        :return: None
+        :rtype: None
+        """
         for player in players:
 
             self.__player_history[player] = []
@@ -33,7 +44,15 @@ class Server:
         # TODO: for now, assume the first player controls it
         self.__current_controller = players[0]
 
-    def change_control(self, player, current_time):
+    def change_control(self, player, current_time) -> None:
+        """
+        :param player: the player taking control of the server
+        :type player: Player
+        :param current_time: The time at which the player takes control
+        :type current_time: float
+        :return: None
+        :rtype: None
+        """
 
         # Get the player currently controlling the server
         current_controller = self.__current_controller
@@ -47,13 +66,36 @@ class Server:
         self.__current_controller = player
         self.__add_history(player, current_time)
 
-    def __update_player_benefits(self, player, last_move, current_time):
+    def __update_player_benefits(self, player, last_move, current_time) -> None:
+        """
+
+        :param player: the player in question
+        :type player: Player
+        :param last_move: When they last moved
+        :type last_move: float
+        :param current_time: The time right now
+        :type current_time: float
+        :return:
+        :rtype:
+        """
         self.__player_benefits[player].append((last_move, current_time))
 
     def get_current_controller(self):
+        """
+        :return: The player currently in control of the server
+        :rtype: Player
+        """
         return self.__current_controller
 
-    def __add_history(self, player, current_time):
+    def __add_history(self, player, current_time) -> None:
+        """
+        :param player:
+        :type player:
+        :param current_time:
+        :type current_time:
+        :return:
+        :rtype:
+        """
         self.__player_history[player].append(current_time)
 
     def get_name(self):

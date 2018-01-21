@@ -14,4 +14,5 @@ Class Reference
    reference/system
    reference/server
    reference/tournament
+   reference/genetic_algorithm
 

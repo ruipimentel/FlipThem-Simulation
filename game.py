@@ -21,23 +21,21 @@ base_properties = {
 
 class Game:
     """
-      Representing the FlipThem Game etc. etc. etc.
-
-      This will contain the number of resources of type Resource included in the game.
-      At any point in time we can view the number of resources each player is currently in control of.
-
+      Representing the FlipIt/FlipThem/Threshold FlipThem Game, depending on the
+      number of servers in the system and the threshold of the players.
     """
 
     def __init__(self, players, system, game_properties=base_properties):
         """
 
-        :param players:
-        :type players:
-        :param system:
-        :type system:
-        :param game_properties:
+        :param players: A list/tuple of players to take part in the game
+        :type players: Each player is of type Player
+        :param system: System object containing a number of Server classes
+        :type system: Of class System
+        :param game_properties: A dictionary containing the properties of the game to be played
         :type game_properties:
         """
+
 
         self.current_time = 0.0
         self.time_limit = game_properties['time_limit']
@@ -49,17 +47,17 @@ class Game:
         for player in players:
             player.initialise_strategies(self.__system)
 
-    def play(self):
-        """ Game Method:
-            Find when players will make their next move, order this.
-            Whoever moves earliest games control, then calculate their next move time
-            Game loops on this until time_limit.
+    def play(self) -> None:
+        """
+        Plays the prescribed game between the players \n
+        :return: None
+        :rtype: None
         """
 
         player_move_times = {player: player.check_for_move_times(self.game_properties, self.__system,
                                                                  self.current_time) for player in self.players}
         while self.current_time < self.time_limit:
-            # Need to iterate through the player move times, for each server, and see which one goes first...
+            # Need to iterate through the player move times, for each server, and see which one goes first
             lowest_move_time_for_each_player = {}
             for player, times in player_move_times.items():
                 lowest_move_time_for_each_player[player] = (min(times, key=times.get), times[min(times,
@@ -104,10 +102,18 @@ class Game:
     # def get_players(self) -> Player:
     #     return self.players
 
-    def get_system(self) -> System:
+    def get_system(self):
+        """
+        :return: System the game is played over
+        :rtype: System
+        """
         return self.__system
 
-    def get_time_limit(self):
+    def get_time_limit(self) -> float:
+        """
+        :return: The time limit of the game
+        :rtype: float
+        """
         return self.game_properties['time_limit']
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -116,21 +122,26 @@ class Game:
     #                                                         #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-    def reset(self):
-
+    def reset(self) -> None:
+        """
+        Resets the system ready for a new game. \n
+        Resets the time to zero. \n
+        :return: None
+        :rtype: None
+        """
         self.__system.reset_system()
         self.current_time = 0.0
-        # TODO Reset player's values: history etc.
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #                                                         #
     #                   Prints outs                           #
     #                                                         #
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-    def print_individual_server_summary(self):
+    def print_individual_server_summary(self) -> None:
         """
-        Prints server summary for each player
+        Prints server summary for each player \n
         :return: None
+        :rtype: None
         """
         for server in self.__system.get_all_servers():
             total_time = 0
@@ -147,6 +158,11 @@ class Game:
             print("-----------------------------------------------")
 
     def print_full_game_summary(self) -> None:
+        """
+        Prints the results of the full system/game \n
+        :return: None
+        :rtype: None
+        """
         print("------- System benefit --------")
         for player in self.players:
             print(player.get_name(), self.__system.get_system_gain_times(player))

@@ -1,6 +1,7 @@
 import math
 import reward_functions.renewal
-
+import matplotlib.pyplot as plt
+import numpy as np
 
 def calculate_periodic_equilibrium(defender_costs, attacker_costs):
 
@@ -23,14 +24,14 @@ def periodic_opt_response(player, opponent):
 
 
 def age_density(z, rate):
-
-    if z < 1/rate:
+    if z < 1 / rate:
         return rate
     else:
         return 0
 
+
 def age_distribution(z, rate):
-    if z < 1/rate:
+    if z < 1 / rate:
         return rate * z
     else:
         return 1
@@ -43,7 +44,26 @@ if __name__ == '__main__':
 
     print(
         reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (2.5,), (2.5,), (0.2,), (0.2,)))
+                                        (0.001,), (2.6,), (0.2,), (0.2,)))
     print(
         reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (0.000000001,), (2.49,), (0.2,), (0.2,)))
+                                        (0.142,), (2.6,), (0.2,), (0.2,)))
+
+    y1 = []
+    y2 = []
+    x = np.arange(0.01,3,0.01)
+    for i in x:
+
+        temp = reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                              (i,), (2.5,), (0.2,), (0.2,))
+
+        y1.append(temp[0])
+
+        y2.append(temp[1])
+
+
+
+    plt.plot(x, y1)
+    plt.plot(x, y2)
+
+    plt.show()

@@ -31,7 +31,7 @@ class GeneticAlgorithm:
         else:
             if type(defenders) is dict:
                 self.defender_ga_properties = defenders
-                self.defenders = self.generate_players(defenders, self.ga_properties['upper_bound'])
+                self.defenders = self.generate_players(defenders)
             else:
 
                 strategies = set()
@@ -45,7 +45,7 @@ class GeneticAlgorithm:
 
             if type(attackers) is dict:
                 self.attacker_ga_properties = attackers
-                self.attackers = self.generate_players(attackers, self.ga_properties['upper_bound'])
+                self.attackers = self.generate_players(attackers)
             else:
 
                 strategies = set()
@@ -81,7 +81,7 @@ class GeneticAlgorithm:
 
         self.mutation_probability = 0
 
-    def generate_players(self, player_ga_properties, upper_bound):
+    def generate_players(self, player_ga_properties):
         player_list = []
         for i in range(0, player_ga_properties.get('number_of_players')):
             strategy_list = []
@@ -89,7 +89,7 @@ class GeneticAlgorithm:
 
             for server in range(0, len(player_ga_properties.get('move_costs'))):
                 strategy_list.append(player_ga_properties.get('strategy_classes')
-                                     [np.random.randint(0, number_of_strategies)](np.random.uniform(0, upper_bound)))
+                                     [np.random.randint(0, number_of_strategies)](np.random.uniform(self.ga_properties['lower_bound'], self.ga_properties['upper_bound'])))
 
             player_properties = {'move_costs': player_ga_properties['move_costs']}
 
@@ -264,8 +264,6 @@ class GeneticAlgorithm:
         mas = self.define_parents(keep_number, sorted_results)
         pas = self.define_parents(keep_number, sorted_results)
 
-        print("Mas:", mas)
-
         for counter1, ma in enumerate(mas):
             # We are creating the offspring to update the sorted results, ready for the next round
 
@@ -299,7 +297,8 @@ class GeneticAlgorithm:
                 mut = np.random.randint(self.att_keep_number, len(sorted_results))
                 serv = np.random.randint(0, self.number_of_servers)
                 strategy_class = player_ga_properties['strategy_classes'][np.random.randint(0, len(player_ga_properties['strategy_classes']))]
-                sorted_results[mut][0].update_strategy(serv, strategy_class(np.random.uniform(0, self.ga_properties['upper_bound'])))
+                sorted_results[mut][0].update_strategy(serv, strategy_class(np.random.uniform(
+                    self.ga_properties['lower_bound'], self.ga_properties['upper_bound'])))
 
                 # sorted_results[mut][0].update_strategy_rate(serv, np.random.uniform(0, 3))
 

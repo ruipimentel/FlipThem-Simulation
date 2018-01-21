@@ -2,7 +2,7 @@ from genetic_algorithms.genetic_algorithm import GeneticAlgorithm
 
 
 ga_properties = {
-    'file_location': 'genetic_algorithms/data/stochastic/1_resource/periodic/both_playing/0202/',
+    'file_location': 'genetic_algorithms/data/thesis/deterministic/1_resource/periodic/fixed_attacker/equilibrium/1/',
 }
 
 # data/deterministic/1_resource/periodic/larger_bounds/take_three
@@ -22,7 +22,7 @@ ga.ga_properties['print_out'] = True
 
 # ga.run(5000, 10)
 
-ga.plot()
+ga.plot(0, 200)
 # ga.plot_strategy_count()
 # ga.plot_variance_stats()
 

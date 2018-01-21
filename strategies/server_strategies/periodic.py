@@ -36,7 +36,6 @@ class Periodic(ServerStrategy):
         return "Periodic " + str(self.rate)
 
     def age_density(self, z, rate):
-
         if z < 1 / rate:
             return rate
         else:
