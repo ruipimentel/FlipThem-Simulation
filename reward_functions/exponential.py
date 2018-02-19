@@ -109,31 +109,38 @@ def age_distribution(z, rate):
 
 if __name__ == '__main__':
 
+    def_cost = (0.2,)
+    att_cost = (0.2,)
+    threshold = 1
 
-    print(equilibrium(1, (1.0,), (1.0,)))
-
-    print(
-        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (0.7,), (1.0,), (1.0,), (1.0,)))
-
-    print(
-        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (0.01,), (1.0,), (1.0,), (1.0,)))
+    print(equilibrium(threshold, def_cost, att_cost))
 
 
-    y1 = []
-    y2 = []
-    for i in range(1, 500):
+    if True:
+        print(
+            reward_functions.renewal.reward(threshold, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                            (0.7,), (1.0,), def_cost, att_cost))
 
-        y1.append(reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (i * 0.01,), (0.8,), (1.0,), (1.0,))[0])
-
-        y2.append(reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)),
-                                                  ((age_density,), (age_distribution,)),
-                                                  (i * 0.01,), (0.8,), (1.0,), (1.0,))[1])
+        print(
+            reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                            (0.01,), (1.0,), def_cost, att_cost))
 
 
-    plt.plot(y1)
-    plt.plot(y2)
+    if True:
+        y1 = []
+        y2 = []
+        x = np.arange(0.01, 3, 0.01)
+        for i in x:
 
-    plt.show()
+            y1.append(reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                            (i,), (1.25,), def_cost, att_cost)[0])
+
+            y2.append(reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)),
+                                                      ((age_density,), (age_distribution,)),
+                                                      (i,), (0.8,), def_cost, att_cost)[1])
+
+
+        plt.plot(y1)
+        plt.plot(y2)
+
+        plt.show()

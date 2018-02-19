@@ -2,7 +2,7 @@ from genetic_algorithms.genetic_algorithm import GeneticAlgorithm
 
 
 ga_properties = {
-    'file_location': 'genetic_algorithms/data/thesis/deterministic/1_resource/periodic/fixed_attacker/equilibrium/1/',
+    'file_location': 'genetic_algorithms/data/thesis/stochastic/1_resource/non_fixed/equilibrium/case_1/',
 }
 
 # data/deterministic/1_resource/periodic/larger_bounds/take_three
@@ -18,12 +18,12 @@ print("Tournament Properties", ga.tournament_properties)
 print("Defender GA Properties:", ga.defender_ga_properties)
 print("Attacker GA Properties:", ga.attacker_ga_properties)
 
-ga.ga_properties['print_out'] = True
+# ga.ga_properties['print_out'] = True
 
-# ga.run(5000, 10)
+# ga.run(200, 10)
 
-ga.plot(0, 200)
-# ga.plot_strategy_count()
+ga.plot()
+# ga.plot_strategy_count(100)
 # ga.plot_variance_stats()
 
 

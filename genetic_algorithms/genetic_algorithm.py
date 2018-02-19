@@ -14,6 +14,9 @@ from strategies.player import Player
 colors = ['#12efff','#eee00f','#e00fff','#123456','#abc222','#000000','#123fff','#1eff1f','#2edf4f','#2eaf9f','#22222f',
           '#eeeff1','#eee112','#00ef00','#aa0000','#0000aa','#000999','#32efff','#23ef68','#2e3f56','#7eef1f','#eeef11']
 
+other_colors = ['#12efff','#e00fff','#eee00f','#123456','#abc222','#000000','#123fff','#1eff1f','#2edf4f','#2eaf9f','#22222f',
+          '#eeeff1','#eee112','#00ef00','#aa0000','#0000aa','#000999','#32efff','#23ef68','#2e3f56','#7eef1f','#eeef11']
+
 
 class GeneticAlgorithm:
 
@@ -247,10 +250,10 @@ class GeneticAlgorithm:
             #                                                       #
             #########################################################
 
-            if len(self.defenders) > 1:
+            if len(self.defenders) > 1 and self.ga_properties['defender_update']:
                 self.create_new_generation(sorted_defender_results, self.def_keep_number, self.defender_ga_properties, i)
 
-            if len(self.attackers) > 1:
+            if len(self.attackers) > 1 and self.ga_properties['attacker_update']:
                 self.create_new_generation(sorted_attacker_results, self.att_keep_number, self.attacker_ga_properties, i)
 
             if i % file_write == 0 or i == number_of_rounds + round_start - 1:

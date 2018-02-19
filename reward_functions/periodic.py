@@ -40,30 +40,38 @@ def age_distribution(z, rate):
 if __name__ == '__main__':
 
 
-    print(calculate_periodic_equilibrium((0.2,), (0.2,)))
+    print(calculate_periodic_equilibrium((0.4,), (0.3,)))
 
-    print(
-        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (0.001,), (2.6,), (0.2,), (0.2,)))
-    print(
-        reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                        (0.142,), (2.6,), (0.2,), (0.2,)))
+    if False:
 
-    y1 = []
-    y2 = []
-    x = np.arange(0.01,3,0.01)
-    for i in x:
+        print(
+            reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                            (0.001,), (2.5,), (0.2,), (0.2,)))
+        print(
+            reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                            (0.142,), (2.5,), (0.2,), (0.2,)))
 
-        temp = reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
-                                              (i,), (2.5,), (0.2,), (0.2,))
+    if True:
+        y1 = []
+        y2 = []
+        x = np.arange(0.01, 3, 0.01)
+        for i in x:
 
-        y1.append(temp[0])
+            temp = reward_functions.renewal.reward(1, ((age_density,), (age_distribution,)), ((age_density,), (age_distribution,)),
+                                                  (i,), (2.5,), (0.2,), (0.2,))
 
-        y2.append(temp[1])
+            y1.append(temp[0])
+
+            y2.append(temp[1])
 
 
 
-    plt.plot(x, y1)
-    plt.plot(x, y2)
+        d, = plt.plot(x, y1, label='Defender',c='blue')
+        a, = plt.plot(x, y2,label='Attacker', c='red')
 
-    plt.show()
+        plt.xlabel('Defender rate')
+        plt.ylabel('Payoff')
+
+        plt.legend(handles=[d, a])
+
+        plt.show()
