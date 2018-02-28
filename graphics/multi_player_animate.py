@@ -1,7 +1,8 @@
 import tkinter as tk
+import matplotlib
 
-from server import Server
-from system import System
+matplotlib.use('TkAgg')
+
 """
 generalise all colours and options, perhaps into a dictionary? Maybe get some themes
 
