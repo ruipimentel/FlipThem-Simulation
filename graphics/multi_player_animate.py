@@ -88,10 +88,10 @@ class Animate:
     def start(self, game):
         """
         Starts the animation. Needs to be able to calculate all required information from system.
-        The system is a list of servers. 
+        The system is a list of servers.
         The servers contain player history and benefits
-        :param game: 
-        :return: 
+        :param game:
+        :return:
         """
         self.__setup_game(game)
 
