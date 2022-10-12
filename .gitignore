@@ -6,3 +6,4 @@ __pycache__/
 # IDE settings:
 .idea/
 .vscode/
+.venv/
