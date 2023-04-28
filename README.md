@@ -30,6 +30,14 @@ pip freeze > requirements.txt       # Updates the `requirements.txt` file.
 
 After which the `requirements.txt` file must be committed.
 
+If you get `ModuleNotFoundError: No module named 'tkinter'` when trying to execute the code, please note that it may be necessary to install Tkinter on your operating system. On the latest versions of Debian systems, this can be done through:
+
+```
+apt install python3-tk
+```
+
+**Note**: `apt install python-tk` is not the same as `apt install python3-tk`.
+
 While using `pip` (especially `pip list`) a *WARNING* may be issue regarding `pip` version. One can simply use the following command to upgrade it in order for the *WARNING* to stop appearing:
 
 ```
