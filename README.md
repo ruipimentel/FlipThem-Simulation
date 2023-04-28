@@ -55,3 +55,7 @@ At which point the environment folder can be destroyed if necessary:
 ```
 rm -rf .venv/
 ```
+
+## Setting up Visual Studio Code
+
+The activation (and "deactivation") of the virtual environment can be dealt automatically by Visual Studio Code's `Python` extension. All you have to do is accept the installation of the suggested extension (or search for it in the "Extensions" tab), then open the project folder (or restart VS Code).
