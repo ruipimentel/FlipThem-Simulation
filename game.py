@@ -1,3 +1,5 @@
+from typing import Tuple, Dict
+
 from system import System
 # If threshold is false, we assume attackers must get into whole system for benefit and defender has benefit whenever
 # they are in control of one or more servers
@@ -15,33 +17,37 @@ from copy import copy
 # from graphics.multi_player_animate import Animate
 
 base_properties = {
-        'time_limit': 1000
-    }
+    'time_limit': 1000,
+}
 
 
 class Game:
     """
       Representing the FlipIt/FlipThem/Threshold FlipThem Game, depending on the
       number of servers in the system and the threshold of the players.
+
+      Holds a system and multiple players.
     """
 
-    def __init__(self, players, system, game_properties=base_properties):
+    def __init__(
+        self,
+        players: Tuple[Player, ...],
+        system: System,
+        game_properties: Dict = base_properties,
+    ):
         """
 
         :param players: A list/tuple of players to take part in the game
-        :type players: Each player is of type Player
         :param system: System object containing a number of Server classes
-        :type system: Of class System
         :param game_properties: A dictionary containing the properties of the game to be played
-        :type game_properties:
         """
 
 
-        self.current_time = 0.0
-        self.time_limit = game_properties['time_limit']
-        self.players = players
-        self.__system = system
-        self.game_properties = game_properties
+        self.current_time: float = 0.0
+        self.time_limit: float = game_properties['time_limit']
+        self.players: Tuple[Player, ...] = players
+        self.__system: System = system
+        self.game_properties: Dict = game_properties
         self.__system.initialise_system(players, game_properties)
 
         for player in players:
@@ -50,8 +56,6 @@ class Game:
     def play(self) -> None:
         """
         Plays the prescribed game between the players \n
-        :return: None
-        :rtype: None
         """
 
         player_move_times = {player: player.check_for_move_times(self.game_properties, self.__system,
@@ -105,14 +109,12 @@ class Game:
     def get_system(self):
         """
         :return: System the game is played over
-        :rtype: System
         """
         return self.__system
 
     def get_time_limit(self) -> float:
         """
         :return: The time limit of the game
-        :rtype: float
         """
         return self.game_properties['time_limit']
 
@@ -126,8 +128,6 @@ class Game:
         """
         Resets the system ready for a new game. \n
         Resets the time to zero. \n
-        :return: None
-        :rtype: None
         """
         self.__system.reset_system()
         self.current_time = 0.0
@@ -140,8 +140,6 @@ class Game:
     def print_individual_server_summary(self) -> None:
         """
         Prints server summary for each player \n
-        :return: None
-        :rtype: None
         """
         for server in self.__system.get_all_servers():
             total_time = 0
@@ -160,8 +158,6 @@ class Game:
     def print_full_game_summary(self) -> None:
         """
         Prints the results of the full system/game \n
-        :return: None
-        :rtype: None
         """
         print("------- System benefit --------")
         for player in self.players:
