@@ -1,0 +1,19 @@
+@startuml "class-diagram"
+
+class Game {
+  + current_time: float
+  + time_limit: float
+  + players: List[Player]
+  + __system
+  + game_properties: Dict
+  + __init__(players: Tuple[Player, ...], system: System, game_properties: Dict = base_properties)
+  + play(): None
+  + get_system(): System
+  + get_time_limit(): float
+  + reset(): None
+  + print_individual_server_summary(): None
+  + print_full_game_summary(): None
+}
+
+@enduml
+
