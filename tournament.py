@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Tuple, List, Dict, TYPE_CHECKING
+
 import numpy as np
 from multiprocessing import Pool
 from enum import Enum
@@ -5,6 +9,9 @@ from enum import Enum
 from game import Game
 from system import System
 from reward_functions.renewal import reward
+
+if TYPE_CHECKING:
+    from strategies.player import Player
 
 class TOURNAMENT_TYPE(Enum):
     STOCHASTIC = 1
@@ -19,19 +26,24 @@ class Tournament(object):
     - Decide on number of times we play each game
     """
 
-    def __init__(self, defender_strategies=None, attacker_strategies=None, tournament_properties=None):
+    def __init__(
+            self,
+            defender_strategies: (Tuple[Player, ...] | None) = None,
+            attacker_strategies: (Tuple[Player, ...] | None) = None,
+            tournament_properties: Dict = None,
+        ):
         # Needs to iterate through each strategy, putting them as defence
         # Then iterate through the rest of the strategies in attacking position
         #
-        self.attacker_strategies = attacker_strategies
-        self.defender_strategies = defender_strategies
-        self.tournament_properties = tournament_properties
-        number_of_resources = len(attacker_strategies[0].get_strategies())
-        self.system = System(number_of_resources)
-        self.defender_results = {}
-        self.attacker_results = {}
-        self.mean_defender_results = {}
-        self.mean_attacker_results = {}
+        self.attacker_strategies: Tuple[Player, ...] = attacker_strategies
+        self.defender_strategies: Tuple[Player, ...] = defender_strategies
+        self.tournament_properties: Dict = tournament_properties
+        number_of_resources: int = len(attacker_strategies[0].get_strategies())
+        self.system: System = System(number_of_resources)
+        self.defender_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]] = {}
+        self.attacker_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]] = {}
+        self.mean_defender_results: Dict[Player, Dict[Player, Tuple[float, float]]] = {}
+        self.mean_attacker_results: Dict[Player, Dict[Player, Tuple[float, float]]] = {}
 
         for attacker in self.attacker_strategies:
             self.attacker_results[attacker] = {}
@@ -41,7 +53,7 @@ class Tournament(object):
             self.defender_results[defender] = {}
             self.mean_defender_results[defender] = {}
 
-    def play_games(self, players):
+    def play_games(self, players: Tuple[Player, Player]) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
         system = System(self.system.get_number_of_servers())
         defender = players[0]
         defender.get_player_properties()['threshold'] = self.tournament_properties['defender_threshold']
@@ -85,7 +97,7 @@ class Tournament(object):
 
         return defender_results, attacker_results
 
-    def play_tournament(self):
+    def play_tournament(self) -> None:
 
         total_games = len(self.attacker_strategies) * len(self.defender_strategies)
         games_to_play = total_games * self.tournament_properties['selection_ratio']
@@ -115,14 +127,14 @@ class Tournament(object):
                 np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
                 np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
 
-    def get_mean_defense(self):
+    def get_mean_defense(self) -> Dict[Player, float]:
         mean_defense = {}
         for defender in self.defender_strategies:
             mean_defense[defender] = np.mean([self.mean_defender_results[defender][x][0]
                                               for x in self.mean_defender_results[defender]])
         return mean_defense
 
-    def get_mean_attack(self):
+    def get_mean_attack(self) -> Dict[Player, float]:
         mean_attack = {}
         for attacker in self.attacker_strategies:
             mean_attack[attacker] = np.mean([self.mean_attacker_results[attacker][x][0]
