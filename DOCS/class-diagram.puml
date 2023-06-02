@@ -15,5 +15,30 @@ class Game {
   + print_full_game_summary(): None
 }
 
+class System {
+  + {field} __servers: List[Server]
+  + {field} __player_benefits: Dict[Player, List[Tuple[float, float]]]
+  + {field} player_ownership_count: Dict[Player, int]
+  + {field} players: Tuple[Player, ...]
+  + {field} player_ownership: Dict[Player, bool]
+  + {field} game_properties: (Dict | None)
+  + {field} number_of_servers: int
+  + __init__(number_of_servers: int)
+  + initialise_system(players: Tuple[Player, ...], game_properties: (Dict | None) = None): None
+  + get_all_servers(): List[Server]
+  + get_server_by_name(name): (Server | False)
+  + get_number_of_servers(): int
+  + change_server_control(server: Server, player: Player, time: float): None
+  + get_player_server_benefits(player: Player, server: Server): float
+  + get_system_gain_times(player: Player, time: (float | None) = None): List[Tuple[float, float]]
+  + get_all_player_benefit_times(): Dict[Player, List[Tuple[float, float]]]
+  + get_system_reward(player: Player, time: (float | None) = None): float
+  + get_players(): Tuple[Player, ...]
+  + reset_system(): None
+  + __get_latest_time(): float
+}
+
+Game --> System
+
 @enduml
 
