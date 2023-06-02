@@ -131,9 +131,6 @@ class System(object):
         for server in self.get_all_servers():
             server.reset_server()
 
-    def get_system_move_costs(self):
-        return [s.get_move_costs() for s in self.__servers]
-
     def __get_latest_time(self):
         latest_move_time = 0.0
 
