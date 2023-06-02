@@ -38,7 +38,34 @@ class System {
   + __get_latest_time(): float
 }
 
+namespace strategies {
+
+  class Player {
+    + __name: str
+    + player_properties: Dict
+    + server_strategies: Dict[Server, ServerStrategy]
+    + strategies: (Tuple[ServerStrategy, ...] | None)
+    + planned_moves: Dict[Server, float]
+    + __init__(name: str, strategies: (Tuple[ServerStrategy, ...] | ServerStrategy | None) = None, player_properties: Dict = base_properties)
+    + initialise_strategies(system: System): None
+    + check_for_move_times(game_properties: Dict, system: System, current_time: float): Dict[Server, float]
+    + reset(): None
+    + get_name(): str
+    + set_name(name): None
+    + get_player_properties(): Dict
+    + update_strategy_rate(strategy_number, rate): None
+    + update_strategy(strategy_number, strategy): None
+    + get_strategies(): (Tuple[ServerStrategy, ...] | None)
+    + get_strategy_rate(server_number: int): float
+    + get_strategy(server_number: int): ServerStrategy
+    + set_strategies(strategies): None
+  }
+
+}
+
 Game --> System
+Game --> strategies.Player
+System <--> strategies.Player
 
 @enduml
 
