@@ -38,6 +38,30 @@ class System {
   + __get_latest_time(): float
 }
 
+class Server {
+  + __name: str
+  + __current_controller: (Player | None)
+  + __player_costs: Dict[Player, float]
+  + __player_history: Dict[Player, List[float]]
+  + __player_benefits: Dict[Player, Tuple[float, float]]
+  + __init__(name: str)
+  + initialise_server(players: Tuple[Player, ...], game_properties: (Dict | None) = None, server_number: int = 0): None
+  + change_control(player: Player, current_time: float): None
+  + __update_player_benefits(player: Player, last_move: float, current_time: float): None
+  + get_current_controller(): (Player | None)
+  + __add_history(player: Player, current_time: float): None
+  + get_name(): str
+  + get_history(player: Player, time: (float | None) = None): List[float]
+  + get_player_benefit_times(player: Player): Tuple[float, float]
+  + get_all_player_benefit_times(): Dict[Player, Tuple[float, float]]
+  + get_player_costs(player: Player): float
+  + get_benefit_value(player: Player, time: float): float
+  + get_players(): List[Player]
+  + get_number_of_moves(player: Player, time: (float | None) = None): int
+  + get_reward_for_player(player: Player, time: float): float
+  + reset_server(): None
+}
+
 namespace strategies {
 
   class Player {
@@ -66,6 +90,8 @@ namespace strategies {
 Game --> System
 Game --> strategies.Player
 System <--> strategies.Player
+System --> Server
+Server <--> strategies.Player
 
 @enduml
 
