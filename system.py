@@ -1,32 +1,40 @@
+from __future__ import annotations
+
+from typing import List, Dict, Tuple, TYPE_CHECKING
+
 from server import Server
+
+if TYPE_CHECKING:
+    from strategies.player import Player
 
 
 class System(object):
     """
         - Holds a list of servers for the Game class to manipulate
         - Based on the threshold, calculates the reward of each player
+        - This is where the game type can be decided, all on the reward structure (threshold etc.) (?)
         - Gain: amount of time a player receives "something" from the system
         - Reward: Gain minus the cost of each move carried out
     """
 
-    def __init__(self, number_of_servers):
+    def __init__(self, number_of_servers: int):
         """
         :param number_of_servers: Number of servers in the system
         """
-        self.__servers = []
-        self.__player_benefits = {}
-        self.player_ownership_count = {}
-        self.players = ()
-        self.player_ownership = {}
-        self.game_properties = None
-        self.number_of_servers = number_of_servers
+        self.__servers: List[Server] = []
+        self.__player_benefits: Dict[Player, List[Tuple[float, float]]] = {}
+        self.player_ownership_count: Dict[Player, int] = {}
+        self.players: Tuple[Player, ...] = ()
+        self.player_ownership: Dict[Player, bool] = {}
+        self.game_properties: (Dict | None) = None
+        self.number_of_servers: int = number_of_servers
 
         for i in range(0, self.number_of_servers):
                 self.__servers.append(Server("Server " + str(i)))
 
         self.__servers = tuple(self.__servers)
 
-    def initialise_system(self, players, game_properties=None):
+    def initialise_system(self, players: Tuple[Player, ...], game_properties: (Dict | None) = None) -> None:
 
         self.players = players
         self.game_properties = game_properties
@@ -43,20 +51,20 @@ class System(object):
         for counter, server in enumerate(self.__servers):
             server.initialise_server(players, game_properties, counter)
 
-    def get_all_servers(self):
+    def get_all_servers(self) -> List[Server]:
         return self.__servers
 
-    def get_server_by_name(self, name):
+    def get_server_by_name(self, name) -> (Server | bool):
         for server in self.__servers:
             if server.get_name() == name:
                 return server
 
         return False
 
-    def get_number_of_servers(self):
+    def get_number_of_servers(self) -> int:
         return len(self.__servers)
 
-    def change_server_control(self, server, player, time):
+    def change_server_control(self, server: Server, player: Player, time: float) -> None:
         if isinstance(server, str):
             self.get_server_by_name(server).change_control(player, time)
         else:
@@ -92,10 +100,10 @@ class System(object):
                     self.__player_benefits[player][-1] = (t[0], time)
                     self.player_ownership[player] = False
 
-    def get_player_server_benefits(self, player, server):
+    def get_player_server_benefits(self, player: Player, server: Server) -> float:
         return self.get_server_by_name(server.get_name()).get_benefit_value(player)
 
-    def get_system_gain_times(self, player, time=None):
+    def get_system_gain_times(self, player: Player, time: (float | None) = None) -> List[Tuple[float, float]]:
         if time is None:
             return self.__player_benefits[player]
         elif self.__player_benefits.get(player) is not None:
@@ -103,10 +111,10 @@ class System(object):
         else:
             return []
 
-    def get_all_player_benefit_times(self):
+    def get_all_player_benefit_times(self) -> Dict[Player, List[Tuple[float, float]]]:
         return self.__player_benefits
 
-    def get_system_reward(self, player, time=None):
+    def get_system_reward(self, player, time: (float | None) = None) -> float:
 
         if time == 0:
             return 0
@@ -123,15 +131,15 @@ class System(object):
 
         return benefit/self.__get_latest_time()
 
-    def get_players(self):
+    def get_players(self) -> Tuple[Player, ...]:
         return self.players
 
-    def reset_system(self):
+    def reset_system(self) -> None:
 
         for server in self.get_all_servers():
             server.reset_server()
 
-    def __get_latest_time(self):
+    def __get_latest_time(self) -> float:
         latest_move_time = 0.0
 
         for player in self.__player_benefits:
