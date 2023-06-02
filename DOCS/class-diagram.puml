@@ -78,6 +78,43 @@ class Server {
   + reset_server(): None
 }
 
+namespace genetic_algorithms {
+
+  class GeneticAlgorithm {
+    + {field} ga_properties: (Dict | None)
+    + {field} defender_ga_properties: Dict
+    + {field} defenders: Tuple[Player, ...]
+    + {field} attacker_ga_properties: Dict
+    + {field} attackers: Tuple[Player, ...]
+    + {field} number_of_servers: int
+    + {field} tournament_properties: (Dict | None)
+    + {field} game_properties: (Dict | None)
+    + {field} defender_population: Dict[int, List[float] | NDArray[float]]
+    + {field} attacker_population: Dict[int, List[float] | NDArray[float]]
+    + {field} defender_benefit: (List[float] | NDArray[float])
+    + {field} attacker_benefit: (List[float] | NDArray[float])
+    + {field} def_keep_number: int
+    + {field} att_keep_number: int
+    + {field} def_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]]
+    + {field} att_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]]
+    + {field} mutation_probability: float
+    + __init__(defenders: (Dict | Tuple[Player, ...] | None) = None, attackers: (Dict | Tuple[Player, ...] | None) = None, ga_properties: (Dict | None) = None, tournament_properties: (Dict | None) = None, game_properties: (Dict | None) = None)
+    + generate_players(player_ga_properties: Dict): Tuple[Player, ...]
+    + __initiate(): None
+    + run(number_of_rounds: int, file_write: int = 0): None
+    + create_new_generation(sorted_results: List[Tuple[Player, float]], keep_number: int, player_ga_properties: Dict, round: int): None
+    + define_parents(keep_number: int, results: List[Tuple[Player, float]]): List[Player]
+    + plot(start_time: float = 0, end_time: float = 0, share_axes: bool = False): None
+    + plot_variance_stats(start_time: float = 0, end_time: float = 0): None
+    + plot_strategy_count(start_time: float = 0, end_time: float = 0): None
+    + write_to_file(file_number: str = "-1"): None
+    + create_directory(directory: str): None
+    + write_info_files(): None
+    + read_from_file(file_number: (str | None) = None): None
+  }
+
+}
+
 namespace strategies {
 
   class Player {
@@ -103,6 +140,8 @@ namespace strategies {
 
 }
 
+genetic_algorithms.GeneticAlgorithm --> Tournament
+genetic_algorithms.GeneticAlgorithm --> strategies.Player
 Tournament --> Game
 Tournament --> System
 Tournament --> strategies.Player

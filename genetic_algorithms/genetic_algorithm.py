@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Tuple, List, Dict, TYPE_CHECKING
+
 from copy import copy
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +15,10 @@ import pickle
 from tournament import Tournament
 from strategies.player import Player
 
+if TYPE_CHECKING:
+    from numpy import NDArray
+    from strategies.server_strategies.server_strategy import ServerStrategy
+
 colors = ['#12efff','#eee00f','#e00fff','#123456','#abc222','#000000','#123fff','#1eff1f','#2edf4f','#2eaf9f','#22222f',
           '#eeeff1','#eee112','#00ef00','#aa0000','#0000aa','#000999','#32efff','#23ef68','#2e3f56','#7eef1f','#eeef11']
 
@@ -21,70 +29,72 @@ other_colors = ['#12efff','#e00fff','#eee00f','#123456','#abc222','#000000','#12
 class GeneticAlgorithm:
 
     def __init__(self,
-                 defenders=None,
-                 attackers=None,
-                 ga_properties=None,
-                 tournament_properties=None,
-                 game_properties=None):
+                 defenders: (Dict | Tuple[Player, ...] | None) = None,
+                 attackers: (Dict | Tuple[Player, ...] | None) = None,
+                 ga_properties: (Dict | None) = None,
+                 tournament_properties: (Dict | None) = None,
+                 game_properties: (Dict | None) = None):
 
-        self.ga_properties = ga_properties
+        self.ga_properties: (Dict | None) = ga_properties
         # Initiate players
         if defenders is None:
             print("Blank genetic_algorithms created (for now)")
         else:
             if type(defenders) is dict:
-                self.defender_ga_properties = defenders
-                self.defenders = self.generate_players(defenders)
+                self.defender_ga_properties: Dict = defenders
+                self.defenders: Tuple[Player, ...] = self.generate_players(defenders)
             else:
 
                 strategies = set()
                 for s in defenders[0].get_strategies():
                     strategies.add(type(s))
 
-                self.defender_ga_properties = {'move_costs': defenders[0].get_player_properties()['move_costs'],
+                self.defender_ga_properties: Dict = {
+                                               'move_costs': defenders[0].get_player_properties()['move_costs'],
                                                'strategy_classes': tuple(strategies),
                                                'number_of_players': len(attackers)}
-                self.defenders = defenders
+                self.defenders: Tuple[Player, ...] = defenders
 
             if type(attackers) is dict:
-                self.attacker_ga_properties = attackers
-                self.attackers = self.generate_players(attackers)
+                self.attacker_ga_properties: Dict = attackers
+                self.attackers: Tuple[Player, ...] = self.generate_players(attackers)
             else:
 
                 strategies = set()
                 for s in attackers[0].get_strategies():
                     strategies.add(type(s))
-                self.attacker_ga_properties = {'move_costs': attackers[0].get_player_properties()['move_costs'],
+                self.attacker_ga_properties: Dict = {
+                                               'move_costs': attackers[0].get_player_properties()['move_costs'],
                                                'strategy_classes': tuple(strategies),
                                                'number_of_players': len(attackers)}
-                self.attackers = attackers
+                self.attackers: Tuple[Player, ...] = attackers
 
             if len(self.attacker_ga_properties['move_costs']) == len(self.defender_ga_properties['move_costs']):
-                self.number_of_servers = len(self.attacker_ga_properties['move_costs'])
+                self.number_of_servers: int = len(self.attacker_ga_properties['move_costs'])
             else:
                 raise ValueError("Number of move costs for defender and attacker not equal")
 
-        self.tournament_properties = tournament_properties
-        self.game_properties = game_properties
+        self.tournament_properties: (Dict | None) = tournament_properties
+        self.game_properties: (Dict | None) = game_properties
 
-        self.defender_population = {}
-        self.attacker_population = {}
+        self.defender_population: Dict[int, List[float] | NDArray[float]] = {}
+        self.attacker_population: Dict[int, List[float] | NDArray[float]] = {}
 
-        self.defender_benefit = []
-        self.attacker_benefit = []
+        self.defender_benefit: (List[float] | NDArray[float]) = []
+        self.attacker_benefit: (List[float] | NDArray[float]) = []
 
         # self.def_benefit_average = []
         # self.att_benefit_average = []
 
-        self.def_keep_number = 8
-        self.att_keep_number = 8
+        self.def_keep_number: int = 8
+        self.att_keep_number: int = 8
 
-        self.def_strategy_count = {}
-        self.att_strategy_count = {}
+        self.def_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
+        self.att_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
 
-        self.mutation_probability = 0
+        self.mutation_probability: float = 0
 
-    def generate_players(self, player_ga_properties):
+    def generate_players(self, player_ga_properties: Dict) -> Tuple[Player, ...]:
         player_list = []
         for i in range(0, player_ga_properties.get('number_of_players')):
             strategy_list = []
@@ -102,7 +112,7 @@ class GeneticAlgorithm:
 
         return tuple(player_list)
 
-    def __initiate(self):
+    def __initiate(self) -> None:
 
         self.write_info_files()
 
@@ -126,7 +136,7 @@ class GeneticAlgorithm:
                 for strategy in self.attacker_ga_properties['strategy_classes']:
                     self.att_strategy_count[s][strategy] = []
 
-    def run(self, number_of_rounds, file_write=0):
+    def run(self, number_of_rounds: int, file_write: int = 0) -> None:
 
         if len(self.defender_benefit) == 0:
             self.__initiate()
@@ -262,7 +272,7 @@ class GeneticAlgorithm:
             t2 = time.time()
 
 
-    def create_new_generation(self, sorted_results, keep_number, player_ga_properties, round):
+    def create_new_generation(self, sorted_results: List[Tuple[Player, float]], keep_number: int, player_ga_properties: Dict, round: int) -> None:
 
         mas = self.define_parents(keep_number, sorted_results)
         pas = self.define_parents(keep_number, sorted_results)
@@ -305,7 +315,7 @@ class GeneticAlgorithm:
 
                 # sorted_results[mut][0].update_strategy_rate(serv, np.random.uniform(0, 3))
 
-    def define_parents(self, keep_number, results):
+    def define_parents(self, keep_number: int, results: List[Tuple[Player, float]]) -> List[Player]:
         parents = []
 
         s = 0
@@ -327,7 +337,7 @@ class GeneticAlgorithm:
 
         return parents
 
-    def plot(self, start_time=0, end_time=0, share_axes=False):
+    def plot(self, start_time: float = 0, end_time: float = 0, share_axes: bool = False) -> None:
 
         # def_equilibrium, att_equilibrium = reward_functions.exponential.equilibrium(
         #                                                             self.tournament_properties['attacker_threshold'],
@@ -455,7 +465,7 @@ class GeneticAlgorithm:
         fig.tight_layout()
         plt.show()
 
-    def plot_variance_stats(self, start_time=0, end_time=0):
+    def plot_variance_stats(self, start_time: float = 0, end_time: float = 0) -> None:
 
         if end_time == 0:
             end_time = len(self.defender_benefit)
@@ -497,7 +507,7 @@ class GeneticAlgorithm:
         plt.show()
 
 
-    def plot_strategy_count(self, start_time=0, end_time=0):
+    def plot_strategy_count(self, start_time: float = 0, end_time: float = 0) -> None:
 
         if end_time == 0:
             end_time = len(self.defender_benefit)
@@ -531,7 +541,7 @@ class GeneticAlgorithm:
         fig.tight_layout()
         plt.show()
 
-    def write_to_file(self, file_number="-1"):
+    def write_to_file(self, file_number: str = "-1") -> None:
 
         self.create_directory(self.ga_properties.get('file_location'))
 
@@ -561,12 +571,12 @@ class GeneticAlgorithm:
         file = Path(self.ga_properties.get('file_location') + 'attacker_strategy_count_' + str(file_number) + ".pkl")
         save_object(obj=self.att_strategy_count, filename=file)
 
-    def create_directory(self, directory):
+    def create_directory(self, directory: str) -> None:
 
         if not os.path.exists(directory):
             os.makedirs(directory)
 
-    def write_info_files(self):
+    def write_info_files(self) -> None:
         self.create_directory(self.ga_properties.get('file_location') + 'info_files/')
 
         file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'ga_properties' + ".pkl")
@@ -581,7 +591,7 @@ class GeneticAlgorithm:
         file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'attacker_ga_properties' + ".pkl")
         save_object(obj=self.attacker_ga_properties, filename=file)
 
-    def read_from_file(self, file_number=None):
+    def read_from_file(self, file_number: (str | None) = None) -> None:
 
         file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'ga_properties' + ".pkl")
         if file.exists():
@@ -662,12 +672,12 @@ class GeneticAlgorithm:
             self.att_strategy_count = pickle.load(put)
 
 
-def save_object(obj, filename):
+def save_object(obj, filename: Path) -> None:
     with open(filename, 'wb') as output:
         pickle.dump(obj, output, pickle.HIGHEST_PROTOCOL)
 
 
-def plot_universes(location, number):
+def plot_universes(location: str, number: int) -> None:
 
         def_universes = {}
         for i in range(0, number):
