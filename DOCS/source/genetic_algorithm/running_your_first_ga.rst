@@ -9,7 +9,7 @@ The first thing we'll try is setting up a simple Genetic Algorithm (GA), running
     from genetic_algorithms.genetic_algorithm import GeneticAlgorithm
     from strategies.server_strategies.exponential import Exponential
     from strategies.player import Player
-    from tournament import TOURNAMENT_TYPE
+    from core.tournament import TOURNAMENT_TYPE
 
 Here, we have imported the modules required to run some form of GA.
 We are going to fill the two (defender and attacker) populations with Exponential strategies only.

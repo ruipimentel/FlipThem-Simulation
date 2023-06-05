@@ -9,12 +9,12 @@ parser.add_argument('-asc', type=str,   help='Attacker strategy class')
 parser.add_argument('-tl',  type=float, help='Time limit for the simulation')
 args = parser.parse_args()
 
-from system import System
+from core.system import System
 from strategies.player import Player
 from strategies.server_strategies.exponential import Exponential
 from strategies.server_strategies.lm_periodic import LastMove
 from strategies.server_strategies.periodic import Periodic
-from game import Game
+from core.game import Game
 from copy import copy
 
 def generate_strategy(sc, r):

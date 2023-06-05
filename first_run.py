@@ -1,11 +1,11 @@
-from system import System
+from core.system import System
 # If threshold is false, we assume attackers must get into whole system for benefit and defender has benefit whenever
 # they are in control of one or more servers
 from graphics.multi_player_animate import Animate
 from strategies.player import Player
 from strategies.server_strategies.exponential import Exponential
 from strategies.server_strategies.periodic import Periodic
-from game import Game
+from core.game import Game
 from copy import copy
 
 

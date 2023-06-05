@@ -6,8 +6,8 @@ import numpy as np
 from multiprocessing import Pool
 from enum import Enum
 
-from game import Game
-from system import System
+from core.game import Game
+from core.system import System
 from reward_functions.renewal import reward
 
 if TYPE_CHECKING:

@@ -1,81 +1,90 @@
 @startuml "class-diagram"
 
-class Tournament {
-  + attacker_strategies: Tuple[Player, ...]
-  + defender_strategies: Tuple[Player, ...]
-  + tournament_properties: Dict
-  + system: System
-  + defender_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
-  + attacker_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
-  + mean_defender_results: Dict[Player, Dict[Player, Tuple[float, float]]]
-  + mean_attacker_results: Dict[Player, Dict[Player, Tuple[float, float]]]
-  + __init__(defender_strategies: (Tuple[Player, ...] | None) = None, attacker_strategies: (Tuple[Player, ...] | None) = None, tournament_properties: Dict = None)
-  + play_games(players: Tuple[Player, Player]): Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]
-  + play_tournament(): None
-  + get_mean_defense(): Dict[Player, float]
-  + get_mean_attack(): Dict[Player, float]
-}
+namespace core {
 
-class Game {
-  + current_time: float
-  + time_limit: float
-  + players: List[Player]
-  + __system
-  + game_properties: Dict
-  + __init__(players: Tuple[Player, ...], system: System, game_properties: Dict = base_properties)
-  + play(): None
-  + get_system(): System
-  + get_time_limit(): float
-  + reset(): None
-  + print_individual_server_summary(): None
-  + print_full_game_summary(): None
-}
+  class Tournament {
+    + attacker_strategies: Tuple[Player, ...]
+    + defender_strategies: Tuple[Player, ...]
+    + tournament_properties: Dict
+    + system: System
+    + defender_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
+    + attacker_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
+    + mean_defender_results: Dict[Player, Dict[Player, Tuple[float, float]]]
+    + mean_attacker_results: Dict[Player, Dict[Player, Tuple[float, float]]]
+    + __init__(defender_strategies: (Tuple[Player, ...] | None) = None, attacker_strategies: (Tuple[Player, ...] | None) = None, tournament_properties: Dict = None)
+    + play_games(players: Tuple[Player, Player]): Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]
+    + play_tournament(): None
+    + get_mean_defense(): Dict[Player, float]
+    + get_mean_attack(): Dict[Player, float]
+  }
 
-class System {
-  + __servers: List[Server]
-  + __player_benefits: Dict[Player, List[Tuple[float, float]]]
-  + player_ownership_count: Dict[Player, int]
-  + players: Tuple[Player, ...]
-  + player_ownership: Dict[Player, bool]
-  + game_properties: (Dict | None)
-  + number_of_servers: int
-  + __init__(number_of_servers: int)
-  + initialise_system(players: Tuple[Player, ...], game_properties: (Dict | None) = None): None
-  + get_all_servers(): List[Server]
-  + get_server_by_name(name): (Server | False)
-  + get_number_of_servers(): int
-  + change_server_control(server: Server, player: Player, time: float): None
-  + get_player_server_benefits(player: Player, server: Server): float
-  + get_system_gain_times(player: Player, time: (float | None) = None): List[Tuple[float, float]]
-  + get_all_player_benefit_times(): Dict[Player, List[Tuple[float, float]]]
-  + get_system_reward(player: Player, time: (float | None) = None): float
-  + get_players(): Tuple[Player, ...]
-  + reset_system(): None
-  + __get_latest_time(): float
-}
+  class Game {
+    + current_time: float
+    + time_limit: float
+    + players: List[Player]
+    + __system
+    + game_properties: Dict
+    + __init__(players: Tuple[Player, ...], system: System, game_properties: Dict = base_properties)
+    + play(): None
+    + get_system(): System
+    + get_time_limit(): float
+    + reset(): None
+    + print_individual_server_summary(): None
+    + print_full_game_summary(): None
+  }
 
-class Server {
-  + __name: str
-  + __current_controller: (Player | None)
-  + __player_costs: Dict[Player, float]
-  + __player_history: Dict[Player, List[float]]
-  + __player_benefits: Dict[Player, Tuple[float, float]]
-  + __init__(name: str)
-  + initialise_server(players: Tuple[Player, ...], game_properties: (Dict | None) = None, server_number: int = 0): None
-  + change_control(player: Player, current_time: float): None
-  + __update_player_benefits(player: Player, last_move: float, current_time: float): None
-  + get_current_controller(): (Player | None)
-  + __add_history(player: Player, current_time: float): None
-  + get_name(): str
-  + get_history(player: Player, time: (float | None) = None): List[float]
-  + get_player_benefit_times(player: Player): Tuple[float, float]
-  + get_all_player_benefit_times(): Dict[Player, Tuple[float, float]]
-  + get_player_costs(player: Player): float
-  + get_benefit_value(player: Player, time: float): float
-  + get_players(): List[Player]
-  + get_number_of_moves(player: Player, time: (float | None) = None): int
-  + get_reward_for_player(player: Player, time: float): float
-  + reset_server(): None
+  class System {
+    + __servers: List[Server]
+    + __player_benefits: Dict[Player, List[Tuple[float, float]]]
+    + player_ownership_count: Dict[Player, int]
+    + players: Tuple[Player, ...]
+    + player_ownership: Dict[Player, bool]
+    + game_properties: (Dict | None)
+    + number_of_servers: int
+    + __init__(number_of_servers: int)
+    + initialise_system(players: Tuple[Player, ...], game_properties: (Dict | None) = None): None
+    + get_all_servers(): List[Server]
+    + get_server_by_name(name): (Server | False)
+    + get_number_of_servers(): int
+    + change_server_control(server: Server, player: Player, time: float): None
+    + get_player_server_benefits(player: Player, server: Server): float
+    + get_system_gain_times(player: Player, time: (float | None) = None): List[Tuple[float, float]]
+    + get_all_player_benefit_times(): Dict[Player, List[Tuple[float, float]]]
+    + get_system_reward(player: Player, time: (float | None) = None): float
+    + get_players(): Tuple[Player, ...]
+    + reset_system(): None
+    + __get_latest_time(): float
+  }
+
+  class Server {
+    + __name: str
+    + __current_controller: (Player | None)
+    + __player_costs: Dict[Player, float]
+    + __player_history: Dict[Player, List[float]]
+    + __player_benefits: Dict[Player, Tuple[float, float]]
+    + __init__(name: str)
+    + initialise_server(players: Tuple[Player, ...], game_properties: (Dict | None) = None, server_number: int = 0): None
+    + change_control(player: Player, current_time: float): None
+    + __update_player_benefits(player: Player, last_move: float, current_time: float): None
+    + get_current_controller(): (Player | None)
+    + __add_history(player: Player, current_time: float): None
+    + get_name(): str
+    + get_history(player: Player, time: (float | None) = None): List[float]
+    + get_player_benefit_times(player: Player): Tuple[float, float]
+    + get_all_player_benefit_times(): Dict[Player, Tuple[float, float]]
+    + get_player_costs(player: Player): float
+    + get_benefit_value(player: Player, time: float): float
+    + get_players(): List[Player]
+    + get_number_of_moves(player: Player, time: (float | None) = None): int
+    + get_reward_for_player(player: Player, time: float): float
+    + reset_server(): None
+  }
+
+  Tournament --> Game
+  Tournament --> System
+  Game --> System
+  System --> Server
+
 }
 
 namespace genetic_algorithms {
@@ -177,17 +186,13 @@ namespace strategies {
 
 }
 
-genetic_algorithms.GeneticAlgorithm --> Tournament
+genetic_algorithms.GeneticAlgorithm --> core.Tournament
 genetic_algorithms.GeneticAlgorithm --> strategies.Player
 genetic_algorithms.GeneticAlgorithm --> strategies.server_strategies.ServerStrategy
-Tournament --> Game
-Tournament --> System
-Tournament --> strategies.Player
-Game --> System
-Game --> strategies.Player
-System <--> strategies.Player
-System --> Server
-Server <--> strategies.Player
+core.Tournament --> strategies.Player
+core.Game --> strategies.Player
+core.System <--> strategies.Player
+core.Server <--> strategies.Player
 strategies.Player --> strategies.server_strategies.ServerStrategy
 
 @enduml

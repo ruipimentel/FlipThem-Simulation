@@ -8,8 +8,8 @@ from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.server_strategy import ServerStrategy
 
 if TYPE_CHECKING:
-    from system import System
-    from server import Server
+    from core.system import System
+    from core.server import Server
 
 
 base_properties = {

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Dict, Tuple, TYPE_CHECKING
 
-from server import Server
+from core.server import Server
 
 if TYPE_CHECKING:
     from strategies.player import Player
