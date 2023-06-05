@@ -1,6 +1,6 @@
 from typing import Tuple, Dict
 
-from system import System
+from core.system import System
 # If threshold is false, we assume attackers must get into whole system for benefit and defender has benefit whenever
 # they are in control of one or more servers
 from graphics.multi_player_animate import Animate

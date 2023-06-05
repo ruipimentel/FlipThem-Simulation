@@ -1,4 +1,4 @@
-from system import System
+from core.system import System
 from old_tournament import Tournament
 from strategies.server_strategies.exponential import Exponential
 from strategies.server_strategies.periodic import Periodic

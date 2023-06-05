@@ -12,7 +12,7 @@ import reward_functions
 import time
 import pickle
 
-from tournament import Tournament
+from core.tournament import Tournament
 from strategies.player import Player
 
 if TYPE_CHECKING:

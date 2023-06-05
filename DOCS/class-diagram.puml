@@ -1,20 +1,22 @@
 @startuml "class-diagram"
 
-class Tournament {
-  + {field} attacker_strategies: Tuple[Player, ...]
-  + {field} defender_strategies: Tuple[Player, ...]
-  + {field} tournament_properties: Dict
-  + {field} system: System
-  + {field} defender_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
-  + {field} attacker_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
-  + {field} mean_defender_results: Dict[Player, Dict[Player, Tuple[float, float]]]
-  + {field} mean_attacker_results: Dict[Player, Dict[Player, Tuple[float, float]]]
-  + __init__(defender_strategies: (Tuple[Player, ...] | None) = None, attacker_strategies: (Tuple[Player, ...] | None) = None, tournament_properties: Dict = None)
-  + play_games(players: Tuple[Player, Player]): Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]
-  + play_tournament(): None
-  + get_mean_defense(): Dict[Player, float]
-  + get_mean_attack(): Dict[Player, float]
-}
+namespace core {
+
+  class Tournament {
+    + {field} attacker_strategies: Tuple[Player, ...]
+    + {field} defender_strategies: Tuple[Player, ...]
+    + {field} tournament_properties: Dict
+    + {field} system: System
+    + {field} defender_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
+    + {field} attacker_results: Dict[Player, Dict[Player, List[Tuple[float, float]]]]
+    + {field} mean_defender_results: Dict[Player, Dict[Player, Tuple[float, float]]]
+    + {field} mean_attacker_results: Dict[Player, Dict[Player, Tuple[float, float]]]
+    + __init__(defender_strategies: (Tuple[Player, ...] | None) = None, attacker_strategies: (Tuple[Player, ...] | None) = None, tournament_properties: Dict = None)
+    + play_games(players: Tuple[Player, Player]): Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]
+    + play_tournament(): None
+    + get_mean_defense(): Dict[Player, float]
+    + get_mean_attack(): Dict[Player, float]
+  }
 
 class Game {
   + {field} current_time: float
@@ -76,6 +78,13 @@ class Server {
   + get_number_of_moves(player: Player, time: (float | None) = None): int
   + get_reward_for_player(player: Player, time: float): float
   + reset_server(): None
+}
+
+  Tournament --> Game
+  Tournament --> System
+  Game --> System
+  System --> Server
+
 }
 
 namespace genetic_algorithms {
@@ -177,17 +186,13 @@ namespace strategies {
 
 }
 
-genetic_algorithms.GeneticAlgorithm --> Tournament
+genetic_algorithms.GeneticAlgorithm --> core.Tournament
 genetic_algorithms.GeneticAlgorithm --> strategies.Player
 genetic_algorithms.GeneticAlgorithm --> strategies.server_strategies.ServerStrategy
-Tournament --> Game
-Tournament --> System
-Tournament --> strategies.Player
-Game --> System
-Game --> strategies.Player
-System <--> strategies.Player
-System --> Server
-Server <--> strategies.Player
+core.Tournament --> strategies.Player
+core.Game --> strategies.Player
+core.System <--> strategies.Player
+core.Server <--> strategies.Player
 strategies.Player --> strategies.server_strategies.ServerStrategy
 
 @enduml

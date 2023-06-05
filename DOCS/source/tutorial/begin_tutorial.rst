@@ -34,7 +34,7 @@ strategy for both players as the ``Exponential`` class.
 
 We are now ready to create and play the game::
 
-    from system import System
+    from core.system import System
 
     game_properties = {'time_limit': 10}
     s = System(1)
@@ -49,7 +49,7 @@ Then, we create the game and play.
 Full code::
 
     from strategies.player import Player
-    from system import System
+    from core.system import System
 
     from strategies.server_strategies.exponential import Exponential
 

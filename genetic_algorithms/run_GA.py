@@ -4,7 +4,7 @@ from strategies.player import Player
 from strategies.server_strategies.periodic import Periodic
 from strategies.server_strategies.lm_periodic import LastMove
 from strategies.server_strategies.phase_periodic import PhasePeriodic
-from tournament import TOURNAMENT_TYPE
+from core.tournament import TOURNAMENT_TYPE
 from copy import copy
 import numpy as np
 
