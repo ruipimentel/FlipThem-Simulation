@@ -119,10 +119,20 @@ namespace strategies {
 
   namespace server_strategies {
 
+    class Periodic {
+      + {field} rate: float
+      + __init__(rate: float)
+      + get_rate(): float
+      + age_density(z: float, rate: float): float
+      + age_distribution(z: float, rate: float): float
+    }
+
     class ServerStrategy {
       + get_next_move_time(information: Dict): float
       + __str__(): str
     }
+
+    Periodic -u-|> ServerStrategy
 
   }
 
