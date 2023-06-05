@@ -135,6 +135,14 @@ namespace strategies {
       + age_distribution(z: float, rate: float): float
     }
 
+    class LastMove {
+      + rate: float
+      + __init__(rate: float)
+      + get_next_move_time(information: Dict): float
+      + get_rate(): float
+      + __str__(): str
+    }
+
     class ServerStrategy {
       + get_next_move_time(information: Dict): float
       + __str__(): str
@@ -142,6 +150,7 @@ namespace strategies {
 
     Periodic -u-|> ServerStrategy
     Exponential -u-|> ServerStrategy
+    LastMove -u-|> ServerStrategy
 
   }
 
