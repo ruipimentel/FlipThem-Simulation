@@ -117,6 +117,15 @@ namespace genetic_algorithms {
 
 namespace strategies {
 
+  namespace server_strategies {
+
+    class ServerStrategy {
+      + get_next_move_time(information: Dict): float
+      + __str__(): str
+    }
+
+  }
+
   class Player {
     + __name: str
     + player_properties: Dict
@@ -142,6 +151,7 @@ namespace strategies {
 
 genetic_algorithms.GeneticAlgorithm --> Tournament
 genetic_algorithms.GeneticAlgorithm --> strategies.Player
+genetic_algorithms.GeneticAlgorithm --> strategies.server_strategies.ServerStrategy
 Tournament --> Game
 Tournament --> System
 Tournament --> strategies.Player
@@ -150,6 +160,7 @@ Game --> strategies.Player
 System <--> strategies.Player
 System --> Server
 Server <--> strategies.Player
+strategies.Player --> strategies.server_strategies.ServerStrategy
 
 @enduml
 
