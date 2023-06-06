@@ -1,0 +1,66 @@
+@startuml "overview"
+
+title GeneticAlgorithm usage overview
+
+start
+
+#lightblue:ga = GeneticAlgorithm(
+  defenders=defender_ga_properties,
+  attackers=attacker_ga_properties,
+  ga_properties=ga_properties,
+  tournament_properties=tournament_properties,
+)]
+
+#lightblue:ga.run(1000, 50)]
+
+#lightblue:ga.plot()]
+
+stop
+
+@enduml
+
+@startuml "__init__"
+!pragma useVerticalIf on
+
+title GeneticAlgorithm.~__init__
+
+start
+floating note right: \
+defenders: (Dict | Tuple[Player, ...] | None) = None, \n\
+attackers: (Dict | Tuple[Player, ...] | None) = None, \n\
+ga_properties: (Dict | None) = None, \n\
+tournament_properties: (Dict | None) = None, \n\
+game_properties: (Dict | None) = None
+
+:self.ga_properties = ga_properties]
+
+if (defenders is None) then (True)
+  :print("Blank genetic_algorithms \n created (for now)");
+else (False)
+  #lightblue:self.defender_ga_properties, self.defenders = \n self.initialize_players(defenders, attackers)]
+  #lightblue:self.attacker_ga_properties, self.attackers = \n self.initialize_players(attackers, attackers)]
+  if (len(self.attacker_ga_properties['move_costs']) == \n len(self.defender_ga_properties['move_costs'])) then (True)
+    :self.number_of_servers = \n len(self.attacker_ga_properties['move_costs'])]
+  else (False)
+    :raise ValueError("Number of move costs \n for defender and attacker not equal");
+    kill
+  endif
+endif
+
+:
+self.tournament_properties = tournament_properties
+self.game_properties = game_properties
+self.defender_population = Dict()
+self.attacker_population = Dict()
+self.defender_benefit = List()
+self.attacker_benefit = List()
+self.def_keep_number = 8
+self.att_keep_number = 8
+self.def_strategy_count = Dict()
+self.att_strategy_count = Dict()
+self.mutation_probability = 0
+]
+
+stop;
+
+@enduml
