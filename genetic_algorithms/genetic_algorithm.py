@@ -40,34 +40,8 @@ class GeneticAlgorithm:
         if defenders is None:
             print("Blank genetic_algorithms created (for now)")
         else:
-            if type(defenders) is dict:
-                self.defender_ga_properties: Dict = defenders
-                self.defenders: Tuple[Player, ...] = self.generate_players(defenders)
-            else:
-
-                strategies = set()
-                for s in defenders[0].get_strategies():
-                    strategies.add(type(s))
-
-                self.defender_ga_properties: Dict = {
-                                               'move_costs': defenders[0].get_player_properties()['move_costs'],
-                                               'strategy_classes': tuple(strategies),
-                                               'number_of_players': len(attackers)}
-                self.defenders: Tuple[Player, ...] = defenders
-
-            if type(attackers) is dict:
-                self.attacker_ga_properties: Dict = attackers
-                self.attackers: Tuple[Player, ...] = self.generate_players(attackers)
-            else:
-
-                strategies = set()
-                for s in attackers[0].get_strategies():
-                    strategies.add(type(s))
-                self.attacker_ga_properties: Dict = {
-                                               'move_costs': attackers[0].get_player_properties()['move_costs'],
-                                               'strategy_classes': tuple(strategies),
-                                               'number_of_players': len(attackers)}
-                self.attackers: Tuple[Player, ...] = attackers
+            self.defender_ga_properties, self.defenders = self.initialize_players(defenders, attackers)
+            self.attacker_ga_properties, self.attackers = self.initialize_players(attackers, attackers)
 
             if len(self.attacker_ga_properties['move_costs']) == len(self.defender_ga_properties['move_costs']):
                 self.number_of_servers: int = len(self.attacker_ga_properties['move_costs'])
@@ -93,6 +67,29 @@ class GeneticAlgorithm:
         self.att_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
 
         self.mutation_probability: float = 0
+
+    def initialize_players(
+        self,
+        players: (Dict | Tuple[Player, ...]),
+        attackers: (Dict | Tuple[Player, ...]),
+    ) -> Tuple[Dict, Tuple[Player, ...]]:
+        if type(players) is dict:
+            return (
+                players,
+                self.generate_players(players),
+            )
+        else:
+            strategies = set()
+            for s in players[0].get_strategies():
+                strategies.add(type(s))
+            return (
+                {
+                    'move_costs': players[0].get_player_properties()['move_costs'],
+                    'strategy_classes': tuple(strategies),
+                    'number_of_players': len(attackers),
+                },
+                players,
+            )
 
     def generate_players(self, player_ga_properties: Dict) -> Tuple[Player, ...]:
         player_list = []

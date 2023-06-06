@@ -108,6 +108,7 @@ namespace genetic_algorithms {
     + {field} att_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]]
     + {field} mutation_probability: float
     + __init__(defenders: (Dict | Tuple[Player, ...] | None) = None, attackers: (Dict | Tuple[Player, ...] | None) = None, ga_properties: (Dict | None) = None, tournament_properties: (Dict | None) = None, game_properties: (Dict | None) = None)
+    + initialize_players(players: (Dict | Tuple[Player, ...]), attackers: (Dict | Tuple[Player, ...])): Tuple[Dict, Tuple[Player, ...]]
     + generate_players(player_ga_properties: Dict): Tuple[Player, ...]
     + __initiate(): None
     + run(number_of_rounds: int, file_write: int = 0): None
