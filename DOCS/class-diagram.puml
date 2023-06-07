@@ -114,6 +114,10 @@ namespace genetic_algorithms {
     + run(number_of_rounds: int, file_write: int = 0): None
     + create_new_generation(sorted_results: List[Tuple[Player, float]], keep_number: int, player_ga_properties: Dict, round: int): None
     + define_parents(keep_number: int, results: List[Tuple[Player, float]]): List[Player]
+    + update_plot_data(sorted_defender_results: List[Tuple[Player, float]], sorted_attacker_results: List[Tuple[Player, float]]): None
+    + update_sorted_player_rates_for_server(sorted_player_results: List[Tuple[Player, float]], player_population: Dict[int, List[float] | NDArray[float]], server: int): None
+    + update_player_strategy_count_for_server(player_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]], sorted_player_results: List[Tuple[Player, float]], player_ga_properties: Dict, server: int): None
+    + concatenate_player_benefit(new_benefits: List[List[float]], player_benefit: (List[float] | NDArray[float])): NDArray[float]
     + plot(start_time: float = 0, end_time: float = 0, share_axes: bool = False): None
     + plot_variance_stats(start_time: float = 0, end_time: float = 0): None
     + plot_strategy_count(start_time: float = 0, end_time: float = 0): None

@@ -169,14 +169,12 @@ class GeneticAlgorithm:
         if len(self.defender_benefit) == 0:
             self.__initiate()
             round_start = 0
-            if file_write == 0:
-                file_write = number_of_rounds
-
         else:
             round_start = len(self.defender_benefit)
-            if file_write == 0:
-                file_write = number_of_rounds + round_start
 
+        # Default value for `file_write` in case it is not specified:
+        if file_write == 0:
+            file_write = number_of_rounds + round_start
 
         t1 = t2 = time.time()
         for i in range(round_start, number_of_rounds + round_start):
@@ -203,63 +201,19 @@ class GeneticAlgorithm:
 
             attacker_results = list(t.get_mean_attack().items())
 
-            sorted_defender_results = sorted(defender_results, key=lambda tup: tup[1], reverse=True)
-            sorted_attacker_results = sorted(attacker_results, key=lambda tup: tup[1], reverse=True)
+            sorted_defender_results: List[Tuple[Player, float]] = sorted(
+                defender_results,
+                key=lambda tup: tup[1],
+                reverse=True,
+            )
 
-            for s in range(0, len(self.defenders[0].get_strategies())):
-                # Create a list of defender rates for this current generation on this server
-                current_defender_generation_rates = [x[0].get_strategy_rate(s)for x in sorted_defender_results]
-                np_current_defender_generation_rates = np.array([current_defender_generation_rates])
+            sorted_attacker_results: List[Tuple[Player, float]] = sorted(
+                attacker_results,
+                key=lambda tup: tup[1],
+                reverse=True,
+            )
 
-                # print(self.defender_generation_population[s])
-                if type(self.defender_population[s]) == list:
-                    # List is currently empty so we turn it into a numpy array
-                    self.defender_population[s] = np_current_defender_generation_rates
-
-                else:
-                    self.defender_population[s] = np.concatenate((self.defender_population[s],
-                                                                  np_current_defender_generation_rates),
-                                                                 axis=0)
-
-                # Create a list of attacker rates for this current generation on this server
-                current_attacker_generation_rates = [x[0].get_strategy_rate(s) for x in sorted_attacker_results]
-                np_current_attacker_generation_rates = np.array([current_attacker_generation_rates])
-
-                if type(self.attacker_population[s]) == list:
-                    # List is currently empty so we turn it into a numpy array
-                    self.attacker_population[s] = np_current_attacker_generation_rates
-                else:
-                    self.attacker_population[s] = np.concatenate((self.attacker_population[s],
-                                                                  np_current_attacker_generation_rates),
-                                                                 axis=0)
-
-                def_strategy_list = [x[0].get_strategy(s) for x in sorted_defender_results]
-                att_strategy_list = [x[0].get_strategy(s) for x in sorted_attacker_results]
-
-                for strategy in self.defender_ga_properties['strategy_classes']:
-                    count = len([s for s in def_strategy_list if type(s) is strategy])
-                    self.def_strategy_count[s][strategy].append(count)
-
-                for strategy in self.attacker_ga_properties['strategy_classes']:
-                    count = len([s for s in att_strategy_list if type(s) is strategy])
-                    self.att_strategy_count[s][strategy].append(count)
-
-            defender_benefits = np.array([[x[1] for x in sorted_defender_results]])
-
-            if type(self.defender_benefit) is list:
-                self.defender_benefit = defender_benefits
-
-            else:
-                self.defender_benefit = np.concatenate((self.defender_benefit, defender_benefits),
-                                                       axis=0)
-
-            attacker_benefits = [[x[1] for x in sorted_attacker_results]]
-            if type(self.attacker_benefit) is list:
-                self.attacker_benefit = np.array(attacker_benefits)
-
-            else:
-                self.attacker_benefit = np.concatenate((self.attacker_benefit, attacker_benefits),
-                                                       axis=0)
+            self.update_plot_data(sorted_defender_results, sorted_attacker_results)
 
             ################################################################################
             #                                                                              #
@@ -364,6 +318,96 @@ class GeneticAlgorithm:
                 start_probability = end_probability
 
         return parents
+
+    def update_plot_data(
+        self,
+        sorted_defender_results: List[Tuple[Player, float]],
+        sorted_attacker_results: List[Tuple[Player, float]],
+    ) -> None:
+
+        for s in range(0, len(self.defenders[0].get_strategies())):
+
+            # Updates the list of defender rates on this server:
+            self.update_sorted_player_rates_for_server(
+                sorted_defender_results,
+                self.defender_population,
+                s,
+            )
+
+            # Updates the list of attacker rates on this server:
+            self.update_sorted_player_rates_for_server(
+                sorted_attacker_results,
+                self.attacker_population,
+                s,
+            )
+
+            # Updates the defender strategy-class count on this server:
+            self.update_player_strategy_count_for_server(
+                self.def_strategy_count,
+                sorted_defender_results,
+                self.defender_ga_properties,
+                s,
+            )
+
+            # Updates the attacker strategy-class count on this server:
+            self.update_player_strategy_count_for_server(
+                self.att_strategy_count,
+                sorted_attacker_results,
+                self.attacker_ga_properties,
+                s,
+            )
+
+        self.defender_benefit = self.concatenate_player_benefit(
+            [[x[1] for x in sorted_defender_results]],
+            self.defender_benefit,
+        )
+
+        self.attacker_benefit = self.concatenate_player_benefit(
+            [[x[1] for x in sorted_attacker_results]],
+            self.attacker_benefit,
+        )
+
+    def update_sorted_player_rates_for_server(
+        self,
+        sorted_player_results: List[Tuple[Player, float]],
+        player_population: Dict[int, List[float] | NDArray[float]],
+        server: int,
+    ) -> None:
+        current_player_generation_rates = [x[0].get_strategy_rate(server) for x in sorted_player_results]
+        np_current_player_generation_rates = np.array([current_player_generation_rates])
+
+        if type(player_population[server]) == list:
+            # If player population is still a list, then it's empty (we're in generation 1):
+            player_population[server] = np_current_player_generation_rates
+        else:
+            # Otherwise, it's already a partially populated `NDArray`:
+            player_population[server] = np.concatenate(
+                (player_population[server], np_current_player_generation_rates),
+                axis=0,
+            )
+
+    def update_player_strategy_count_for_server(
+        self,
+        player_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]],
+        sorted_player_results: List[Tuple[Player, float]],
+        player_ga_properties: Dict,
+        server: int,
+    ) -> None:
+        # Strategies used by this class of player on the specified server:
+        player_strategy_list = [x[0].get_strategy(server) for x in sorted_player_results]
+        for strategy in player_ga_properties['strategy_classes']:
+            count = len([s for s in player_strategy_list if type(s) is strategy])
+            player_strategy_count[server][strategy].append(count)
+
+    def concatenate_player_benefit(
+        self,
+        new_benefits: List[List[float]],
+        player_benefit: (List[float] | NDArray[float]),
+    ) -> NDArray[float]:
+        if type(player_benefit) is list:
+            return np.array(new_benefits)
+        else:
+            return np.concatenate((player_benefit, new_benefits), axis=0)
 
     def plot(self, start_time: float = 0, end_time: float = 0, share_axes: bool = False) -> None:
 
