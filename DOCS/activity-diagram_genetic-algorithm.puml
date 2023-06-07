@@ -64,3 +64,38 @@ self.mutation_probability = 0
 stop;
 
 @enduml
+
+@startuml "initialize_players"
+!pragma useVerticalIf on
+
+title GeneticAlgorithm.initialize_players
+
+start
+floating note right: \
+<color:green>players</color>: (Dict | Tuple[Player, ...]), \n\
+<color:purple>attackers</color>: (Dict | Tuple[Player, ...]), \n\
+**returns** Tuple[Dict, Tuple[Player, ...]]
+
+if (type(<color:green>players</color>)) then (Dict)
+  #lightblue:return (
+    <color:green>players</color>,
+    self.generate_players(<color:green>players</color>),
+  );
+  stop
+else (Tuple[Player, ...])
+  :strategies = set()]
+  while (for s in <color:green>players</color>[0].get_strategies())
+    :strategies.add(type(s));
+  endwhile (end)
+  :return (
+    {
+      "move_costs": <color:green>players</color>[0].get_player_properties()["move_costs"],
+      "strategy_classes": tuple(strategies),
+      "number_of_players": len(<color:purple>attackers</color>),
+    },
+    <color:green>players</color>,
+  );
+  stop
+endif
+
+@enduml

@@ -73,6 +73,13 @@ class GeneticAlgorithm:
         players: (Dict | Tuple[Player, ...]),
         attackers: (Dict | Tuple[Player, ...]),
     ) -> Tuple[Dict, Tuple[Player, ...]]:
+        """
+        When given a properties Dict, returns it along with the actual players
+        generated via `generate_players`.
+        When given players, generates a properties Dict, then returns it along
+        with the received players.
+        """
+
         if type(players) is dict:
             return (
                 players,
