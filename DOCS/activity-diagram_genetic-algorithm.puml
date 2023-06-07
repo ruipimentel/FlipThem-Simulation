@@ -99,3 +99,49 @@ else (Tuple[Player, ...])
 endif
 
 @enduml
+
+@startuml "generate_players"
+!pragma useVerticalIf on
+
+title GeneticAlgorithm.generate_players
+
+start
+floating note right: \
+player_ga_properties: Dict, \n\
+**returns** Tuple[Player, ...]
+
+:
+<color:green>player_list</color> = List()
+number_of_players = player_ga_properties.get('number_of_players')
+]
+while (for i in range(0, number_of_players))
+  :<color:salmon>strategy_list</color> = List()]
+  :
+  number_of_strategies = len(player_ga_properties.get('strategy_classes'))
+  number_of_servers = len(player_ga_properties.get('move_costs'))
+  ]
+  while (for server in range(0, number_of_servers))
+    :<color:salmon>strategy_list</color>.append(
+      player_ga_properties.get('strategy_classes')[
+        np.random.randint(0, number_of_strategies)
+      ](np.random.uniform(
+        self.ga_properties['lower_bound'],
+        self.ga_properties['upper_bound'],
+      ))
+    );
+  endwhile (end)
+
+  :<color:purple>player_properties</color> = {"move_costs": player_ga_properties['move_costs']} ]
+
+  :<color:green>player_list</color>.append(Player(
+    player_ga_properties.get('name') + str(i),
+    player_properties=copy(<color:purple>player_properties</color>),
+    strategies=tuple(<color:salmon>strategy_list</color>)
+  ));
+endwhile (end)
+
+:return tuple(<color:green>player_list</color>);
+
+stop
+
+@enduml

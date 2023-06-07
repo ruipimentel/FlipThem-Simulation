@@ -99,14 +99,38 @@ class GeneticAlgorithm:
             )
 
     def generate_players(self, player_ga_properties: Dict) -> Tuple[Player, ...]:
-        player_list = []
-        for i in range(0, player_ga_properties.get('number_of_players')):
-            strategy_list = []
-            number_of_strategies = len(player_ga_properties.get('strategy_classes'))
+        """
+        Generates the amount of `Player` instances provided by the properties Dict.
+        Each player will have 1 strategy class (taken randomly from the pool of
+        available strategy classes) for each server. Each strategy has one random
+        rate lying in the range given by the GA properties Dict stored in `self`.
 
-            for server in range(0, len(player_ga_properties.get('move_costs'))):
-                strategy_list.append(player_ga_properties.get('strategy_classes')
-                                     [np.random.randint(0, number_of_strategies)](np.random.uniform(self.ga_properties['lower_bound'], self.ga_properties['upper_bound'])))
+        Also, each player will have a player properties Dict whose `move_costs`
+        attribute mirrors that of the specified properties Dict.
+
+        `player_ga_properties` should include the following keys:
+        - `number_of_players` (`int`): The number of players to generate.
+        - `strategy_classes` (`Iterable[Type[Strategy]]`): The strategy classes to
+          choose from.
+        - `move_costs` (`List[float]`): A list of move costs for the servers.
+        """
+
+        player_list = []
+        number_of_players = player_ga_properties.get('number_of_players')
+        for i in range(0, number_of_players):
+            strategy_list = []
+            # Number of strategy classes:
+            number_of_strategies = len(player_ga_properties.get('strategy_classes'))
+            # Number of servers in play:
+            number_of_servers = len(player_ga_properties.get('move_costs'))
+
+            for server in range(0, number_of_servers):
+                strategy_list.append(player_ga_properties.get('strategy_classes')[
+                    np.random.randint(0, number_of_strategies)
+                ](np.random.uniform(
+                    self.ga_properties['lower_bound'],
+                    self.ga_properties['upper_bound'],
+                )))
 
             player_properties = {'move_costs': player_ga_properties['move_costs']}
 
