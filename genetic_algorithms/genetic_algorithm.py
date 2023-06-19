@@ -313,7 +313,19 @@ class GeneticAlgorithm:
 
                 # sorted_results[mut][0].update_strategy_rate(serv, np.random.uniform(0, 3))
 
-    def define_parents(self, keep_number: int, results: List[Tuple[Player, float]]) -> List[Player]:
+    def define_parents(
+        self,
+        keep_number: int,
+        results: List[Tuple[Player, float]],
+    ) -> List[Player]:
+        """
+        Produces a list of length `len(results) - keep_number` of tuples taken from
+        `results`. These tuples are chosen randomly with probability given by a
+        Logit probability function — that is, the tuples are chosen with probability
+        proportional to a weight `w = exp(average_benefit)/s`, where `s` is the sum
+        of every `exp(average_benefit)` in `results`.
+        """
+
         parents = []
 
         s = 0

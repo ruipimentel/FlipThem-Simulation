@@ -290,3 +290,44 @@ endwhile (end)
 stop
 
 @enduml
+
+@startuml "define_parents"
+!pragma useVerticalIf on
+
+title GeneticAlgorithm.define_parents
+
+start
+floating note right: \
+keep_number: int, \n\
+results: List[Tuple[Player, float]], \n\
+**returns** List[Player]
+
+:
+<color:purple>parents</color> = new List()
+<color:salmon>s</color> = 0
+]
+while (for r in results)
+  :<color:salmon>s</color> += math.exp(r[1]);
+endwhile (end)
+
+while (for ma in range(0, len(results) - keep_number))
+  :
+  p = np.random.uniform(0, 1)
+  start_probability = 0
+  end_probability = 0
+  ]
+  while (for r in results)
+    :end_probability += math.exp(r[1]);
+    if (start_probability/<color:salmon>s</color> <= p < end_probability/<color:salmon>s</color>) then (True)
+      :<color:purple>parents</color>.append(r[0]);
+      break
+    endif
+    :start_probability = end_probability]
+  endwhile (end)
+endwhile (end)
+
+:return <color:purple>parents</color>;
+
+stop
+
+@enduml
