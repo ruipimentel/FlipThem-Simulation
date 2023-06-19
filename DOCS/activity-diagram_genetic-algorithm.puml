@@ -211,3 +211,82 @@ endwhile (end)
 stop
 
 @enduml
+
+@startuml "create_new_generation"
+!pragma useVerticalIf on
+
+title GeneticAlgorithm.create_new_generation
+
+start
+floating note right: \
+<color:purple>sorted_results</color>: List[Tuple[Player, float]], \n\
+keep_number: int, \n\
+player_ga_properties: Dict, \n\
+round: int, \n\
+
+#lightblue:
+mas = self.define_parents(keep_number, <color:purple>sorted_results</color>)
+pas = self.define_parents(keep_number, <color:purple>sorted_results</color>)
+]
+
+while (for counter1, ma in enumerate(mas))
+  :<color:green>offspring_strategies</color> = [] ]
+  while (for counter2, strategy in enumerate(ma.get_strategies()))
+    if (np.random.randint(0, 2) == 0) then (True (from mas))
+      :<color:green>offspring_strategies</color>.append(
+        strategy
+      );
+    else (False (from pas))
+      :<color:green>offspring_strategies</color>.append(
+        pas[counter1].get_strategy(counter2)
+      );
+    endif
+    :<color:purple>sorted_results</color>[
+      keep_number + counter1
+    ][0].set_strategies(<color:green>offspring_strategies</color>);
+  endwhile (end)
+endwhile (end)
+
+while (for <color:purple>result</color> in <color:purple>sorted_results</color>[self.att_keep_number:])
+  while (for s in range(0, len(<color:purple>result</color>[0].get_strategies())))
+    :
+    change = 0.1/np.log(round + 2)
+    rate = <color:purple>result</color>[0].get_strategy_rate(s)
+    ]
+    :<color:purple>result</color>[0].update_strategy_rate(
+      s,
+      rate * (1 + np.random.uniform(-change, change)),
+    );
+  endwhile (end)
+endwhile (end)
+
+:probability = self.ga_properties['mutation_rate'] * len(<color:purple>sorted_results</color>)]
+
+if (probability > 1.0) then (True)
+  :raise ValueError("Mutation Rate too high");
+  stop
+else (False)
+endif
+
+while (for n in range(0, self.number_of_servers))
+  if (np.random.choice(2, 1, p=[1-probability, probability]) == 1) then (True)
+    :
+    mut = np.random.randint(self.att_keep_number, len(<color:purple>sorted_results</color>))
+    serv = np.random.randint(0, self.number_of_servers)
+    strategy_class = player_ga_properties['strategy_classes'][
+      np.random.randint(0, len(player_ga_properties['strategy_classes']))
+    ] ]
+    :<color:purple>sorted_results</color>[mut][0].update_strategy(
+      serv,
+      strategy_class(np.random.uniform(
+        self.ga_properties['lower_bound'],
+        self.ga_properties['upper_bound'],
+      ))
+    );
+  else (False)
+  endif
+endwhile (end)
+
+stop
+
+@enduml

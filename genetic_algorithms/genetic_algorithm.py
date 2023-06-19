@@ -254,7 +254,21 @@ class GeneticAlgorithm:
             t2 = time.time()
 
 
-    def create_new_generation(self, sorted_results: List[Tuple[Player, float]], keep_number: int, player_ga_properties: Dict, round: int) -> None:
+    def create_new_generation(
+        self,
+        sorted_results: List[Tuple[Player, float]],
+        keep_number: int,
+        player_ga_properties: Dict,
+        round: int,
+    ) -> None:
+        """
+        Mutates `sorted_results` list by replacing `Player`'s strategies with new
+        strategies chosen from 2 random parent populations (mothers and fathers),
+        and also by modifying their rate with a random perturbation. This random
+        perturbation tends to be smaller after each round.
+
+        The mothers and fathers are randomly chosen using `define_parents` method.
+        """
 
         mas = self.define_parents(keep_number, sorted_results)
         pas = self.define_parents(keep_number, sorted_results)
@@ -291,7 +305,9 @@ class GeneticAlgorithm:
             if np.random.choice(2, 1, p=[1-probability, probability]) == 1:
                 mut = np.random.randint(self.att_keep_number, len(sorted_results))
                 serv = np.random.randint(0, self.number_of_servers)
-                strategy_class = player_ga_properties['strategy_classes'][np.random.randint(0, len(player_ga_properties['strategy_classes']))]
+                strategy_class = player_ga_properties['strategy_classes'][
+                    np.random.randint(0, len(player_ga_properties['strategy_classes']))
+                ]
                 sorted_results[mut][0].update_strategy(serv, strategy_class(np.random.uniform(
                     self.ga_properties['lower_bound'], self.ga_properties['upper_bound'])))
 
