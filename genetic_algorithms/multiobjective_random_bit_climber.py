@@ -256,12 +256,12 @@ class MultiobjectiveRandomBitClimber:
             # Plays tournament to obtain results for the new child:
             sorted_defender_results, sorted_attacker_results = self.play_tournament(
                 child_defender['players'],
-                parent_attacker['players'],
+                archive_attacker[-1]['players'],
             )
             child_defender['value'] = [ sorted_defender_results[0][1] ]
             child_defender['results'] = sorted_defender_results
             sorted_defender_results, sorted_attacker_results = self.play_tournament(
-                parent_defender['players'],
+                archive_defender[-1]['players'],
                 child_attacker['players'],
             )
             child_attacker['value'] = [ sorted_attacker_results[0][1] ]
