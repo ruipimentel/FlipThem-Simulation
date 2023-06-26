@@ -26,6 +26,7 @@ ea_properties = {
     'lower_bound': 0.1,
     'defender_update': True,
     'attacker_update': True,
+    'force_strategy_count_plot': True,
     'print_out': False
 }
 

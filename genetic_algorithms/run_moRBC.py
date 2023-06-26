@@ -23,6 +23,7 @@ ea_properties = {
     'file_location': 'data/moRBC/stochastic/1_resource/non_fixed/equilibrium/case_1/',
     'upper_bound': 3.0,
     'lower_bound': 0.1,
+    'force_strategy_count_plot': True,
     'print_out': False
 }
 

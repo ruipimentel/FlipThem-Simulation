@@ -561,7 +561,8 @@ class MultiobjectiveRandomBitClimber:
             end_time = len(self.defender_benefit)
         fig = plt.figure(figsize=(15, 9))
 
-        if len(self.defender_ea_properties['strategy_classes']) > 1 \
+        if self.ea_properties['force_strategy_count_plot'] \
+            or len(self.defender_ea_properties['strategy_classes']) > 1 \
             or len(self.attacker_ea_properties['strategy_classes']) > 1:
 
             plot_number = 420
@@ -589,17 +590,18 @@ class MultiobjectiveRandomBitClimber:
             # plt.plot([def_equilibrium[s]] * len(self.defender_population[s]), c=colors[s])
 
 
-        if len(self.defender_ea_properties['strategy_classes']) > 1:
+        if self.ea_properties['force_strategy_count_plot'] \
+            or len(self.defender_ea_properties['strategy_classes']) > 1:
+
             axs3 = plt.subplot(plot_number + 5, sharex=axs1)
             plt.xlabel('Time (iterations)')
             plt.ylabel('Strategy Count')
             plt.title('Strategy Count Over Time')
+            plt.plot([0] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
+            plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.def_strategy_count)):
                 for counter, p in enumerate(self.def_strategy_count[s]):
                     plt.plot(self.def_strategy_count[s][p], c=colors[counter], label=p.__name__)
-
-            plt.plot([0] * len(self.defender_benefit), 'r--')
-            plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), 'r--')
             plt.legend()
 
         else:
@@ -613,7 +615,8 @@ class MultiobjectiveRandomBitClimber:
         plt.plot(defender_benefit_mean, 'b')
         # plt.plot([def_reward] * len(self.defender_benefit), 'b')
 
-        if len(self.defender_ea_properties['strategy_classes']) > 1 \
+        if self.ea_properties['force_strategy_count_plot'] \
+            or len(self.defender_ea_properties['strategy_classes']) > 1 \
             or len(self.attacker_ea_properties['strategy_classes']) > 1:
 
             plot_number = 420
@@ -640,16 +643,18 @@ class MultiobjectiveRandomBitClimber:
             plt.plot(m, c=colors[s])
             # plt.plot([att_equilibrium[s]] * len(self.attacker_population[s]), c=colors[s])
 
-        if len(self.attacker_ea_properties['strategy_classes']) > 1:
+        if self.ea_properties['force_strategy_count_plot'] \
+            or len(self.attacker_ea_properties['strategy_classes']) > 1:
+
             axs7 = plt.subplot(plot_number + 6, sharex=axs1, sharey=axs3)
             plt.xlabel('Time (iterations)')
             plt.ylabel('Strategy Count')
             plt.title('Strategy Count Over Time')
+            plt.plot([0] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
+            plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.att_strategy_count)):
                 for counter, p in enumerate(self.att_strategy_count[s]):
                     plt.plot(self.att_strategy_count[s][p], c=colors[counter], label=p.__name__)
-            plt.plot([0] * len(self.attacker_benefit), 'r--')
-            plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), 'r--')
             plt.legend()
         else:
             plot_number = plot_number - 2
