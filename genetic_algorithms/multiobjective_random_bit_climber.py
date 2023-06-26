@@ -5,6 +5,7 @@ from typing import Tuple, List, Dict, TYPE_CHECKING
 from copy import copy
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import math
 import os
 from pathlib import Path
@@ -571,7 +572,7 @@ class MultiobjectiveRandomBitClimber:
 
         axs1 = plt.subplot(plot_number + 1)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Defender Rate')
+        plt.ylabel('Rate (average)')
         plt.title('Defender\'s Average Rate Over Time')
         # TODO This needs to be average of the average
         for s in range(0, len(self.defender_population)):
@@ -582,7 +583,7 @@ class MultiobjectiveRandomBitClimber:
 
         axs2 = plt.subplot(plot_number + 3, sharex=axs1)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Defender Rate')
+        plt.ylabel('Rate')
         plt.title('Defender\'s Rate Over Time')
         for s in range(0, len(self.defender_population)):
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
@@ -594,9 +595,10 @@ class MultiobjectiveRandomBitClimber:
             or len(self.defender_ea_properties['strategy_classes']) > 1:
 
             axs3 = plt.subplot(plot_number + 5, sharex=axs1)
+            axs3.yaxis.set_major_locator(MaxNLocator(integer=True))
             plt.xlabel('Time (iterations)')
-            plt.ylabel('Strategy Count')
-            plt.title('Strategy Count Over Time')
+            plt.ylabel('Count')
+            plt.title('Defender\'s Strategy Class Count Over Time')
             plt.plot([0] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.def_strategy_count)):
@@ -609,8 +611,8 @@ class MultiobjectiveRandomBitClimber:
 
         axs4 = plt.subplot(plot_number + 7, sharex=axs1)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Defender Payoff')
-        plt.title('Defender\'s Payoff Over Time')
+        plt.ylabel('Fitness')
+        plt.title('Defender\'s Fitness Over Time')
         defender_benefit_mean = np.mean(self.defender_benefit, axis=1)
         plt.plot(defender_benefit_mean, 'b')
         # plt.plot([def_reward] * len(self.defender_benefit), 'b')
@@ -625,7 +627,7 @@ class MultiobjectiveRandomBitClimber:
 
         axs5 = plt.subplot(plot_number + 2, sharex=axs1, sharey=axs1)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Attacker Rate')
+        plt.ylabel('Rate (average)')
         plt.title('Attacker\'s Average Rate Over Time')
         # TODO This needs to be average of the average
         for s in range(0, len(self.attacker_population)):
@@ -636,7 +638,7 @@ class MultiobjectiveRandomBitClimber:
 
         axs6 = plt.subplot(plot_number + 4, sharex=axs1, sharey=axs2)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Attacker Rate')
+        plt.ylabel('Rate')
         plt.title('Attacker\'s Rate Over Time')
         for s in range(0, len(self.attacker_population)):
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
@@ -647,9 +649,10 @@ class MultiobjectiveRandomBitClimber:
             or len(self.attacker_ea_properties['strategy_classes']) > 1:
 
             axs7 = plt.subplot(plot_number + 6, sharex=axs1, sharey=axs3)
+            axs7.yaxis.set_major_locator(MaxNLocator(integer=True))
             plt.xlabel('Time (iterations)')
-            plt.ylabel('Strategy Count')
-            plt.title('Strategy Count Over Time')
+            plt.ylabel('Count')
+            plt.title('Attacker\'s Strategy Class Count Over Time')
             plt.plot([0] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.att_strategy_count)):
@@ -661,8 +664,8 @@ class MultiobjectiveRandomBitClimber:
 
         axs8 = plt.subplot(plot_number + 8, sharex=axs1, sharey=axs4)
         plt.xlabel('Time (iterations)')
-        plt.ylabel('Attacker Payoff')
-        plt.title('Attacker\'s Payoff Over Time')
+        plt.ylabel('Fitness')
+        plt.title('Attacker\'s Fitness Over Time')
         attacker_benefit_mean = np.mean(self.attacker_benefit, axis=1)
         plt.plot(attacker_benefit_mean, 'r')
         # plt.plot([att_reward] * len(self.attacker_benefit), 'r')
