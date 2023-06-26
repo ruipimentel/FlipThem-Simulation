@@ -978,6 +978,12 @@ class MultiobjectiveRandomBitClimber:
         file = Path(self.ea_properties.get('file_location') + 'attacker_payoffs_' + str(file_number) + ".pkl")
         save_object(obj=self.attacker_benefit, filename=file)
 
+        # file = Path(self.ea_properties.get('file_location') + 'last_defender_strategies_' + str(file_number) + ".pkl")
+        # save_object(obj=self.defenders, filename=file)
+
+        # file = Path(self.ea_properties.get('file_location') + 'last_attacker_strategies_' + str(file_number) + ".pkl")
+        # save_object(obj=self.attackers, filename=file)
+
         file = Path(self.ea_properties.get('file_location') + 'defender_strategy_count_' + str(file_number) + ".pkl")
         save_object(obj=self.def_strategy_count, filename=file)
 
