@@ -27,8 +27,8 @@ def test_pareto_dominates():
 
 def test_non_pareto_dominated_insert():
     arr = []
+    assert pd.non_pareto_dominated_insert(arr, { 'point': 'a', 'value': (2, 2) }) == True
     assert pd.non_pareto_dominated_insert(arr, { 'point': 'a', 'value': (1, 1) }) == True
-    assert pd.non_pareto_dominated_insert(arr, { 'point': 'a', 'value': (1, 1) }) == False
     assert pd.non_pareto_dominated_insert(arr, { 'point': 'b', 'value': (1, 0) }) == False
     assert pd.non_pareto_dominated_insert(arr, { 'point': 'c', 'value': (0, 1) }) == False
     assert pd.non_pareto_dominated_insert(arr, { 'point': 'd', 'value': (0, 0) }) == False

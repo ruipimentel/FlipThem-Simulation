@@ -21,14 +21,16 @@ def non_pareto_dominated_insert(population: List, new_individual):
     Inserts `new_individual` into `population` if and only if it is not dominated by
     any existing individual.
 
-    Also disposes of any individual that is dominated by the new individual.
-
-    Assumes that future insertions of a same `'point'` will have the same `'value'`.
+    Also disposes of any individual that is dominated by the new individual, and of
+    individuals who correspond to the the same `'point'` (and thus are assumed to
+    have an outdated fitness value, no matter whether better or worse).
     """
+
+    for i, existing_individual in list(enumerate(population))[::-1]:
+        if existing_individual['point'] == new_individual['point']:
+            population.pop(i)
     for i, existing_individual in list(enumerate(population))[::-1]:
         if pareto_dominates(existing_individual['value'], new_individual['value']):
-            return False
-        elif existing_individual['point'] == new_individual['point']:
             return False
         elif pareto_dominates(new_individual['value'], existing_individual['value']):
             population.pop(i)
