@@ -31,20 +31,20 @@ class GeneticAlgorithm:
     def __init__(self,
                  defenders: (Dict | Tuple[Player, ...] | None) = None,
                  attackers: (Dict | Tuple[Player, ...] | None) = None,
-                 ga_properties: (Dict | None) = None,
+                 ea_properties: (Dict | None) = None,
                  tournament_properties: (Dict | None) = None,
                  game_properties: (Dict | None) = None):
 
-        self.ga_properties: (Dict | None) = ga_properties
+        self.ea_properties: (Dict | None) = ea_properties
         # Initiate players
         if defenders is None:
             print("Blank genetic_algorithms created (for now)")
         else:
-            self.defender_ga_properties, self.defenders = self.initialize_players(defenders, attackers)
-            self.attacker_ga_properties, self.attackers = self.initialize_players(attackers, attackers)
+            self.defender_ea_properties, self.defenders = self.initialize_players(defenders, attackers)
+            self.attacker_ea_properties, self.attackers = self.initialize_players(attackers, attackers)
 
-            if len(self.attacker_ga_properties['move_costs']) == len(self.defender_ga_properties['move_costs']):
-                self.number_of_servers: int = len(self.attacker_ga_properties['move_costs'])
+            if len(self.attacker_ea_properties['move_costs']) == len(self.defender_ea_properties['move_costs']):
+                self.number_of_servers: int = len(self.attacker_ea_properties['move_costs'])
             else:
                 raise ValueError("Number of move costs for defender and attacker not equal")
 
@@ -98,7 +98,7 @@ class GeneticAlgorithm:
                 players,
             )
 
-    def generate_players(self, player_ga_properties: Dict) -> Tuple[Player, ...]:
+    def generate_players(self, player_ea_properties: Dict) -> Tuple[Player, ...]:
         """
         Generates the amount of `Player` instances provided by the properties Dict.
         Each player will have 1 strategy class (taken randomly from the pool of
@@ -108,7 +108,7 @@ class GeneticAlgorithm:
         Also, each player will have a player properties Dict whose `move_costs`
         attribute mirrors that of the specified properties Dict.
 
-        `player_ga_properties` should include the following keys:
+        `player_ea_properties` should include the following keys:
         - `number_of_players` (`int`): The number of players to generate.
         - `strategy_classes` (`Iterable[Type[Strategy]]`): The strategy classes to
           choose from.
@@ -116,25 +116,25 @@ class GeneticAlgorithm:
         """
 
         player_list = []
-        number_of_players = player_ga_properties.get('number_of_players')
+        number_of_players = player_ea_properties.get('number_of_players')
         for i in range(0, number_of_players):
             strategy_list = []
             # Number of strategy classes:
-            number_of_strategies = len(player_ga_properties.get('strategy_classes'))
+            number_of_strategies = len(player_ea_properties.get('strategy_classes'))
             # Number of servers in play:
-            number_of_servers = len(player_ga_properties.get('move_costs'))
+            number_of_servers = len(player_ea_properties.get('move_costs'))
 
             for server in range(0, number_of_servers):
-                strategy_list.append(player_ga_properties.get('strategy_classes')[
+                strategy_list.append(player_ea_properties.get('strategy_classes')[
                     np.random.randint(0, number_of_strategies)
                 ](np.random.uniform(
-                    self.ga_properties['lower_bound'],
-                    self.ga_properties['upper_bound'],
+                    self.ea_properties['lower_bound'],
+                    self.ea_properties['upper_bound'],
                 )))
 
-            player_properties = {'move_costs': player_ga_properties['move_costs']}
+            player_properties = {'move_costs': player_ea_properties['move_costs']}
 
-            player_list.append(Player(player_ga_properties.get('name') + str(i),
+            player_list.append(Player(player_ea_properties.get('name') + str(i),
                                       player_properties=copy(player_properties),
                                       strategies=tuple(strategy_list)))
 
@@ -152,16 +152,16 @@ class GeneticAlgorithm:
             self.def_strategy_count[s] = {}
             self.att_strategy_count[s] = {}
 
-            if self.defender_ga_properties.get('strategy_classes') is None:
+            if self.defender_ea_properties.get('strategy_classes') is None:
                 continue
             else:
-                for strategy in self.defender_ga_properties['strategy_classes']:
+                for strategy in self.defender_ea_properties['strategy_classes']:
                     self.def_strategy_count[s][strategy] = []
 
-            if self.attacker_ga_properties.get('strategy_classes') is None:
+            if self.attacker_ea_properties.get('strategy_classes') is None:
                 continue
             else:
-                for strategy in self.attacker_ga_properties['strategy_classes']:
+                for strategy in self.attacker_ea_properties['strategy_classes']:
                     self.att_strategy_count[s][strategy] = []
 
     def run(self, number_of_rounds: int, file_write: int = 0) -> None:
@@ -221,7 +221,7 @@ class GeneticAlgorithm:
             #                                                                              #
             ################################################################################
 
-            if self.ga_properties.get('print_out'):
+            if self.ea_properties.get('print_out'):
                 for r in sorted_defender_results:
                     rates = []
                     for strategy in r[0].get_strategies():
@@ -242,11 +242,11 @@ class GeneticAlgorithm:
             #                                                       #
             #########################################################
 
-            if len(self.defenders) > 1 and self.ga_properties['defender_update']:
-                self.create_new_generation(sorted_defender_results, self.def_keep_number, self.defender_ga_properties, i)
+            if len(self.defenders) > 1 and self.ea_properties['defender_update']:
+                self.create_new_generation(sorted_defender_results, self.def_keep_number, self.defender_ea_properties, i)
 
-            if len(self.attackers) > 1 and self.ga_properties['attacker_update']:
-                self.create_new_generation(sorted_attacker_results, self.att_keep_number, self.attacker_ga_properties, i)
+            if len(self.attackers) > 1 and self.ea_properties['attacker_update']:
+                self.create_new_generation(sorted_attacker_results, self.att_keep_number, self.attacker_ea_properties, i)
 
             if i % file_write == 0 or i == number_of_rounds + round_start - 1:
                 self.write_to_file(i)
@@ -258,7 +258,7 @@ class GeneticAlgorithm:
         self,
         sorted_results: List[Tuple[Player, float]],
         keep_number: int,
-        player_ga_properties: Dict,
+        player_ea_properties: Dict,
         round: int,
     ) -> None:
         """
@@ -296,7 +296,7 @@ class GeneticAlgorithm:
 
                 result[0].update_strategy_rate(s, rate * (1 + np.random.uniform(-change, change)))
 
-        probability = self.ga_properties['mutation_rate'] * len(sorted_results)
+        probability = self.ea_properties['mutation_rate'] * len(sorted_results)
 
         if probability > 1.0:
             raise ValueError("Mutation Rate too high")
@@ -305,11 +305,11 @@ class GeneticAlgorithm:
             if np.random.choice(2, 1, p=[1-probability, probability]) == 1:
                 mut = np.random.randint(self.att_keep_number, len(sorted_results))
                 serv = np.random.randint(0, self.number_of_servers)
-                strategy_class = player_ga_properties['strategy_classes'][
-                    np.random.randint(0, len(player_ga_properties['strategy_classes']))
+                strategy_class = player_ea_properties['strategy_classes'][
+                    np.random.randint(0, len(player_ea_properties['strategy_classes']))
                 ]
                 sorted_results[mut][0].update_strategy(serv, strategy_class(np.random.uniform(
-                    self.ga_properties['lower_bound'], self.ga_properties['upper_bound'])))
+                    self.ea_properties['lower_bound'], self.ea_properties['upper_bound'])))
 
                 # sorted_results[mut][0].update_strategy_rate(serv, np.random.uniform(0, 3))
 
@@ -373,7 +373,7 @@ class GeneticAlgorithm:
             self.update_player_strategy_count_for_server(
                 self.def_strategy_count,
                 sorted_defender_results,
-                self.defender_ga_properties,
+                self.defender_ea_properties,
                 s,
             )
 
@@ -381,7 +381,7 @@ class GeneticAlgorithm:
             self.update_player_strategy_count_for_server(
                 self.att_strategy_count,
                 sorted_attacker_results,
-                self.attacker_ga_properties,
+                self.attacker_ea_properties,
                 s,
             )
 
@@ -418,12 +418,12 @@ class GeneticAlgorithm:
         self,
         player_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]],
         sorted_player_results: List[Tuple[Player, float]],
-        player_ga_properties: Dict,
+        player_ea_properties: Dict,
         server: int,
     ) -> None:
         # Strategies used by this class of player on the specified server:
         player_strategy_list = [x[0].get_strategy(server) for x in sorted_player_results]
-        for strategy in player_ga_properties['strategy_classes']:
+        for strategy in player_ea_properties['strategy_classes']:
             count = len([s for s in player_strategy_list if type(s) is strategy])
             player_strategy_count[server][strategy].append(count)
 
@@ -441,8 +441,8 @@ class GeneticAlgorithm:
 
         # def_equilibrium, att_equilibrium = reward_functions.exponential.equilibrium(
         #                                                             self.tournament_properties['attacker_threshold'],
-        #                                                             self.defender_ga_properties['move_costs'],
-        #                                                             self.attacker_ga_properties['move_costs'])
+        #                                                             self.defender_ea_properties['move_costs'],
+        #                                                             self.attacker_ea_properties['move_costs'])
 
         # print("Calculated defender equilibrium", def_equilibrium)
         # print("Calculated attacker equilibrium", att_equilibrium)
@@ -450,8 +450,8 @@ class GeneticAlgorithm:
         # def_reward, att_reward = reward_functions.exponential.reward(self.tournament_properties['attacker_threshold'],
         #                                                              def_equilibrium,
         #                                                              att_equilibrium,
-        #                                                              self.defender_ga_properties['move_costs'],
-        #                                                              self.attacker_ga_properties['move_costs'])
+        #                                                              self.defender_ea_properties['move_costs'],
+        #                                                              self.attacker_ea_properties['move_costs'])
         #
         # print("Rewards: ", def_reward, att_reward)
 
@@ -459,8 +459,8 @@ class GeneticAlgorithm:
             end_time = len(self.defender_benefit)
         fig = plt.figure(figsize=(15, 9))
 
-        if len(self.defender_ga_properties['strategy_classes']) > 1 \
-            or len(self.attacker_ga_properties['strategy_classes']) > 1:
+        if len(self.defender_ea_properties['strategy_classes']) > 1 \
+            or len(self.attacker_ea_properties['strategy_classes']) > 1:
 
             plot_number = 420
         else:
@@ -487,7 +487,7 @@ class GeneticAlgorithm:
             # plt.plot([def_equilibrium[s]] * len(self.defender_population[s]), c=colors[s])
 
 
-        if len(self.defender_ga_properties['strategy_classes']) > 1:
+        if len(self.defender_ea_properties['strategy_classes']) > 1:
             axs3 = plt.subplot(plot_number + 5, sharex=axs1)
             plt.xlabel('Time (iterations)')
             plt.ylabel('Strategy Count')
@@ -497,7 +497,7 @@ class GeneticAlgorithm:
                     plt.plot(self.def_strategy_count[s][p], c=colors[counter], label=p.__name__)
 
             plt.plot([0] * len(self.defender_benefit), 'r--')
-            plt.plot([self.defender_ga_properties['number_of_players']] * len(self.defender_benefit), 'r--')
+            plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), 'r--')
             plt.legend()
 
         else:
@@ -511,8 +511,8 @@ class GeneticAlgorithm:
         plt.plot(defender_benefit_mean, 'b')
         # plt.plot([def_reward] * len(self.defender_benefit), 'b')
 
-        if len(self.defender_ga_properties['strategy_classes']) > 1 \
-            or len(self.attacker_ga_properties['strategy_classes']) > 1:
+        if len(self.defender_ea_properties['strategy_classes']) > 1 \
+            or len(self.attacker_ea_properties['strategy_classes']) > 1:
 
             plot_number = 420
         else:
@@ -538,7 +538,7 @@ class GeneticAlgorithm:
             plt.plot(m, c=colors[s])
             # plt.plot([att_equilibrium[s]] * len(self.attacker_population[s]), c=colors[s])
 
-        if len(self.attacker_ga_properties['strategy_classes']) > 1:
+        if len(self.attacker_ea_properties['strategy_classes']) > 1:
             axs7 = plt.subplot(plot_number + 6, sharex=axs1, sharey=axs3)
             plt.xlabel('Time (iterations)')
             plt.ylabel('Strategy Count')
@@ -547,7 +547,7 @@ class GeneticAlgorithm:
                 for counter, p in enumerate(self.att_strategy_count[s]):
                     plt.plot(self.att_strategy_count[s][p], c=colors[counter], label=p.__name__)
             plt.plot([0] * len(self.attacker_benefit), 'r--')
-            plt.plot([self.attacker_ga_properties['number_of_players']] * len(self.attacker_benefit), 'r--')
+            plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), 'r--')
             plt.legend()
         else:
             plot_number = plot_number - 2
@@ -618,7 +618,7 @@ class GeneticAlgorithm:
         plt.ylabel('Strategy Count')
         plt.title('Defender Strategy Count Over Time')
         plt.plot([0] * len(self.defender_benefit), 'r--')
-        plt.plot([self.defender_ga_properties['number_of_players']] * len(self.defender_benefit), 'r--')
+        plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), 'r--')
         for s in range(0, len(self.def_strategy_count)):
             for counter, p in enumerate(self.def_strategy_count[s]):
                 plt.plot(self.def_strategy_count[s][p], c=colors[counter], label=p.__name__)
@@ -629,7 +629,7 @@ class GeneticAlgorithm:
         plt.ylabel('Strategy Count')
         plt.title('Attacker Strategy Count Over Time')
         plt.plot([0] * len(self.attacker_benefit), 'r--')
-        plt.plot([self.attacker_ga_properties['number_of_players']] * len(self.attacker_benefit), 'r--')
+        plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), 'r--')
         for s in range(0, len(self.att_strategy_count)):
             for counter, p in enumerate(self.att_strategy_count[s]):
                 plt.plot(self.att_strategy_count[s][p], c=colors[counter], label=p.__name__)
@@ -643,32 +643,32 @@ class GeneticAlgorithm:
 
     def write_to_file(self, file_number: str = "-1") -> None:
 
-        self.create_directory(self.ga_properties.get('file_location'))
+        self.create_directory(self.ea_properties.get('file_location'))
 
-        file = Path(self.ga_properties.get('file_location') + 'defender_generation_population_' + str(file_number)
+        file = Path(self.ea_properties.get('file_location') + 'defender_generation_population_' + str(file_number)
                     + ".pkl")
         save_object(obj=self.defender_population, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'attacker_generation_population_' + str(file_number)
+        file = Path(self.ea_properties.get('file_location') + 'attacker_generation_population_' + str(file_number)
                     + ".pkl")
         save_object(obj=self.attacker_population, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'defender_payoffs_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'defender_payoffs_' + str(file_number) + ".pkl")
         save_object(obj=self.defender_benefit, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'attacker_payoffs_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'attacker_payoffs_' + str(file_number) + ".pkl")
         save_object(obj=self.attacker_benefit, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'last_defender_strategies_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'last_defender_strategies_' + str(file_number) + ".pkl")
         save_object(obj=self.defenders, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'last_attacker_strategies_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'last_attacker_strategies_' + str(file_number) + ".pkl")
         save_object(obj=self.attackers, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'defender_strategy_count_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'defender_strategy_count_' + str(file_number) + ".pkl")
         save_object(obj=self.def_strategy_count, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'attacker_strategy_count_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'attacker_strategy_count_' + str(file_number) + ".pkl")
         save_object(obj=self.att_strategy_count, filename=file)
 
     def create_directory(self, directory: str) -> None:
@@ -677,48 +677,48 @@ class GeneticAlgorithm:
             os.makedirs(directory)
 
     def write_info_files(self) -> None:
-        self.create_directory(self.ga_properties.get('file_location') + 'info_files/')
+        self.create_directory(self.ea_properties.get('file_location') + 'info_files/')
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'ga_properties' + ".pkl")
-        save_object(obj=self.ga_properties, filename=file)
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'ea_properties' + ".pkl")
+        save_object(obj=self.ea_properties, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'tournament_properties' + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'tournament_properties' + ".pkl")
         save_object(obj=self.tournament_properties, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'defender_ga_properties' + ".pkl")
-        save_object(obj=self.defender_ga_properties, filename=file)
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'defender_ea_properties' + ".pkl")
+        save_object(obj=self.defender_ea_properties, filename=file)
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'attacker_ga_properties' + ".pkl")
-        save_object(obj=self.attacker_ga_properties, filename=file)
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'attacker_ea_properties' + ".pkl")
+        save_object(obj=self.attacker_ea_properties, filename=file)
 
     def read_from_file(self, file_number: (str | None) = None) -> None:
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'ga_properties' + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'ea_properties' + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
-                self.ga_properties = pickle.load(put)
+                self.ea_properties = pickle.load(put)
 
-        # print(self.ga_properties['file_location'])
-        self.ga_properties['file_location'] = "genetic_algorithms/" + self.ga_properties['file_location']
+        # print(self.ea_properties['file_location'])
+        self.ea_properties['file_location'] = "genetic_algorithms/" + self.ea_properties['file_location']
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'tournament_properties' + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'tournament_properties' + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
                 self.tournament_properties = pickle.load(put)
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'defender_ga_properties' + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'defender_ea_properties' + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
-                self.defender_ga_properties = pickle.load(put)
+                self.defender_ea_properties = pickle.load(put)
 
-        self.number_of_servers = len(self.defender_ga_properties['move_costs'])
+        self.number_of_servers = len(self.defender_ea_properties['move_costs'])
 
-        file = Path(self.ga_properties.get('file_location') + 'info_files/' + 'attacker_ga_properties' + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'info_files/' + 'attacker_ea_properties' + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
-                self.attacker_ga_properties = pickle.load(put)
+                self.attacker_ea_properties = pickle.load(put)
 
-        directory = os.fsencode(self.ga_properties.get('file_location'))
+        directory = os.fsencode(self.ea_properties.get('file_location'))
 
         # Find the latest file_number in the folder
         if file_number is None:
@@ -731,43 +731,43 @@ class GeneticAlgorithm:
 
             file_number = str(max_value)
 
-        file = Path(self.ga_properties.get('file_location') + 'defender_generation_population_' + str(file_number)
+        file = Path(self.ea_properties.get('file_location') + 'defender_generation_population_' + str(file_number)
                     + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
                 self.defender_population = pickle.load(put)
 
-        file = Path(self.ga_properties.get('file_location') + 'attacker_generation_population_' + str(file_number)
+        file = Path(self.ea_properties.get('file_location') + 'attacker_generation_population_' + str(file_number)
                     + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
                 self.attacker_population = pickle.load(put)
 
-        file = Path(self.ga_properties.get('file_location') + 'defender_payoffs_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'defender_payoffs_' + str(file_number) + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
                 self.defender_benefit = pickle.load(put)
 
-        file = Path(self.ga_properties.get('file_location') + 'attacker_payoffs_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'attacker_payoffs_' + str(file_number) + ".pkl")
         if file.exists():
             with open(file, 'rb') as put:
                 self.attacker_benefit = pickle.load(put)
 
-        file = Path(self.ga_properties.get('file_location') + 'last_defender_strategies_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'last_defender_strategies_' + str(file_number) + ".pkl")
         with open(file, 'rb') as put:
             self.defenders = pickle.load(put)
 
-        file = Path(self.ga_properties.get('file_location') + 'last_attacker_strategies_' + str(file_number) + ".pkl")
+        file = Path(self.ea_properties.get('file_location') + 'last_attacker_strategies_' + str(file_number) + ".pkl")
         with open(file, 'rb') as put:
             self.attackers = pickle.load(put)
 
         file = Path(
-            self.ga_properties.get('file_location') + 'defender_strategy_count_' + str(file_number) + ".pkl")
+            self.ea_properties.get('file_location') + 'defender_strategy_count_' + str(file_number) + ".pkl")
         with open(file, 'rb') as put:
             self.def_strategy_count = pickle.load(put)
 
         file = Path(
-            self.ga_properties.get('file_location') + 'attacker_strategy_count_' + str(file_number) + ".pkl")
+            self.ea_properties.get('file_location') + 'attacker_strategy_count_' + str(file_number) + ".pkl")
         with open(file, 'rb') as put:
             self.att_strategy_count = pickle.load(put)
 

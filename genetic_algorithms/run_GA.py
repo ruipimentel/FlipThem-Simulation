@@ -19,7 +19,7 @@ tournament_properties = {
     'game_properties': game_properties,
 }
 
-ga_properties = {
+ea_properties = {
     'mutation_rate': 0.002,
     'file_location': 'data/thesis/stochastic/1_resource/non_fixed/equilibrium/case_1/',
     'upper_bound': 3.0,
@@ -29,7 +29,7 @@ ga_properties = {
     'print_out': False
 }
 
-defender_ga_properties = {
+defender_ea_properties = {
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Periodic,),
@@ -37,7 +37,7 @@ defender_ga_properties = {
     # 'move_costs': (0.2, 0.15, 0.12,),
 }
 # #
-attacker_ga_properties = {
+attacker_ea_properties = {
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Periodic,),
@@ -62,9 +62,9 @@ attacker_ga_properties = {
 
 # attacker_list = tuple(attacker_list)
 
-ga = GeneticAlgorithm(defenders=defender_ga_properties,
-                      attackers=attacker_ga_properties,
-                      ga_properties=ga_properties,
+ga = GeneticAlgorithm(defenders=defender_ea_properties,
+                      attackers=attacker_ea_properties,
+                      ea_properties=ea_properties,
                       tournament_properties=tournament_properties)
 
 
