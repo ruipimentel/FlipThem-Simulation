@@ -23,7 +23,7 @@ ea_properties = {
     'mutation_rate': 0.002,
     'file_location': 'data/thesis/stochastic/1_resource/non_fixed/equilibrium/case_1/',
     'upper_bound': 3.0,
-    'lower_bound': 0.0,
+    'lower_bound': 0.1,
     'defender_update': True,
     'attacker_update': True,
     'print_out': False

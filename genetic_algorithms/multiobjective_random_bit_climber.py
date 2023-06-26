@@ -11,7 +11,10 @@ from pathlib import Path
 import reward_functions
 import time
 import pickle
+import random
 
+from util.pareto_dominance import *
+from util.bitstring import *
 from core.tournament import Tournament
 from strategies.player import Player
 
@@ -40,8 +43,8 @@ class MultiobjectiveRandomBitClimber:
         if defenders is None:
             print("Blank genetic_algorithms created (for now)")
         else:
-            self.defender_ea_properties, self.defenders = self.initialize_players(defenders, attackers)
-            self.attacker_ea_properties, self.attackers = self.initialize_players(attackers, attackers)
+            self.defender_ea_properties = self.initialize_players(defenders)
+            self.attacker_ea_properties = self.initialize_players(attackers)
 
             if len(self.attacker_ea_properties['move_costs']) == len(self.defender_ea_properties['move_costs']):
                 self.number_of_servers: int = len(self.attacker_ea_properties['move_costs'])
@@ -71,34 +74,29 @@ class MultiobjectiveRandomBitClimber:
     def initialize_players(
         self,
         players: (Dict | Tuple[Player, ...]),
-        attackers: (Dict | Tuple[Player, ...]),
-    ) -> Tuple[Dict, Tuple[Player, ...]]:
+    ) -> Dict:
         """
-        When given a properties Dict, returns it along with the actual players
-        generated via `generate_players`.
-        When given players, generates a properties Dict, then returns it along
-        with the received players.
+        When given a properties Dict, simply returns it along.
+        When given players, infers a properties Dict from them, then returns it.
         """
 
         if type(players) is dict:
-            return (
-                players,
-                self.generate_players(players),
-            )
+            return players
         else:
             strategies = set()
             for s in players[0].get_strategies():
                 strategies.add(type(s))
-            return (
-                {
-                    'move_costs': players[0].get_player_properties()['move_costs'],
-                    'strategy_classes': tuple(strategies),
-                    'number_of_players': len(attackers),
-                },
-                players,
-            )
+            return {
+                'move_costs': players[0].get_player_properties()['move_costs'],
+                'strategy_classes': tuple(strategies),
+                'number_of_players': len(players),
+            }
 
-    def generate_players(self, player_ea_properties: Dict) -> Tuple[Player, ...]:
+    def generate_players(
+        self,
+        player_ea_properties: Dict,
+        bitstring: List[1 | 0] = None,
+    ) -> Tuple[List[0 | 1], Tuple[Player, ...]]:
         """
         Generates the amount of `Player` instances provided by the properties Dict.
         Each player will have 1 strategy class (taken randomly from the pool of
@@ -115,22 +113,36 @@ class MultiobjectiveRandomBitClimber:
         - `move_costs` (`List[float]`): A list of move costs for the servers.
         """
 
+        # Number of strategy classes:
+        number_of_strategies = len(player_ea_properties.get('strategy_classes'))
+        # Number of servers in play:
+        number_of_servers = len(player_ea_properties.get('move_costs'))
         player_list = []
         number_of_players = player_ea_properties.get('number_of_players')
+
+        # strategy_bits = max(1, math.ceil(math.log2(number_of_strategies)))
+        strategy_bits = math.ceil(math.log2(number_of_strategies))
+        rate_bits = player_ea_properties['rate_bitstring_length']
+        server_bitstring_length = strategy_bits + rate_bits
+        total_bitstring_length = number_of_servers * server_bitstring_length
+        bitstring = bitstring if bitstring is not None else random_bitstring(total_bitstring_length)
+
         for i in range(0, number_of_players):
             strategy_list = []
-            # Number of strategy classes:
-            number_of_strategies = len(player_ea_properties.get('strategy_classes'))
-            # Number of servers in play:
-            number_of_servers = len(player_ea_properties.get('move_costs'))
-
             for server in range(0, number_of_servers):
-                strategy_list.append(player_ea_properties.get('strategy_classes')[
-                    np.random.randint(0, number_of_strategies)
-                ](np.random.uniform(
+                strategy_class = 0 if strategy_bits == 0 else read_bitstring(bitstring[
+                    server*server_bitstring_length : server*server_bitstring_length + strategy_bits
+                ])
+                strategy_rate = read_bitstring(
+                    bitstring[
+                        server*server_bitstring_length + strategy_bits : server*server_bitstring_length + strategy_bits + rate_bits
+                    ],
                     self.ea_properties['lower_bound'],
                     self.ea_properties['upper_bound'],
-                )))
+                )
+                strategy_list.append(player_ea_properties.get('strategy_classes')[
+                    strategy_class % number_of_strategies
+                ](strategy_rate))
 
             player_properties = {'move_costs': player_ea_properties['move_costs']}
 
@@ -138,13 +150,13 @@ class MultiobjectiveRandomBitClimber:
                                       player_properties=copy(player_properties),
                                       strategies=tuple(strategy_list)))
 
-        return tuple(player_list)
+        return bitstring, tuple(player_list)
 
     def __initiate(self) -> None:
 
         self.write_info_files()
 
-        for s in range(0, len(self.defenders[0].get_strategies())):
+        for s in range(0, self.number_of_servers):
 
             self.defender_population[s] = []
             self.attacker_population[s] = []
@@ -166,6 +178,7 @@ class MultiobjectiveRandomBitClimber:
 
     def run(self, number_of_rounds: int, file_write: int = 0) -> None:
 
+        # If no gameplay data exists yet, then a game wasn't restored from file:
         if len(self.defender_benefit) == 0:
             self.__initiate()
             round_start = 0
@@ -177,6 +190,35 @@ class MultiobjectiveRandomBitClimber:
             file_write = number_of_rounds + round_start
 
         t1 = t2 = time.time()
+
+        # Creates the first parents randomly:
+        parent_defender = self.generate_individual(self.defender_ea_properties)
+        archive_defender = [ parent_defender ]
+        parent_attacker = self.generate_individual(self.attacker_ea_properties)
+        archive_attacker = [ parent_attacker ]
+
+        # Plays the initial tournament in order to obtain the initial values:
+        sorted_defender_results, sorted_attacker_results = self.play_tournament(
+            parent_defender['players'],
+            parent_attacker['players'],
+        )
+        parent_defender['value'] = [ sorted_defender_results[0][1] ]
+        parent_defender['results'] = sorted_defender_results
+        parent_attacker['value'] = [ sorted_attacker_results[0][1] ]
+        parent_attacker['results'] = sorted_attacker_results
+
+        # Gets the bit-flipping index order (random sequence):
+        defender_string_size = len(parent_defender['point'])
+        random_permutation_defender = list(range(defender_string_size))
+        random.shuffle(random_permutation_defender)
+        perm_defender_i = 0
+        parent_defender_bits_flipped = 0
+        attacker_string_size = len(parent_attacker['point'])
+        random_permutation_attacker = list(range(attacker_string_size))
+        random.shuffle(random_permutation_attacker)
+        perm_attacker_i = 0
+        parent_attacker_bits_flipped = 0
+
         for i in range(round_start, number_of_rounds + round_start):
 
             if i > round_start:
@@ -190,30 +232,96 @@ class MultiobjectiveRandomBitClimber:
 
             print("------ Round " + str(i + 1) + " --------")
 
-            t = Tournament(defender_strategies=self.defenders,
-                           attacker_strategies=self.attackers,
-                           tournament_properties=self.tournament_properties)
+            # Clones the parent and flip one bit to create the child:
+            child_point_defender = parent_defender['point'].copy()
+            child_point_defender[random_permutation_defender[perm_defender_i]] = 1 - child_point_defender[random_permutation_defender[perm_defender_i]]
+            child_defender = self.generate_individual(self.defender_ea_properties, child_point_defender)
+            child_point_attacker = parent_attacker['point'].copy()
+            child_point_attacker[random_permutation_attacker[perm_attacker_i]] = 1 - child_point_attacker[random_permutation_attacker[perm_attacker_i]]
+            child_attacker = self.generate_individual(self.attacker_ea_properties, child_point_attacker)
 
-            t.play_tournament()
+            # Counts how many bits of the parent have been flipped so far:
+            parent_defender_bits_flipped += 1
+            parent_attacker_bits_flipped += 1
 
-            # Organise the results
-            defender_results = list(t.get_mean_defense().items())
-
-            attacker_results = list(t.get_mean_attack().items())
-
-            sorted_defender_results: List[Tuple[Player, float]] = sorted(
-                defender_results,
-                key=lambda tup: tup[1],
-                reverse=True,
+            # Plays tournament to obtain results for the new child:
+            sorted_defender_results, sorted_attacker_results = self.play_tournament(
+                child_defender['players'],
+                parent_attacker['players'],
             )
-
-            sorted_attacker_results: List[Tuple[Player, float]] = sorted(
-                attacker_results,
-                key=lambda tup: tup[1],
-                reverse=True,
+            child_defender['value'] = [ sorted_defender_results[0][1] ]
+            child_defender['results'] = sorted_defender_results
+            sorted_defender_results, sorted_attacker_results = self.play_tournament(
+                parent_defender['players'],
+                child_attacker['players'],
             )
+            child_attacker['value'] = [ sorted_attacker_results[0][1] ]
+            child_attacker['results'] = sorted_attacker_results
 
-            self.update_plot_data(sorted_defender_results, sorted_attacker_results)
+            # If the child is not dominated by any previously archived value, it'll
+            # get added to the archive as a side-effect of the following call:
+            if non_pareto_dominated_insert(archive_defender, child_defender):
+                # Also, if the child actually dominates the parent, this child gets
+                # used as the parent from now on (otherwise we keep iterating the
+                # bit-flip options using the current parent as a basis):
+                if pareto_dominates(child_defender['value'], parent_defender['value']):
+                    parent_defender = child_defender
+                    parent_defender_bits_flipped = 0
+            # If the child is not dominated by any previously archived value, it'll
+            # get added to the archive as a side-effect of the following call:
+            if non_pareto_dominated_insert(archive_attacker, child_attacker):
+                # Also, if the child actually dominates the parent, this child gets
+                # used as the parent from now on (otherwise we keep iterating the
+                # bit-flip options using the current parent as a basis):
+                if pareto_dominates(child_attacker['value'], parent_attacker['value']):
+                    parent_attacker = child_attacker
+                    parent_attacker_bits_flipped = 0
+
+            perm_defender_i = (perm_defender_i + 1) % defender_string_size
+            perm_attacker_i = (perm_attacker_i + 1) % attacker_string_size
+
+            # If the permutation has been exhausted, then a local optimum has been found:
+            if parent_defender_bits_flipped == defender_string_size:
+                # Performs a hard reset, that is, resets to a new random parent:
+                parent_defender = self.generate_individual(self.defender_ea_properties)
+
+                # Plays tournament to obtain results for the new parent:
+                sorted_defender_results, _ = self.play_tournament(
+                    parent_defender['players'],
+                    parent_attacker['players'],
+                )
+                parent_defender['value'] = [ sorted_defender_results[0][1] ]
+                parent_defender['results'] = sorted_defender_results
+
+                non_pareto_dominated_insert(archive_defender, parent_defender)
+
+                # Generates a new bit-flipping sequence:
+                random_permutation = list(range(defender_string_size))
+                random.shuffle(random_permutation)
+                parent_defender_bits_flipped = 0     # Because there's a new parent and a new order.
+
+            # If the permutation has been exhausted, then a local optimum has been found:
+            if parent_attacker_bits_flipped == attacker_string_size:
+                # Performs a hard reset, that is, resets to a new random parent:
+                parent_attacker = self.generate_individual(self.attacker_ea_properties)
+
+                # Plays tournament to obtain results for the new parent:
+                _, sorted_attacker_results = self.play_tournament(
+                    parent_defender['players'],
+                    parent_attacker['players'],
+                )
+                parent_attacker['value'] = [ sorted_attacker_results[0][1] ]
+                parent_attacker['results'] = sorted_attacker_results
+
+                non_pareto_dominated_insert(archive_attacker, parent_attacker)
+
+                # Generates a new bit-flipping sequence:
+                random_permutation = list(range(attacker_string_size))
+                random.shuffle(random_permutation)
+                parent_attacker_bits_flipped = 0     # Because there's a new parent and a new order.
+
+            # Updates plot data with the best results so far:
+            self.update_plot_data(archive_defender[-1]['results'], archive_attacker[-1]['results'])
 
             ################################################################################
             #                                                                              #
@@ -236,116 +344,69 @@ class MultiobjectiveRandomBitClimber:
                         rates.append(str(strategy))
                     print(r[0].get_name(), rates, r[1])
 
-            #########################################################
-            #                                                       #
-            #                  Genetic Algorithm                    #
-            #                                                       #
-            #########################################################
-
-            if len(self.defenders) > 1 and self.ea_properties['defender_update']:
-                self.create_new_generation(sorted_defender_results, self.def_keep_number, self.defender_ea_properties, i)
-
-            if len(self.attackers) > 1 and self.ea_properties['attacker_update']:
-                self.create_new_generation(sorted_attacker_results, self.att_keep_number, self.attacker_ea_properties, i)
-
             if i % file_write == 0 or i == number_of_rounds + round_start - 1:
                 self.write_to_file(i)
 
             t2 = time.time()
+        print('Defender population:', ";\t".join([ f'0b{"".join([str(b) for b in p["point"]])} {p["value"]} {["/".join([str(s) for s in p_.get_strategies()]) for p_ in p["players"]]}' for p in archive_defender ]))
+        print('Attacker population:', ";\t".join([ f'0b{"".join([str(b) for b in p["point"]])} {p["value"]} {["/".join([str(s) for s in p_.get_strategies()]) for p_ in p["players"]]}' for p in archive_attacker ]))
 
-
-    def create_new_generation(
+    def generate_individual(
         self,
-        sorted_results: List[Tuple[Player, float]],
-        keep_number: int,
         player_ea_properties: Dict,
-        round: int,
-    ) -> None:
+        bitstring: List[0 | 1] = None,
+        value_fn: function = None,
+    ):
         """
-        Mutates `sorted_results` list by replacing `Player`'s strategies with new
-        strategies chosen from 2 random parent populations (mothers and fathers),
-        and also by modifying their rate with a random perturbation. This random
-        perturbation tends to be smaller after each round.
+        Creates an individual in the Dict format required by the moRBC implementation.
 
-        The mothers and fathers are randomly chosen using `define_parents` method.
+        In particular, the `point` and `value` keys are necessary for the evolution to
+        take place; the `players` key feeds the tournament play and the graph plotting.
         """
 
-        mas = self.define_parents(keep_number, sorted_results)
-        pas = self.define_parents(keep_number, sorted_results)
+        bitstring, players = self.generate_players(player_ea_properties, bitstring)
+        return {
+            'point': bitstring,
+            'value': (value_fn if value_fn else lambda _: -math.inf)(bitstring),
+            'players': players,
+        }
 
-        for counter1, ma in enumerate(mas):
-            # We are creating the offspring to update the sorted results, ready for the next round
-
-            # These will have the same number of strategies (on resources)
-            # We iterate through and choose which strategy to take
-            offspring_strategies = []
-            # Make this a tuple at the end
-            for counter2, strategy in enumerate(ma.get_strategies()):
-                # 0 is ma, 1 is pa
-                if np.random.randint(0, 2) == 0:
-                    offspring_strategies.append(strategy)
-                else:
-                    offspring_strategies.append(pas[counter1].get_strategy(counter2))
-            # Create new player, with the strategy
-            sorted_results[keep_number + counter1][0].set_strategies(offspring_strategies)
-
-        for result in sorted_results[self.att_keep_number:]:
-            for s in range(0, len(result[0].get_strategies())):
-                change = 0.1/np.log(round + 2)
-                rate = result[0].get_strategy_rate(s)
-
-                result[0].update_strategy_rate(s, rate * (1 + np.random.uniform(-change, change)))
-
-        probability = self.ea_properties['mutation_rate'] * len(sorted_results)
-
-        if probability > 1.0:
-            raise ValueError("Mutation Rate too high")
-        # print("Mutation Probability: ", probability)
-        for n in range(0, self.number_of_servers):
-            if np.random.choice(2, 1, p=[1-probability, probability]) == 1:
-                mut = np.random.randint(self.att_keep_number, len(sorted_results))
-                serv = np.random.randint(0, self.number_of_servers)
-                strategy_class = player_ea_properties['strategy_classes'][
-                    np.random.randint(0, len(player_ea_properties['strategy_classes']))
-                ]
-                sorted_results[mut][0].update_strategy(serv, strategy_class(np.random.uniform(
-                    self.ea_properties['lower_bound'], self.ea_properties['upper_bound'])))
-
-                # sorted_results[mut][0].update_strategy_rate(serv, np.random.uniform(0, 3))
-
-    def define_parents(
+    def play_tournament(
         self,
-        keep_number: int,
-        results: List[Tuple[Player, float]],
-    ) -> List[Player]:
+        defenders: Tuple[Player, ...],
+        attackers: Tuple[Player, ...],
+    ) -> Tuple[List[Tuple[Player, float]], List[Tuple[Player, float]]]:
         """
-        Produces a list of length `len(results) - keep_number` of tuples taken from
-        `results`. These tuples are chosen randomly with probability given by a
-        Logit probability function — that is, the tuples are chosen with probability
-        proportional to a weight `w = exp(average_benefit)/s`, where `s` is the sum
-        of every `exp(average_benefit)` in `results`.
+        Essentially the same implementation as the GA; the segment was simply
+        extracted to a dedicated method here.
         """
 
-        parents = []
+        t = Tournament(
+            defender_strategies=defenders,
+            attacker_strategies=attackers,
+            tournament_properties=self.tournament_properties,
+        )
 
-        s = 0
-        for r in results:
-            s += math.exp(r[1])
+        t.play_tournament()
 
-        # split = 0.5 * keep_number * (keep_number + 1)
-        for ma in range(0, len(results) - keep_number):
-            p = np.random.uniform(0, 1)
-            start_probability = 0
-            end_probability = 0
-            for r in results:
-                end_probability += math.exp(r[1])
-                if start_probability/s <= p < end_probability/s:
+        # Organise the results
+        defender_results = list(t.get_mean_defense().items())
 
-                    parents.append(r[0])
-                    break
-                start_probability = end_probability
+        attacker_results = list(t.get_mean_attack().items())
 
-        return parents
+        sorted_defender_results: List[Tuple[Player, float]] = sorted(
+            defender_results,
+            key=lambda tup: tup[1],
+            reverse=True,
+        )
+
+        sorted_attacker_results: List[Tuple[Player, float]] = sorted(
+            attacker_results,
+            key=lambda tup: tup[1],
+            reverse=True,
+        )
+
+        return (sorted_defender_results, sorted_attacker_results)
 
     def update_plot_data(
         self,
@@ -353,7 +414,7 @@ class MultiobjectiveRandomBitClimber:
         sorted_attacker_results: List[Tuple[Player, float]],
     ) -> None:
 
-        for s in range(0, len(self.defenders[0].get_strategies())):
+        for s in range(0, self.number_of_servers):
 
             # Updates the list of defender rates on this server:
             self.update_sorted_player_rates_for_server(
@@ -658,12 +719,6 @@ class MultiobjectiveRandomBitClimber:
 
         file = Path(self.ea_properties.get('file_location') + 'attacker_payoffs_' + str(file_number) + ".pkl")
         save_object(obj=self.attacker_benefit, filename=file)
-
-        file = Path(self.ea_properties.get('file_location') + 'last_defender_strategies_' + str(file_number) + ".pkl")
-        save_object(obj=self.defenders, filename=file)
-
-        file = Path(self.ea_properties.get('file_location') + 'last_attacker_strategies_' + str(file_number) + ".pkl")
-        save_object(obj=self.attackers, filename=file)
 
         file = Path(self.ea_properties.get('file_location') + 'defender_strategy_count_' + str(file_number) + ".pkl")
         save_object(obj=self.def_strategy_count, filename=file)

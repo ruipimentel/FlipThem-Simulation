@@ -14,32 +14,31 @@ tournament_properties = {
     'number_of_rounds': 5,
     'attacker_threshold': 1,
     'defender_threshold': 1,
-    'selection_ratio': 0.3,
+    'selection_ratio': 1,
     'tournament_type': TOURNAMENT_TYPE.STOCHASTIC,  # STOCHASTIC = as computer simulation.
     'game_properties': game_properties,
 }
 
 ea_properties = {
-    'mutation_rate': 0.002,
     'file_location': 'data/moRBC/stochastic/1_resource/non_fixed/equilibrium/case_1/',
     'upper_bound': 3.0,
-    'lower_bound': 0.0,
-    'defender_update': True,
-    'attacker_update': True,
+    'lower_bound': 0.1,
     'print_out': False
 }
 
 defender_ea_properties = {
+    'rate_bitstring_length': 7,
     'name': "Defender ",
-    'number_of_players': 50,
+    'number_of_players': 1,
     'strategy_classes': (Periodic,),
     'move_costs': (0.2,),
     # 'move_costs': (0.2, 0.15, 0.12,),
 }
 # #
 attacker_ea_properties = {
+    'rate_bitstring_length': 7,
     'name': "Attacker ",
-    'number_of_players': 50,
+    'number_of_players': 1,
     'strategy_classes': (Periodic,),
     'move_costs': (0.3,),
     # 'move_costs': (0.18, 0.13, 0.09,),
