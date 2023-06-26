@@ -52,7 +52,15 @@ class GeneticAlgorithm:
         self.game_properties: (Dict | None) = game_properties
 
         self.defender_population: Dict[int, List[float] | NDArray[float]] = {}
+        """
+        For each server, holds a list of the defender rates by generation. Thus,
+        the `NDArray` shape is `(generations, number_of_players)`.
+        """
         self.attacker_population: Dict[int, List[float] | NDArray[float]] = {}
+        """
+        For each server, holds a list of the attacker rates by generation. Thus,
+        the `NDArray` shape is `(generations, number_of_players)`.
+        """
 
         self.defender_benefit: (List[float] | NDArray[float]) = []
         self.attacker_benefit: (List[float] | NDArray[float]) = []
@@ -213,7 +221,7 @@ class GeneticAlgorithm:
                 reverse=True,
             )
 
-            self.update_plot_data(sorted_defender_results, sorted_attacker_results)
+            self.update_plot_data(sorted_defender_results, sorted_attacker_results, i)
 
             ################################################################################
             #                                                                              #
@@ -351,6 +359,7 @@ class GeneticAlgorithm:
         self,
         sorted_defender_results: List[Tuple[Player, float]],
         sorted_attacker_results: List[Tuple[Player, float]],
+        iterations: int,
     ) -> None:
 
         for s in range(0, len(self.defenders[0].get_strategies())):
@@ -360,6 +369,7 @@ class GeneticAlgorithm:
                 sorted_defender_results,
                 self.defender_population,
                 s,
+                iterations,
             )
 
             # Updates the list of attacker rates on this server:
@@ -367,6 +377,7 @@ class GeneticAlgorithm:
                 sorted_attacker_results,
                 self.attacker_population,
                 s,
+                iterations,
             )
 
             # Updates the defender strategy-class count on this server:
@@ -375,6 +386,7 @@ class GeneticAlgorithm:
                 sorted_defender_results,
                 self.defender_ea_properties,
                 s,
+                iterations,
             )
 
             # Updates the attacker strategy-class count on this server:
@@ -383,24 +395,35 @@ class GeneticAlgorithm:
                 sorted_attacker_results,
                 self.attacker_ea_properties,
                 s,
+                iterations,
             )
 
         self.defender_benefit = self.concatenate_player_benefit(
             [[x[1] for x in sorted_defender_results]],
             self.defender_benefit,
         )
+        if self.defender_benefit.shape[0] > iterations + 1:
+            raise Exception(f'Number of arrays ({self.defender_benefit.shape[0]}) greater than the number of generations ({iterations + 1})')
 
         self.attacker_benefit = self.concatenate_player_benefit(
             [[x[1] for x in sorted_attacker_results]],
             self.attacker_benefit,
         )
+        if self.attacker_benefit.shape[0] > iterations + 1:
+            raise Exception(f'Number of arrays ({self.attacker_benefit.shape[0]}) greater than the number of generations ({iterations + 1})')
 
     def update_sorted_player_rates_for_server(
         self,
         sorted_player_results: List[Tuple[Player, float]],
         player_population: Dict[int, List[float] | NDArray[float]],
         server: int,
+        iterations: int,
     ) -> None:
+        """
+        Mutates `player_population` by concatening possibly existing rates with the
+        new ones (`sorted_player_results`), in the form of an `NDArray`.
+        """
+
         current_player_generation_rates = [x[0].get_strategy_rate(server) for x in sorted_player_results]
         np_current_player_generation_rates = np.array([current_player_generation_rates])
 
@@ -413,6 +436,8 @@ class GeneticAlgorithm:
                 (player_population[server], np_current_player_generation_rates),
                 axis=0,
             )
+        if player_population[server].shape[0] > iterations + 1:
+            raise Exception(f'Number of arrays ({player_population[server].shape[0]}) greater than the number of generations ({iterations + 1})')
 
     def update_player_strategy_count_for_server(
         self,
@@ -420,18 +445,31 @@ class GeneticAlgorithm:
         sorted_player_results: List[Tuple[Player, float]],
         player_ea_properties: Dict,
         server: int,
+        iterations: int,
     ) -> None:
+        """
+        Mutates `player_strategy_count` by appending the usage count of each strategy
+        class in the current iteration.
+        """
+
         # Strategies used by this class of player on the specified server:
         player_strategy_list = [x[0].get_strategy(server) for x in sorted_player_results]
         for strategy in player_ea_properties['strategy_classes']:
             count = len([s for s in player_strategy_list if type(s) is strategy])
             player_strategy_count[server][strategy].append(count)
+            if len(player_strategy_count[server][strategy]) > iterations + 1:
+                raise Exception(f'Number of strategy counts ({len(player_strategy_count[server][strategy])}) greater than the number of generations ({iterations + 1})')
 
     def concatenate_player_benefit(
         self,
         new_benefits: List[List[float]],
         player_benefit: (List[float] | NDArray[float]),
     ) -> NDArray[float]:
+        """
+        Returns the concatenation of the new benefit values with the existing ones,
+        in `NDArray` format.
+        """
+
         if type(player_benefit) is list:
             return np.array(new_benefits)
         else:

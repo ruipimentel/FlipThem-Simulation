@@ -64,6 +64,7 @@ class Tournament(object):
         attacker_results = []
 
         if self.tournament_properties['tournament_type'] is TOURNAMENT_TYPE.STOCHASTIC:
+            # Here, the games are actually simulated (the results are experimental):
             for i in range(0, self.tournament_properties['number_of_rounds']):
 
                 g = Game((defender, attacker), system, self.tournament_properties['game_properties'])
@@ -74,6 +75,7 @@ class Tournament(object):
 
                 g.reset()
         elif self.tournament_properties['tournament_type'] is TOURNAMENT_TYPE.DETERMINISTIC:
+            # Here, the results are computed in theory:
             defender_rates = [s.get_rate() for s in defender.get_strategies()]
             attacker_rates = [s.get_rate() for s in attacker.get_strategies()]
 
