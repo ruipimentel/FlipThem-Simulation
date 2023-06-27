@@ -16,6 +16,7 @@ import random
 
 from util.pareto_dominance import *
 from util.bitstring import *
+from util.timing import *
 from core.tournament import Tournament
 from strategies.player import Player
 
@@ -198,7 +199,7 @@ class MultiobjectiveRandomBitClimber:
         if file_write == 0:
             file_write = number_of_rounds + round_start
 
-        t1 = t2 = time.time()
+        t0 = t1 = t2 = time.time()
 
         # Creates the first parents randomly:
         parent_defender = self.generate_individual(self.defender_ea_properties)
@@ -238,8 +239,7 @@ class MultiobjectiveRandomBitClimber:
                 round_time = t2 - t1
                 rounds_left = number_of_rounds + round_start - i
                 time_left = round_time * rounds_left
-                print("Time left:", str(int(time_left // (60 * 60))) + ":"
-                      + str(int((time_left / 60) % 60)) + ":" + str(int(time_left % 60)))
+                print("Time left:", milliseconds_to_timestring(time_left*1000))
 
             t1 = time.time()
 
@@ -365,6 +365,8 @@ class MultiobjectiveRandomBitClimber:
                 self.write_to_file(i)
 
             t2 = time.time()
+
+        print(f'Total execution time: {milliseconds_to_timestring((t2 - t0)*1000)}')
         print('Defender population:', ";\t".join([ f'0b{"".join([str(b) for b in p["point"]])} {p["value"]} {["/".join([str(s) for s in p_.get_strategies()]) for p_ in p["players"]]}' for p in archive_defender ]))
         print('Attacker population:', ";\t".join([ f'0b{"".join([str(b) for b in p["point"]])} {p["value"]} {["/".join([str(s) for s in p_.get_strategies()]) for p_ in p["players"]]}' for p in archive_attacker ]))
 
