@@ -672,6 +672,18 @@ class MultiobjectiveRandomBitClimber:
 
         plt.xlim(start_time, end_time)
 
+        thresholds = f"Thresholds: {self.tournament_properties['defender_threshold']} D / {self.tournament_properties['attacker_threshold']} A"
+        defender_move_costs = f"{', '.join([ str(c) for c in self.defender_ea_properties['move_costs'] ])}"
+        attacker_move_costs = f"{', '.join([ str(c) for c in self.attacker_ea_properties['move_costs'] ])}"
+        move_costs = f"Move costs: {defender_move_costs} D / {attacker_move_costs} A"
+        selection_ratio = f"Tournament sampling: {self.tournament_properties['selection_ratio']:.2%}"
+        rate_range = f"Rate range: {self.ea_properties['lower_bound']} to {self.ea_properties['upper_bound']}"
+        generic_information = f"{thresholds} — {move_costs} — {selection_ratio} — {rate_range}"
+        rate_length_defender = self.defender_ea_properties['rate_bitstring_length']
+        rate_length_attacker = self.attacker_ea_properties['rate_bitstring_length']
+        rate_length = f"Rate bitstring length: {rate_length_defender} D / {rate_length_attacker} A"
+        plt.suptitle(f"moRBC(1+1) — {rate_length}\n{generic_information}")
+
         fig.tight_layout()
         plt.show()
 
