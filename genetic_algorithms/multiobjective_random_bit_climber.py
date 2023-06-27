@@ -113,6 +113,8 @@ class MultiobjectiveRandomBitClimber:
 
         self.mutation_probability: float = 0
 
+        self.games_played = 0
+
     def initialize_players(
         self,
         players: (Dict | Tuple[Player, ...]),
@@ -419,6 +421,7 @@ class MultiobjectiveRandomBitClimber:
             t2 = time.time()
 
         print(f'Total execution time: {milliseconds_to_timestring((t2 - t0)*1000)}')
+        print(f'Games played: {self.games_played}')
         print('Defender population:', ";\t".join([ f'0b{"".join([str(b) for b in p["point"]])} {p["value"]} {["/".join([str(s) for s in p_.get_strategies()]) for p_ in p["players"]]}' for p in archive_defender ]))
         print('Attacker population:', ";\t".join([ f'0b{"".join([str(b) for b in p["point"]])} {p["value"]} {["/".join([str(s) for s in p_.get_strategies()]) for p_ in p["players"]]}' for p in archive_attacker ]))
 
@@ -458,7 +461,7 @@ class MultiobjectiveRandomBitClimber:
             tournament_properties=self.tournament_properties,
         )
 
-        t.play_tournament()
+        self.games_played += t.play_tournament()
 
         # Organise the results
         defender_results = list(t.get_mean_defense().items())
@@ -858,13 +861,14 @@ class MultiobjectiveRandomBitClimber:
 
         plt.xlim(start_time, end_time)
 
+        games_played = f"Games played: {self.games_played}"
         thresholds = f"Thresholds: {self.tournament_properties['defender_threshold']} D / {self.tournament_properties['attacker_threshold']} A"
         defender_move_costs = f"{', '.join([ str(c) for c in self.defender_ea_properties['move_costs'] ])}"
         attacker_move_costs = f"{', '.join([ str(c) for c in self.attacker_ea_properties['move_costs'] ])}"
         move_costs = f"Move costs: {defender_move_costs} D / {attacker_move_costs} A"
         selection_ratio = f"Tournament sampling: {self.tournament_properties['selection_ratio']:.2%}"
         rate_range = f"Rate range: {self.ea_properties['lower_bound']} to {self.ea_properties['upper_bound']}"
-        generic_information = f"{thresholds} — {move_costs} — {selection_ratio} — {rate_range}"
+        generic_information = f"{games_played} — {thresholds} — {move_costs} — {selection_ratio} — {rate_range}"
         rate_length_defender = self.defender_ea_properties['rate_bitstring_length']
         rate_length_attacker = self.attacker_ea_properties['rate_bitstring_length']
         rate_length = f"Rate bitstring length: {rate_length_defender} D / {rate_length_attacker} A"

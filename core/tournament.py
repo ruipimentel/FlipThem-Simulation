@@ -99,7 +99,7 @@ class Tournament(object):
 
         return defender_results, attacker_results
 
-    def play_tournament(self) -> None:
+    def play_tournament(self) -> int:
 
         total_games = len(self.attacker_strategies) * len(self.defender_strategies)
         games_to_play = total_games * self.tournament_properties['selection_ratio']
@@ -128,6 +128,8 @@ class Tournament(object):
             self.mean_attacker_results[attacker][defender] = (
                 np.mean([x[0] for x in self.attacker_results[attacker][defender]]),
                 np.mean([x[1] for x in self.attacker_results[attacker][defender]]))
+
+        return len(game_set) * self.tournament_properties['number_of_rounds']
 
     def get_mean_defense(self) -> Dict[Player, float]:
         mean_defense = {}

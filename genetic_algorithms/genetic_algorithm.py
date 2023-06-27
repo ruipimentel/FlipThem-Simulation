@@ -80,6 +80,8 @@ class GeneticAlgorithm:
 
         self.mutation_probability: float = 0
 
+        self.games_played = 0
+
     def initialize_players(
         self,
         players: (Dict | Tuple[Player, ...]),
@@ -205,7 +207,7 @@ class GeneticAlgorithm:
                            attacker_strategies=self.attackers,
                            tournament_properties=self.tournament_properties)
 
-            t.play_tournament()
+            self.games_played += t.play_tournament()
 
             # Organise the results
             defender_results = list(t.get_mean_defense().items())
@@ -265,6 +267,7 @@ class GeneticAlgorithm:
             t2 = time.time()
 
         print(f'Total execution time: {milliseconds_to_timestring((t2 - t0)*1000)}')
+        print(f'Games played: {self.games_played}')
 
     def create_new_generation(
         self,
@@ -611,13 +614,14 @@ class GeneticAlgorithm:
 
         plt.xlim(start_time, end_time)
 
+        games_played = f"Games played: {self.games_played}"
         thresholds = f"Thresholds: {self.tournament_properties['defender_threshold']} D / {self.tournament_properties['attacker_threshold']} A"
         defender_move_costs = f"{', '.join([ str(c) for c in self.defender_ea_properties['move_costs'] ])}"
         attacker_move_costs = f"{', '.join([ str(c) for c in self.attacker_ea_properties['move_costs'] ])}"
         move_costs = f"Move costs: {defender_move_costs} D / {attacker_move_costs} A"
         selection_ratio = f"Tournament sampling: {self.tournament_properties['selection_ratio']:.2%}"
         rate_range = f"Rate range: {self.ea_properties['lower_bound']} to {self.ea_properties['upper_bound']}"
-        generic_information = f"{thresholds} — {move_costs} — {selection_ratio} — {rate_range}"
+        generic_information = f"{games_played} — {thresholds} — {move_costs} — {selection_ratio} — {rate_range}"
         population = f"Population: {self.defender_ea_properties['number_of_players']} D / {self.attacker_ea_properties['number_of_players']} A"
         mutation_rate = f"Mutation rate: {self.ea_properties['mutation_rate']:.2%}"
         plt.suptitle(f"Genetic Algorithm — {population} — {mutation_rate}\n{generic_information}")
