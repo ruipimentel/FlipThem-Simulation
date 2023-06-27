@@ -222,11 +222,15 @@ class MultiobjectiveRandomBitClimber:
         random.shuffle(random_permutation_defender)
         perm_defender_i = 0
         parent_defender_bits_flipped = 0
+        self.defender_resets = []
+        self.defender_replacements = []
         attacker_string_size = len(parent_attacker['point'])
         random_permutation_attacker = list(range(attacker_string_size))
         random.shuffle(random_permutation_attacker)
         perm_attacker_i = 0
         parent_attacker_bits_flipped = 0
+        self.attacker_resets = []
+        self.attacker_replacements = []
 
         for i in range(round_start, number_of_rounds + round_start):
 
@@ -276,6 +280,7 @@ class MultiobjectiveRandomBitClimber:
                 if pareto_dominates(child_defender['value'], parent_defender['value']):
                     parent_defender = child_defender
                     parent_defender_bits_flipped = 0
+                    self.defender_replacements.append(i)
             # If the child is not dominated by any previously archived value, it'll
             # get added to the archive as a side-effect of the following call:
             if non_pareto_dominated_insert(archive_attacker, child_attacker):
@@ -285,6 +290,7 @@ class MultiobjectiveRandomBitClimber:
                 if pareto_dominates(child_attacker['value'], parent_attacker['value']):
                     parent_attacker = child_attacker
                     parent_attacker_bits_flipped = 0
+                    self.attacker_replacements.append(i)
 
             perm_defender_i = (perm_defender_i + 1) % defender_string_size
             perm_attacker_i = (perm_attacker_i + 1) % attacker_string_size
@@ -293,6 +299,7 @@ class MultiobjectiveRandomBitClimber:
             if parent_defender_bits_flipped == defender_string_size:
                 # Performs a hard reset, that is, resets to a new random parent:
                 parent_defender = self.generate_individual(self.defender_ea_properties)
+                self.defender_resets.append(i)
 
                 # Plays tournament to obtain results for the new parent:
                 sorted_defender_results, _ = self.play_tournament(
@@ -313,6 +320,7 @@ class MultiobjectiveRandomBitClimber:
             if parent_attacker_bits_flipped == attacker_string_size:
                 # Performs a hard reset, that is, resets to a new random parent:
                 parent_attacker = self.generate_individual(self.attacker_ea_properties)
+                self.attacker_resets.append(i)
 
                 # Plays tournament to obtain results for the new parent:
                 _, sorted_attacker_results = self.play_tournament(
@@ -574,6 +582,12 @@ class MultiobjectiveRandomBitClimber:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate (average)')
         plt.title('Defender\'s Average Rate Over Time')
+        if self.ea_properties['plot_resets']:
+            for iteration in self.defender_resets:
+                plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+        if self.ea_properties['plot_replacements']:
+            for iteration in self.defender_replacements:
+                plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         # TODO This needs to be average of the average
         for s in range(0, len(self.defender_population)):
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
@@ -585,6 +599,12 @@ class MultiobjectiveRandomBitClimber:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate')
         plt.title('Defender\'s Rate Over Time')
+        if self.ea_properties['plot_resets']:
+            for iteration in self.defender_resets:
+                plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+        if self.ea_properties['plot_replacements']:
+            for iteration in self.defender_replacements:
+                plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         for s in range(0, len(self.defender_population)):
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
             plt.plot(m, c=colors[s])
@@ -599,6 +619,12 @@ class MultiobjectiveRandomBitClimber:
             plt.xlabel('Time (iterations)')
             plt.ylabel('Count')
             plt.title('Defender\'s Strategy Class Count Over Time')
+            if self.ea_properties['plot_resets']:
+                for iteration in self.defender_resets:
+                    plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+            if self.ea_properties['plot_replacements']:
+                for iteration in self.defender_replacements:
+                    plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
             plt.plot([0] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.def_strategy_count)):
@@ -613,6 +639,12 @@ class MultiobjectiveRandomBitClimber:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Fitness')
         plt.title('Defender\'s Fitness Over Time')
+        if self.ea_properties['plot_resets']:
+            for iteration in self.defender_resets:
+                plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+        if self.ea_properties['plot_replacements']:
+            for iteration in self.defender_replacements:
+                plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         defender_benefit_mean = np.mean(self.defender_benefit, axis=1)
         plt.plot(defender_benefit_mean, 'b')
         # plt.plot([def_reward] * len(self.defender_benefit), 'b')
@@ -629,6 +661,12 @@ class MultiobjectiveRandomBitClimber:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate (average)')
         plt.title('Attacker\'s Average Rate Over Time')
+        if self.ea_properties['plot_resets']:
+            for iteration in self.attacker_resets:
+                plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+        if self.ea_properties['plot_replacements']:
+            for iteration in self.attacker_replacements:
+                plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         # TODO This needs to be average of the average
         for s in range(0, len(self.attacker_population)):
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
@@ -640,6 +678,12 @@ class MultiobjectiveRandomBitClimber:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate')
         plt.title('Attacker\'s Rate Over Time')
+        if self.ea_properties['plot_resets']:
+            for iteration in self.attacker_resets:
+                plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+        if self.ea_properties['plot_replacements']:
+            for iteration in self.attacker_replacements:
+                plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         for s in range(0, len(self.attacker_population)):
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
             plt.plot(m, c=colors[s])
@@ -653,6 +697,12 @@ class MultiobjectiveRandomBitClimber:
             plt.xlabel('Time (iterations)')
             plt.ylabel('Count')
             plt.title('Attacker\'s Strategy Class Count Over Time')
+            if self.ea_properties['plot_resets']:
+                for iteration in self.attacker_resets:
+                    plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+            if self.ea_properties['plot_replacements']:
+                for iteration in self.attacker_replacements:
+                    plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
             plt.plot([0] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.att_strategy_count)):
@@ -666,6 +716,12 @@ class MultiobjectiveRandomBitClimber:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Fitness')
         plt.title('Attacker\'s Fitness Over Time')
+        if self.ea_properties['plot_resets']:
+            for iteration in self.attacker_resets:
+                plt.axvline(x=iteration, color='#ffcccc', linestyle='--', linewidth=0.5)
+        if self.ea_properties['plot_replacements']:
+            for iteration in self.attacker_replacements:
+                plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         attacker_benefit_mean = np.mean(self.attacker_benefit, axis=1)
         plt.plot(attacker_benefit_mean, 'r')
         # plt.plot([att_reward] * len(self.attacker_benefit), 'r')
@@ -682,7 +738,9 @@ class MultiobjectiveRandomBitClimber:
         rate_length_defender = self.defender_ea_properties['rate_bitstring_length']
         rate_length_attacker = self.attacker_ea_properties['rate_bitstring_length']
         rate_length = f"Rate bitstring length: {rate_length_defender} D / {rate_length_attacker} A"
-        plt.suptitle(f"moRBC(1+1) — {rate_length}\n{generic_information}")
+        resets = f"Resets: {len(self.defender_resets)} D / {len(self.attacker_resets)} A"
+        replacements = f"Replacements: {len(self.defender_replacements)} D / {len(self.attacker_replacements)} A"
+        plt.suptitle(f"moRBC(1+1) — {resets} — {replacements} — {rate_length}\n{generic_information}")
 
         fig.tight_layout()
         plt.show()

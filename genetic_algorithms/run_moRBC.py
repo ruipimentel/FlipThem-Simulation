@@ -24,6 +24,8 @@ ea_properties = {
     'upper_bound': 3.0,
     'lower_bound': 0.1,
     'force_strategy_count_plot': True,
+    'plot_resets': True,
+    'plot_replacements': True,
     'print_out': False
 }
 
