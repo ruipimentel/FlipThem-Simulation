@@ -44,6 +44,7 @@ defender_ea_properties = {
 # #
 attacker_ea_properties = {
     'rate_bitstring_length': 7,
+    # 'fixed_rate': 1.65,
     'name': "Attacker ",
     'number_of_players': 1,
     'strategy_classes': (Periodic,),

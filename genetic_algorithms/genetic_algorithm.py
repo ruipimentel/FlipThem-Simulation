@@ -142,8 +142,8 @@ class GeneticAlgorithm:
                 strategy_list.append(player_ea_properties.get('strategy_classes')[
                     np.random.randint(0, number_of_strategies)
                 ](np.random.uniform(
-                    self.ea_properties['lower_bound'],
-                    self.ea_properties['upper_bound'],
+                    player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['lower_bound'],
+                    player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['upper_bound'],
                 )))
 
             player_properties = {'move_costs': player_ea_properties['move_costs']}
@@ -308,8 +308,8 @@ class GeneticAlgorithm:
             for s in range(0, len(result[0].get_strategies())):
                 change = 0.1/np.log(round + 2)
                 rate = result[0].get_strategy_rate(s)
-
-                result[0].update_strategy_rate(s, rate * (1 + np.random.uniform(-change, change)))
+                if 'fixed_rate' not in player_ea_properties:
+                    result[0].update_strategy_rate(s, rate * (1 + np.random.uniform(-change, change)))
 
         probability = self.ea_properties['mutation_rate'] * len(sorted_results)
 
@@ -324,7 +324,9 @@ class GeneticAlgorithm:
                     np.random.randint(0, len(player_ea_properties['strategy_classes']))
                 ]
                 sorted_results[mut][0].update_strategy(serv, strategy_class(np.random.uniform(
-                    self.ea_properties['lower_bound'], self.ea_properties['upper_bound'])))
+                    player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['lower_bound'],
+                    player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['upper_bound'],
+                )))
 
                 # sorted_results[mut][0].update_strategy_rate(serv, np.random.uniform(0, 3))
 

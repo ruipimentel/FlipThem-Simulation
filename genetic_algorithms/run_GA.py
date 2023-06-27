@@ -41,6 +41,7 @@ defender_ea_properties = {
 }
 # #
 attacker_ea_properties = {
+    # 'fixed_rate': 1.65,
     'name': "Attacker ",
     'number_of_players': 50,
     'strategy_classes': (Periodic,),
