@@ -519,7 +519,7 @@ class GeneticAlgorithm:
         # TODO This needs to be average of the average
         for s in range(0, len(self.defender_population)):
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
-            mean_of_mean = [np.mean(m[:c+1]) for c, t in enumerate(m)]
+            mean_of_mean = [np.mean(m[max(0, (c+1-int(len(self.defender_benefit)/10))):c+1]) for c, t in enumerate(m)]
             plt.plot(mean_of_mean, c=colors[s])
             # plt.plot([def_equilibrium[s]] * len(self.defender_population[s]), c=colors[s])
 
@@ -574,7 +574,7 @@ class GeneticAlgorithm:
         # TODO This needs to be average of the average
         for s in range(0, len(self.attacker_population)):
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
-            mean_of_mean = [np.mean(m[:c + 1]) for c, t in enumerate(m)]
+            mean_of_mean = [np.mean(m[max(0, (c+1-int(len(self.defender_benefit)/10))):c + 1]) for c, t in enumerate(m)]
             plt.plot(mean_of_mean, c=colors[s])
             # plt.plot([att_equilibrium[s]] * len(self.attacker_population[s]), c=colors[s])
 

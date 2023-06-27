@@ -688,13 +688,13 @@ class MultiobjectiveRandomBitClimber:
         # TODO This needs to be average of the average
         for s in range(0, len(self.defender_population)):
             if self.ea_properties['plot_parent']:
-                mean_parent = [np.mean(self.defender_parent_rate[s][:c+1]) for c, t in enumerate(self.defender_parent_rate[s])]
+                mean_parent = [np.mean(self.defender_parent_rate[s][max(0, (c+1-int(len(self.defender_benefit)/10))):c+1]) for c, t in enumerate(self.defender_parent_rate[s])]
                 plt.plot(mean_parent, c=colors[s], linestyle='--', linewidth=0.625)
             if self.ea_properties['plot_child']:
-                mean_child = [np.mean(self.defender_child_rate[s][:c+1]) for c, t in enumerate(self.defender_child_rate[s])]
+                mean_child = [np.mean(self.defender_child_rate[s][max(0, (c+1-int(len(self.defender_benefit)/10))):c+1]) for c, t in enumerate(self.defender_child_rate[s])]
                 plt.plot(mean_child, c=colors[s], linestyle=':', linewidth=0.625)
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
-            mean_of_mean = [np.mean(m[:c+1]) for c, t in enumerate(m)]
+            mean_of_mean = [np.mean(m[max(0, (c+1-int(len(self.defender_benefit)/10))):c+1]) for c, t in enumerate(m)]
             plt.plot(mean_of_mean, c=colors[s])
             # plt.plot([def_equilibrium[s]] * len(self.defender_population[s]), c=colors[s])
 
@@ -785,13 +785,13 @@ class MultiobjectiveRandomBitClimber:
         # TODO This needs to be average of the average
         for s in range(0, len(self.attacker_population)):
             if self.ea_properties['plot_parent']:
-                mean_parent = [np.mean(self.attacker_parent_rate[s][:c+1]) for c, t in enumerate(self.attacker_parent_rate[s])]
+                mean_parent = [np.mean(self.attacker_parent_rate[s][max(0, (c+1-int(len(self.defender_benefit)/10))):c+1]) for c, t in enumerate(self.attacker_parent_rate[s])]
                 plt.plot(mean_parent, c=colors[s], linestyle='--', linewidth=0.625)
             if self.ea_properties['plot_child']:
-                mean_child = [np.mean(self.attacker_child_rate[s][:c+1]) for c, t in enumerate(self.attacker_child_rate[s])]
+                mean_child = [np.mean(self.attacker_child_rate[s][max(0, (c+1-int(len(self.defender_benefit)/10))):c+1]) for c, t in enumerate(self.attacker_child_rate[s])]
                 plt.plot(mean_child, c=colors[s], linestyle=':', linewidth=0.625)
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
-            mean_of_mean = [np.mean(m[:c + 1]) for c, t in enumerate(m)]
+            mean_of_mean = [np.mean(m[max(0, (c+1-int(len(self.defender_benefit)/10))):c + 1]) for c, t in enumerate(m)]
             plt.plot(mean_of_mean, c=colors[s])
             # plt.plot([att_equilibrium[s]] * len(self.attacker_population[s]), c=colors[s])
 
