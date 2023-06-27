@@ -26,6 +26,8 @@ ea_properties = {
     'force_strategy_count_plot': True,
     'plot_resets': True,
     'plot_replacements': True,
+    'plot_parent': False,
+    'plot_child': False,
     'print_out': False
 }
 

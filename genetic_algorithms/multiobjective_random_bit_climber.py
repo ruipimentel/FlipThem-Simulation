@@ -67,8 +67,32 @@ class MultiobjectiveRandomBitClimber:
         the `NDArray` shape is `(generations, number_of_players)`.
         """
 
+        self.defender_parent_rate: Dict[int, List[float]] = {}
+        """
+        For each server, holds a list of the defender parent rate by generation.
+        """
+        self.attacker_parent_rate: Dict[int, List[float]] = {}
+        """
+        For each server, holds a list of the attacker parent rate by generation.
+        """
+
+        self.defender_child_rate: Dict[int, List[float]] = {}
+        """
+        For each server, holds a list of the defender child rate by generation.
+        """
+        self.attacker_child_rate: Dict[int, List[float]] = {}
+        """
+        For each server, holds a list of the attacker child rate by generation.
+        """
+
         self.defender_benefit: (List[float] | NDArray[float]) = []
         self.attacker_benefit: (List[float] | NDArray[float]) = []
+
+        self.defender_parent_benefit: List[float] = []
+        self.attacker_parent_benefit: List[float] = []
+
+        self.defender_child_benefit: List[float] = []
+        self.attacker_child_benefit: List[float] = []
 
         # self.def_benefit_average = []
         # self.att_benefit_average = []
@@ -78,6 +102,12 @@ class MultiobjectiveRandomBitClimber:
 
         self.def_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
         self.att_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
+
+        self.defender_parent_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
+        self.attacker_parent_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
+
+        self.defender_child_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
+        self.attacker_child_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]] = {}
 
         self.mutation_probability: float = 0
 
@@ -169,22 +199,34 @@ class MultiobjectiveRandomBitClimber:
         for s in range(0, self.number_of_servers):
 
             self.defender_population[s] = []
+            self.defender_parent_rate[s] = []
+            self.defender_child_rate[s] = []
             self.attacker_population[s] = []
+            self.attacker_parent_rate[s] = []
+            self.attacker_child_rate[s] = []
 
             self.def_strategy_count[s] = {}
+            self.defender_parent_strategy_count[s] = {}
+            self.defender_child_strategy_count[s] = {}
             self.att_strategy_count[s] = {}
+            self.attacker_parent_strategy_count[s] = {}
+            self.attacker_child_strategy_count[s] = {}
 
             if self.defender_ea_properties.get('strategy_classes') is None:
                 continue
             else:
                 for strategy in self.defender_ea_properties['strategy_classes']:
                     self.def_strategy_count[s][strategy] = []
+                    self.defender_parent_strategy_count[s][strategy] = []
+                    self.defender_child_strategy_count[s][strategy] = []
 
             if self.attacker_ea_properties.get('strategy_classes') is None:
                 continue
             else:
                 for strategy in self.attacker_ea_properties['strategy_classes']:
                     self.att_strategy_count[s][strategy] = []
+                    self.attacker_parent_strategy_count[s][strategy] = []
+                    self.attacker_child_strategy_count[s][strategy] = []
 
     def run(self, number_of_rounds: int, file_write: int = 0) -> None:
 
@@ -338,7 +380,15 @@ class MultiobjectiveRandomBitClimber:
                 parent_attacker_bits_flipped = 0     # Because there's a new parent and a new order.
 
             # Updates plot data with the best results so far:
-            self.update_plot_data(archive_defender[-1]['results'], archive_attacker[-1]['results'], i)
+            self.update_plot_data(
+                archive_defender[-1]['results'],
+                parent_defender['results'],
+                child_defender['results'],
+                archive_attacker[-1]['results'],
+                parent_attacker['results'],
+                child_attacker['results'],
+                i,
+            )
 
             ################################################################################
             #                                                                              #
@@ -430,7 +480,11 @@ class MultiobjectiveRandomBitClimber:
     def update_plot_data(
         self,
         sorted_defender_results: List[Tuple[Player, float]],
+        sorted_defender_parent_results: List[Tuple[Player, float]],
+        sorted_defender_child_results: List[Tuple[Player, float]],
         sorted_attacker_results: List[Tuple[Player, float]],
+        sorted_attacker_parent_results: List[Tuple[Player, float]],
+        sorted_attacker_child_results: List[Tuple[Player, float]],
         iterations: int,
     ) -> None:
 
@@ -443,6 +497,8 @@ class MultiobjectiveRandomBitClimber:
                 s,
                 iterations,
             )
+            self.defender_parent_rate[s].append(sorted_defender_parent_results[-1][0].get_strategy_rate(s))
+            self.defender_child_rate[s].append(sorted_defender_child_results[-1][0].get_strategy_rate(s))
 
             # Updates the list of attacker rates on this server:
             self.update_sorted_player_rates_for_server(
@@ -451,11 +507,27 @@ class MultiobjectiveRandomBitClimber:
                 s,
                 iterations,
             )
+            self.attacker_parent_rate[s].append(sorted_attacker_parent_results[-1][0].get_strategy_rate(s))
+            self.attacker_child_rate[s].append(sorted_attacker_child_results[-1][0].get_strategy_rate(s))
 
             # Updates the defender strategy-class count on this server:
             self.update_player_strategy_count_for_server(
                 self.def_strategy_count,
                 sorted_defender_results,
+                self.defender_ea_properties,
+                s,
+                iterations,
+            )
+            self.update_player_strategy_count_for_server(
+                self.defender_parent_strategy_count,
+                sorted_defender_parent_results,
+                self.defender_ea_properties,
+                s,
+                iterations,
+            )
+            self.update_player_strategy_count_for_server(
+                self.defender_child_strategy_count,
+                sorted_defender_child_results,
                 self.defender_ea_properties,
                 s,
                 iterations,
@@ -469,6 +541,20 @@ class MultiobjectiveRandomBitClimber:
                 s,
                 iterations,
             )
+            self.update_player_strategy_count_for_server(
+                self.attacker_parent_strategy_count,
+                sorted_attacker_parent_results,
+                self.attacker_ea_properties,
+                s,
+                iterations,
+            )
+            self.update_player_strategy_count_for_server(
+                self.attacker_child_strategy_count,
+                sorted_attacker_child_results,
+                self.attacker_ea_properties,
+                s,
+                iterations,
+            )
 
         self.defender_benefit = self.concatenate_player_benefit(
             [[x[1] for x in sorted_defender_results]],
@@ -476,6 +562,8 @@ class MultiobjectiveRandomBitClimber:
         )
         if self.defender_benefit.shape[0] > iterations + 1:
             raise Exception(f'Number of arrays ({self.defender_benefit.shape[0]}) greater than the number of generations ({iterations + 1})')
+        self.defender_parent_benefit.append(sorted_defender_parent_results[-1][1])
+        self.defender_child_benefit.append(sorted_defender_child_results[-1][1])
 
         self.attacker_benefit = self.concatenate_player_benefit(
             [[x[1] for x in sorted_attacker_results]],
@@ -483,6 +571,8 @@ class MultiobjectiveRandomBitClimber:
         )
         if self.attacker_benefit.shape[0] > iterations + 1:
             raise Exception(f'Number of arrays ({self.attacker_benefit.shape[0]}) greater than the number of generations ({iterations + 1})')
+        self.attacker_parent_benefit.append(sorted_attacker_parent_results[-1][1])
+        self.attacker_child_benefit.append(sorted_attacker_child_results[-1][1])
 
     def update_sorted_player_rates_for_server(
         self,
@@ -592,6 +682,12 @@ class MultiobjectiveRandomBitClimber:
                 plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         # TODO This needs to be average of the average
         for s in range(0, len(self.defender_population)):
+            if self.ea_properties['plot_parent']:
+                mean_parent = [np.mean(self.defender_parent_rate[s][:c+1]) for c, t in enumerate(self.defender_parent_rate[s])]
+                plt.plot(mean_parent, c=colors[s], linestyle='--', linewidth=0.625)
+            if self.ea_properties['plot_child']:
+                mean_child = [np.mean(self.defender_child_rate[s][:c+1]) for c, t in enumerate(self.defender_child_rate[s])]
+                plt.plot(mean_child, c=colors[s], linestyle=':', linewidth=0.625)
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
             mean_of_mean = [np.mean(m[:c+1]) for c, t in enumerate(m)]
             plt.plot(mean_of_mean, c=colors[s])
@@ -608,6 +704,10 @@ class MultiobjectiveRandomBitClimber:
             for iteration in self.defender_replacements:
                 plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         for s in range(0, len(self.defender_population)):
+            if self.ea_properties['plot_parent']:
+                plt.plot(self.defender_parent_rate[s], c=colors[s], linestyle='--', linewidth=0.625)
+            if self.ea_properties['plot_child']:
+                plt.plot(self.defender_child_rate[s], c=colors[s], linestyle=':', linewidth=0.625)
             m = np.mean(self.defender_population[s][:, 0:self.def_keep_number], axis=1)
             plt.plot(m, c=colors[s])
             # plt.plot([def_equilibrium[s]] * len(self.defender_population[s]), c=colors[s])
@@ -631,6 +731,10 @@ class MultiobjectiveRandomBitClimber:
             plt.plot([self.defender_ea_properties['number_of_players']] * len(self.defender_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.def_strategy_count)):
                 for counter, p in enumerate(self.def_strategy_count[s]):
+                    if self.ea_properties['plot_parent']:
+                        plt.plot(self.defender_parent_strategy_count[s][p], c=colors[counter], linestyle='--', linewidth=0.625)
+                    if self.ea_properties['plot_child']:
+                        plt.plot(self.defender_child_strategy_count[s][p], c=colors[counter], linestyle=':', linewidth=0.625)
                     plt.plot(self.def_strategy_count[s][p], c=colors[counter], label=p.__name__)
             plt.legend()
 
@@ -647,6 +751,10 @@ class MultiobjectiveRandomBitClimber:
         if self.ea_properties['plot_replacements']:
             for iteration in self.defender_replacements:
                 plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
+        if self.ea_properties['plot_parent']:
+            plt.plot(self.defender_parent_benefit, 'b', linestyle='--', linewidth=0.625)
+        if self.ea_properties['plot_child']:
+            plt.plot(self.defender_child_benefit, 'b', linestyle=':', linewidth=0.625)
         defender_benefit_mean = np.mean(self.defender_benefit, axis=1)
         plt.plot(defender_benefit_mean, 'b')
         # plt.plot([def_reward] * len(self.defender_benefit), 'b')
@@ -671,6 +779,12 @@ class MultiobjectiveRandomBitClimber:
                 plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         # TODO This needs to be average of the average
         for s in range(0, len(self.attacker_population)):
+            if self.ea_properties['plot_parent']:
+                mean_parent = [np.mean(self.attacker_parent_rate[s][:c+1]) for c, t in enumerate(self.attacker_parent_rate[s])]
+                plt.plot(mean_parent, c=colors[s], linestyle='--', linewidth=0.625)
+            if self.ea_properties['plot_child']:
+                mean_child = [np.mean(self.attacker_child_rate[s][:c+1]) for c, t in enumerate(self.attacker_child_rate[s])]
+                plt.plot(mean_child, c=colors[s], linestyle=':', linewidth=0.625)
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
             mean_of_mean = [np.mean(m[:c + 1]) for c, t in enumerate(m)]
             plt.plot(mean_of_mean, c=colors[s])
@@ -687,6 +801,10 @@ class MultiobjectiveRandomBitClimber:
             for iteration in self.attacker_replacements:
                 plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
         for s in range(0, len(self.attacker_population)):
+            if self.ea_properties['plot_parent']:
+                plt.plot(self.attacker_parent_rate[s], c=colors[s], linestyle='--', linewidth=0.625)
+            if self.ea_properties['plot_child']:
+                plt.plot(self.attacker_child_rate[s], c=colors[s], linestyle=':', linewidth=0.625)
             m = np.mean(self.attacker_population[s][:, 0:self.att_keep_number], axis=1)
             plt.plot(m, c=colors[s])
             # plt.plot([att_equilibrium[s]] * len(self.attacker_population[s]), c=colors[s])
@@ -709,6 +827,10 @@ class MultiobjectiveRandomBitClimber:
             plt.plot([self.attacker_ea_properties['number_of_players']] * len(self.attacker_benefit), color='gray', linestyle='dashed', linewidth=0.5)
             for s in range(0, len(self.att_strategy_count)):
                 for counter, p in enumerate(self.att_strategy_count[s]):
+                    if self.ea_properties['plot_parent']:
+                        plt.plot(self.attacker_parent_strategy_count[s][p], c=colors[counter], linestyle='--', linewidth=0.625)
+                    if self.ea_properties['plot_child']:
+                        plt.plot(self.attacker_child_strategy_count[s][p], c=colors[counter], linestyle=':', linewidth=0.625)
                     plt.plot(self.att_strategy_count[s][p], c=colors[counter], label=p.__name__)
             plt.legend()
         else:
@@ -724,6 +846,10 @@ class MultiobjectiveRandomBitClimber:
         if self.ea_properties['plot_replacements']:
             for iteration in self.attacker_replacements:
                 plt.axvline(x=iteration, color='lightgreen', linestyle=':', linewidth=0.5)
+        if self.ea_properties['plot_parent']:
+            plt.plot(self.attacker_parent_benefit, 'r', linestyle='--', linewidth=0.625)
+        if self.ea_properties['plot_child']:
+            plt.plot(self.attacker_child_benefit, 'r', linestyle=':', linewidth=0.625)
         attacker_benefit_mean = np.mean(self.attacker_benefit, axis=1)
         plt.plot(attacker_benefit_mean, 'r')
         # plt.plot([att_reward] * len(self.attacker_benefit), 'r')
