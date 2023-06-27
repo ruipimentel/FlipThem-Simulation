@@ -28,6 +28,8 @@ ea_properties = {
     'plot_replacements': True,
     'plot_parent': False,
     'plot_child': False,
+    'save_plot_to_file': True,
+    'show_plot': True,
     'print_out': False
 }
 

@@ -27,6 +27,8 @@ ea_properties = {
     'defender_update': True,
     'attacker_update': True,
     'force_strategy_count_plot': True,
+    'save_plot_to_file': True,
+    'show_plot': True,
     'print_out': False
 }
 

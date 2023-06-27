@@ -13,10 +13,12 @@ import reward_functions
 import time
 import pickle
 import random
+from datetime import datetime
 
 from util.pareto_dominance import *
 from util.bitstring import *
 from util.timing import *
+from util.classes import *
 from core.tournament import Tournament
 from strategies.player import Player
 
@@ -871,7 +873,16 @@ class MultiobjectiveRandomBitClimber:
         plt.suptitle(f"moRBC(1+1) — {resets} — {replacements} — {rate_length}\n{generic_information}")
 
         fig.tight_layout()
-        plt.show()
+
+        if self.ea_properties['save_plot_to_file']:
+            datetime_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            defender_class_list = strategy_classes_to_str(self.defender_ea_properties['strategy_classes'])
+            attacker_class_list = strategy_classes_to_str(self.attacker_ea_properties['strategy_classes'])
+            filename = f'out/{datetime_string}_{defender_class_list}_{attacker_class_list}_moRBC_{len(self.defender_benefit)}.png'
+            self.create_directory(filename)
+            plt.savefig(filename, dpi=300)
+        if self.ea_properties['show_plot']:
+            plt.show()
 
     def plot_variance_stats(self, start_time: float = 0, end_time: float = 0) -> None:
 
@@ -975,7 +986,8 @@ class MultiobjectiveRandomBitClimber:
 
     def create_directory(self, directory: str) -> None:
 
-        if not os.path.exists(directory):
+        directory = os.path.dirname(directory)
+        if directory != '' and not os.path.exists(directory):
             os.makedirs(directory)
 
     def write_info_files(self) -> None:
