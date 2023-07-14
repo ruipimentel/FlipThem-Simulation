@@ -34,6 +34,7 @@ ea_properties = {
 }
 
 defender_ea_properties = {
+    'read_bitstring_as_graycode': False,
     'rate_bitstring_length': 7,
     'name': "Defender ",
     'number_of_players': 1,
@@ -43,6 +44,7 @@ defender_ea_properties = {
 }
 # #
 attacker_ea_properties = {
+    'read_bitstring_as_graycode': False,
     'rate_bitstring_length': 7,
     # 'fixed_rate': 1.65,
     'name': "Attacker ",

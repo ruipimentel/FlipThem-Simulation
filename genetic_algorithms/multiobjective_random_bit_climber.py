@@ -176,13 +176,14 @@ class MultiobjectiveRandomBitClimber:
             for server in range(0, number_of_servers):
                 strategy_class = 0 if strategy_bits == 0 else read_bitstring(bitstring[
                     server*server_bitstring_length : server*server_bitstring_length + strategy_bits
-                ])
+                ], as_graycode=player_ea_properties['read_bitstring_as_graycode'])
                 strategy_rate = read_bitstring(
                     bitstring[
                         server*server_bitstring_length + strategy_bits : server*server_bitstring_length + strategy_bits + rate_bits
                     ],
                     player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['lower_bound'],
                     player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['upper_bound'],
+                    player_ea_properties['read_bitstring_as_graycode'],
                 )
                 strategy_list.append(player_ea_properties.get('strategy_classes')[
                     strategy_class % number_of_strategies
