@@ -26,6 +26,7 @@ ea_properties = {
     'lower_bound': 0.1,
     'defender_update': True,
     'attacker_update': True,
+    'plot_elite_rates_only': False,
     'force_strategy_count_plot': True,
     'save_plot_to_file': True,
     'show_plot': True,
