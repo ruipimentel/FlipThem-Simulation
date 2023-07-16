@@ -34,6 +34,9 @@ ea_properties = {
 }
 
 defender_ea_properties = {
+    # 'avg_rate_hlines': [0.625,],
+    # 'rate_hlines': [0.625,],
+    # 'benefit_hlines': [0.25,],
     'name': "Defender ",
     'number_of_players': 50,
     'strategy_classes': (Periodic,),
@@ -42,6 +45,9 @@ defender_ea_properties = {
 }
 # #
 attacker_ea_properties = {
+    # 'avg_rate_hlines': [0.625,],
+    # 'rate_hlines': [0.625,],
+    # 'benefit_hlines': [0.25,],
     # 'fixed_rate': 1.65,
     'name': "Attacker ",
     'number_of_players': 50,

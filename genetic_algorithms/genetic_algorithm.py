@@ -506,6 +506,8 @@ class GeneticAlgorithm:
             end_time = len(self.defender_benefit)
         fig = plt.figure(figsize=(15, 9))
 
+        # ========== Defender plots: ==========
+
         if self.ea_properties['force_strategy_count_plot'] \
             or len(self.defender_ea_properties['strategy_classes']) > 1 \
             or len(self.attacker_ea_properties['strategy_classes']) > 1:
@@ -518,6 +520,8 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate (average)')
         plt.title('Defender\'s Average Rate Over Time')
+        if 'avg_rate_hlines' in self.defender_ea_properties:
+            [ plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5) for y in self.defender_ea_properties['avg_rate_hlines'] ]
         # TODO This needs to be average of the average
         for s in range(0, len(self.defender_population)):
             m = np.mean(
@@ -532,6 +536,8 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate')
         plt.title('Defender\'s Rate Over Time')
+        if 'rate_hlines' in self.defender_ea_properties:
+            [ plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5) for y in self.defender_ea_properties['rate_hlines'] ]
         for s in range(0, len(self.defender_population)):
             m = np.mean(
                 self.defender_population[s][:, 0:self.def_keep_number] if self.ea_properties['plot_elite_rates_only'] else self.defender_population[s],
@@ -563,9 +569,13 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Fitness')
         plt.title('Defender\'s Fitness Over Time')
+        if 'benefit_hlines' in self.defender_ea_properties:
+            [ plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5) for y in self.defender_ea_properties['benefit_hlines'] ]
         defender_benefit_mean = np.mean(self.defender_benefit, axis=1)
         plt.plot(defender_benefit_mean, 'b')
         # plt.plot([def_reward] * len(self.defender_benefit), 'b')
+
+        # ========== Attacker plots: ==========
 
         if self.ea_properties['force_strategy_count_plot'] \
             or len(self.defender_ea_properties['strategy_classes']) > 1 \
@@ -579,6 +589,8 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate (average)')
         plt.title('Attacker\'s Average Rate Over Time')
+        if 'avg_rate_hlines' in self.attacker_ea_properties:
+            [ plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5) for y in self.attacker_ea_properties['avg_rate_hlines'] ]
         # TODO This needs to be average of the average
         for s in range(0, len(self.attacker_population)):
             m = np.mean(
@@ -593,6 +605,8 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Rate')
         plt.title('Attacker\'s Rate Over Time')
+        if 'rate_hlines' in self.attacker_ea_properties:
+            [ plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5) for y in self.attacker_ea_properties['rate_hlines'] ]
         for s in range(0, len(self.attacker_population)):
             m = np.mean(
                 self.attacker_population[s][:, 0:self.att_keep_number] if self.ea_properties['plot_elite_rates_only'] else self.attacker_population[s],
@@ -622,6 +636,8 @@ class GeneticAlgorithm:
         plt.xlabel('Time (iterations)')
         plt.ylabel('Fitness')
         plt.title('Attacker\'s Fitness Over Time')
+        if 'benefit_hlines' in self.attacker_ea_properties:
+            [ plt.axhline(y=y, color='gray', linestyle=':', linewidth=0.5) for y in self.attacker_ea_properties['benefit_hlines'] ]
         attacker_benefit_mean = np.mean(self.attacker_benefit, axis=1)
         plt.plot(attacker_benefit_mean, 'r')
         # plt.plot([att_reward] * len(self.attacker_benefit), 'r')
