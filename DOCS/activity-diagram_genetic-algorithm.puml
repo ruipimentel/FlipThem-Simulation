@@ -5,9 +5,9 @@ title GeneticAlgorithm usage overview
 start
 
 #lightblue:ga = GeneticAlgorithm(
-  defenders=defender_ga_properties,
-  attackers=attacker_ga_properties,
-  ga_properties=ga_properties,
+  defenders=defender_ea_properties,
+  attackers=attacker_ea_properties,
+  ea_properties=ea_properties,
   tournament_properties=tournament_properties,
 )]
 
@@ -28,19 +28,19 @@ start
 floating note right: \
 defenders: (Dict | Tuple[Player, ...] | None) = None, \n\
 attackers: (Dict | Tuple[Player, ...] | None) = None, \n\
-ga_properties: (Dict | None) = None, \n\
+ea_properties: (Dict | None) = None, \n\
 tournament_properties: (Dict | None) = None, \n\
 game_properties: (Dict | None) = None
 
-:self.ga_properties = ga_properties]
+:self.ea_properties = ea_properties]
 
 if (defenders is None) then (True)
   :print("Blank genetic_algorithms \n created (for now)");
 else (False)
-  #lightblue:self.defender_ga_properties, self.defenders = \n self.initialize_players(defenders, attackers)]
-  #lightblue:self.attacker_ga_properties, self.attackers = \n self.initialize_players(attackers, attackers)]
-  if (len(self.attacker_ga_properties['move_costs']) == \n len(self.defender_ga_properties['move_costs'])) then (True)
-    :self.number_of_servers = \n len(self.attacker_ga_properties['move_costs'])]
+  #lightblue:self.defender_ea_properties, self.defenders = \n self.initialize_players(defenders, attackers)]
+  #lightblue:self.attacker_ea_properties, self.attackers = \n self.initialize_players(attackers, attackers)]
+  if (len(self.attacker_ea_properties['move_costs']) == \n len(self.defender_ea_properties['move_costs'])) then (True)
+    :self.number_of_servers = \n len(self.attacker_ea_properties['move_costs'])]
   else (False)
     :raise ValueError("Number of move costs \n for defender and attacker not equal");
     kill
@@ -107,22 +107,22 @@ title GeneticAlgorithm.generate_players
 
 start
 floating note right: \
-player_ga_properties: Dict, \n\
+player_ea_properties: Dict, \n\
 **returns** Tuple[Player, ...]
 
 :
 <color:green>player_list</color> = List()
-number_of_players = player_ga_properties.get('number_of_players')
+number_of_players = player_ea_properties.get('number_of_players')
 ]
 while (for i in range(0, number_of_players))
   :<color:salmon>strategy_list</color> = List()]
   :
-  number_of_strategies = len(player_ga_properties.get('strategy_classes'))
-  number_of_servers = len(player_ga_properties.get('move_costs'))
+  number_of_strategies = len(player_ea_properties.get('strategy_classes'))
+  number_of_servers = len(player_ea_properties.get('move_costs'))
   ]
   while (for server in range(0, number_of_servers))
     :<color:salmon>strategy_list</color>.append(
-      player_ga_properties.get('strategy_classes')[
+      player_ea_properties.get('strategy_classes')[
         np.random.randint(0, number_of_strategies)
       ](np.random.uniform(
         player_ea_properties['fixed_rate'] if 'fixed_rate' in player_ea_properties else self.ea_properties['lower_bound'],
@@ -131,10 +131,10 @@ while (for i in range(0, number_of_players))
     );
   endwhile (end)
 
-  :<color:purple>player_properties</color> = {"move_costs": player_ga_properties['move_costs']} ]
+  :<color:purple>player_properties</color> = {"move_costs": player_ea_properties['move_costs']} ]
 
   :<color:green>player_list</color>.append(Player(
-    player_ga_properties.get('name') + str(i),
+    player_ea_properties.get('name') + str(i),
     player_properties=copy(<color:purple>player_properties</color>),
     strategies=tuple(<color:salmon>strategy_list</color>)
   ));
@@ -188,20 +188,20 @@ while (for i in range(round_start, number_of_rounds + round_start))
   )
   ]
 
-  if (len(self.defenders) > 1 and self.ga_properties['defender_update']) then (True)
+  if (len(self.defenders) > 1 and self.ea_properties['defender_update']) then (True)
     #lightblue:self.create_new_generation(
       sorted_defender_results,
       self.def_keep_number,
-      self.defender_ga_properties,
+      self.defender_ea_properties,
       i,
     );
   endif
 
-  if (len(self.attackers) > 1 and self.ga_properties['attacker_update']) then (True)
+  if (len(self.attackers) > 1 and self.ea_properties['attacker_update']) then (True)
     #lightblue:self.create_new_generation(
       sorted_attacker_results,
       self.att_keep_number,
-      self.attacker_ga_properties,
+      self.attacker_ea_properties,
       i,
     );
   endif
@@ -221,7 +221,7 @@ start
 floating note right: \
 <color:purple>sorted_results</color>: List[Tuple[Player, float]], \n\
 keep_number: int, \n\
-player_ga_properties: Dict, \n\
+player_ea_properties: Dict, \n\
 round: int, \n\
 
 #lightblue:
@@ -260,7 +260,7 @@ while (for <color:purple>result</color> in <color:purple>sorted_results</color>[
   endwhile (end)
 endwhile (end)
 
-:probability = self.ga_properties['mutation_rate'] * len(<color:purple>sorted_results</color>)]
+:probability = self.ea_properties['mutation_rate'] * len(<color:purple>sorted_results</color>)]
 
 if (probability > 1.0) then (True)
   :raise ValueError("Mutation Rate too high");
@@ -273,14 +273,14 @@ while (for n in range(0, self.number_of_servers))
     :
     mut = np.random.randint(self.att_keep_number, len(<color:purple>sorted_results</color>))
     serv = np.random.randint(0, self.number_of_servers)
-    strategy_class = player_ga_properties['strategy_classes'][
-      np.random.randint(0, len(player_ga_properties['strategy_classes']))
+    strategy_class = player_ea_properties['strategy_classes'][
+      np.random.randint(0, len(player_ea_properties['strategy_classes']))
     ] ]
     :<color:purple>sorted_results</color>[mut][0].update_strategy(
       serv,
       strategy_class(np.random.uniform(
-        self.ga_properties['lower_bound'],
-        self.ga_properties['upper_bound'],
+        self.ea_properties['lower_bound'],
+        self.ea_properties['upper_bound'],
       ))
     );
   else (False)
