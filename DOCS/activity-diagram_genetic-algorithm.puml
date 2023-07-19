@@ -171,7 +171,7 @@ while (for i in range(round_start, number_of_rounds + round_start))
     tournament_properties=self.tournament_properties,
   ) ]
 
-  #lightblue:t.play_tournament();
+  #lightblue:self.games_played += t.play_tournament() ]
 
   :
   defender_results = list(t.get_mean_defense().items())

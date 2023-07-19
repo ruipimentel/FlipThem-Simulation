@@ -13,7 +13,7 @@ namespace core {
     + {field} mean_attacker_results: Dict[Player, Dict[Player, Tuple[float, float]]]
     + __init__(defender_strategies: (Tuple[Player, ...] | None) = None, attacker_strategies: (Tuple[Player, ...] | None) = None, tournament_properties: Dict = None)
     + play_games(players: Tuple[Player, Player]): Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]
-    + play_tournament(): None
+    + play_tournament(): int
     + get_mean_defense(): Dict[Player, float]
     + get_mean_attack(): Dict[Player, float]
   }
@@ -107,6 +107,7 @@ namespace genetic_algorithms {
     + {field} def_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]]
     + {field} att_strategy_count: Dict[int, Dict[ServerStrategy, List[int]]]
     + {field} mutation_probability: float
+    + {field} games_played: int
     + __init__(defenders: (Dict | Tuple[Player, ...] | None) = None, attackers: (Dict | Tuple[Player, ...] | None) = None, ga_properties: (Dict | None) = None, tournament_properties: (Dict | None) = None, game_properties: (Dict | None) = None)
     + initialize_players(players: (Dict | Tuple[Player, ...]), attackers: (Dict | Tuple[Player, ...])): Tuple[Dict, Tuple[Player, ...]]
     + generate_players(player_ga_properties: Dict): Tuple[Player, ...]
